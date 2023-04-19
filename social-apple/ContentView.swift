@@ -19,6 +19,11 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             List {
+                NavigationLink {
+                    BeginPage()
+                } label: {
+                    Text("Begin")
+                }
                 ForEach(items) { item in
                     NavigationLink {
                         Text("Item at \(item.timestamp!, formatter: itemFormatter)")
