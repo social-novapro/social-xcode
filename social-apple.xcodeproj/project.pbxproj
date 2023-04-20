@@ -20,6 +20,8 @@
 		655AB62829F0778300C61F3A /* UserLoginData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655AB62729F0778300C61F3A /* UserLoginData.swift */; };
 		655AB62A29F080CB00C61F3A /* UserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655AB62929F080CB00C61F3A /* UserView.swift */; };
 		655AB62C29F0E25600C61F3A /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655AB62B29F0E25600C61F3A /* HomeView.swift */; };
+		655AB62E29F0EDD900C61F3A /* PostData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655AB62D29F0EDD900C61F3A /* PostData.swift */; };
+		655AB63029F19B0A00C61F3A /* ErrorData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655AB62F29F19B0A00C61F3A /* ErrorData.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,6 +40,8 @@
 		655AB62729F0778300C61F3A /* UserLoginData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLoginData.swift; sourceTree = "<group>"; };
 		655AB62929F080CB00C61F3A /* UserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserView.swift; sourceTree = "<group>"; };
 		655AB62B29F0E25600C61F3A /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		655AB62D29F0EDD900C61F3A /* PostData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostData.swift; sourceTree = "<group>"; };
+		655AB62F29F19B0A00C61F3A /* ErrorData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorData.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,6 +109,8 @@
 			children = (
 				655AB62029F0728A00C61F3A /* UserData.swift */,
 				655AB62729F0778300C61F3A /* UserLoginData.swift */,
+				655AB62D29F0EDD900C61F3A /* PostData.swift */,
+				655AB62F29F19B0A00C61F3A /* ErrorData.swift */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -191,6 +197,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				655AB62129F0728A00C61F3A /* UserData.swift in Sources */,
+				655AB62E29F0EDD900C61F3A /* PostData.swift in Sources */,
 				655AB62329F0740B00C61F3A /* BeginPage.swift in Sources */,
 				655AB62829F0778300C61F3A /* UserLoginData.swift in Sources */,
 				655AB61D29F0724000C61F3A /* API_Requests.swift in Sources */,
@@ -198,6 +205,7 @@
 				655AB62C29F0E25600C61F3A /* HomeView.swift in Sources */,
 				655AB60E29F0720500C61F3A /* social_apple.xcdatamodeld in Sources */,
 				655AB61029F0720500C61F3A /* ContentView.swift in Sources */,
+				655AB63029F19B0A00C61F3A /* ErrorData.swift in Sources */,
 				655AB62A29F080CB00C61F3A /* UserView.swift in Sources */,
 				655AB60B29F0720500C61F3A /* Persistence.swift in Sources */,
 				655AB62529F0741200C61F3A /* LoginPage.swift in Sources */,

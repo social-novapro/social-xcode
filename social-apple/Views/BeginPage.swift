@@ -9,7 +9,9 @@ import SwiftUI
 
 struct BeginPage: View {
     @State var userData: UserData?
+    @State var userLoginResponse: UserLoginResponse?
     @State var userDataLoaded:Bool = false;
+    @State var userTokens: UserTokenData?
     
     var body: some View {
         NavigationView {
@@ -18,19 +20,26 @@ struct BeginPage: View {
                 Text("Hello, world!")
                
                 if (!userDataLoaded) {
-                    LoginPage(onDone: { userDataInput in
+                    LoginPage(onDone: { userLoginResponseIn in
                         
-                        self.userData = userDataInput
+                        self.userLoginResponse = userLoginResponseIn;
+                        self.userData = userLoginResponseIn.publicData;
                         userDataLoaded = true;
-                        print(userDataInput)
+                        self.userTokens = UserTokenData(
+                            accessToken: userLoginResponseIn.accessToken,
+                            userToken: userLoginResponseIn.userToken,
+                            userID: userLoginResponseIn.userID
+                         )
+                        print(userLoginResponseIn)
                     })
                 } else {
-                    UserView(userData: $userData)
+                    UserView(
+                        userData: $userData,
+                         userTokenData: $userTokens
+                    )
                 }
             }
             .navigationTitle("Begin")
-            
         }
     }
-
 }

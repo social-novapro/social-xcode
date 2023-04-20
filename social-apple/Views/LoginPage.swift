@@ -9,7 +9,7 @@ import SwiftUI
 
 struct LoginPage: View {
     @State private var userLoginData: UserLoginResponse?
-    var onDone: (UserData) -> Void
+    var onDone: (UserLoginResponse) -> Void
 
     let api_requests = API_Rquests()
     @State private var username: String = ""
@@ -60,7 +60,7 @@ struct LoginPage: View {
                         case .success(let userLoginData):
                             self.userLoginData = userLoginData
                             self.shouldNavigate = true
-                            onDone(userLoginData.publicData)
+                            onDone(userLoginData)
                         case .failure(let error):
                             print("Error: \(error.localizedDescription)")
                         }

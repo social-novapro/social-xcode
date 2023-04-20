@@ -8,22 +8,22 @@
 import Foundation
 
 struct UserData: Decodable {
-    let _id: String
-    let __v: Int64
-    let creationTimestamp: String
-    let description: String
-    let displayName: String
-    let followerCount: Int64
-    let followingCount: Int64
-    let lastEditDisplayname: Int64
-    let lastEditUsername: Int64
-    let likeCount: Int64
-    let likedCount: Int64
-    let pronouns: String
-    let statusTitle: String
-    let totalPosts: Int64
-    let totalReplies: Int64
-    let username: String
+    var _id: String? = nil
+    var __v: Int64? = nil
+    var creationTimestamp: String? = nil
+    var description: String? = nil
+    var displayName: String? = nil
+    var followerCount: Int64? = nil
+    var followingCount: Int64? = nil
+    var lastEditDisplayname: Int64? = nil
+    var lastEditUsername: Int64? = nil
+    var likeCount: Int64? = nil
+    var likedCount: Int64? = nil
+    var pronouns: String? = nil
+    var statusTitle: String? = nil
+    var totalPosts: Int64? = nil
+    var totalReplies: Int64? = nil
+    var username: String? = nil
     
     private enum CodingKeys: String, CodingKey {
         case _id
