@@ -8,23 +8,29 @@
 import SwiftUI
 
 struct BeginPage: View {
+    @State var userData: UserData?
+    @State var userDataLoaded:Bool = false;
+    
     var body: some View {
         NavigationView {
 
             VStack {
                 Text("Hello, world!")
-                NavigationLink(destination: LoginPage()) {
-                    Text("Go to another view")
+               
+                if (!userDataLoaded) {
+                    LoginPage(onDone: { userDataInput in
+                        
+                        self.userData = userDataInput
+                        userDataLoaded = true;
+                        print(userDataInput)
+                    })
+                } else {
+                    UserView(userData: $userData)
                 }
             }
             .navigationTitle("Begin")
+            
         }
     }
 
-}
-
-struct Begin_Previews: PreviewProvider {
-    static var previews: some View {
-        BeginPage()
-    }
 }

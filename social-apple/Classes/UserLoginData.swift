@@ -33,3 +33,15 @@ struct UserLoginResponse: Decodable {
         case userID
     }
 }
+
+struct UserTokenData: Decodable, Encodable {
+    let accessToken: String
+    let userToken: String
+    let userID: String
+    
+    init (accessToken: String, userToken: String, userID: String) {
+        self.accessToken = accessToken
+        self.userToken = userToken
+        self.userID = userID
+    }
+}

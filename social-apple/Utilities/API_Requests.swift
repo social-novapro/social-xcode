@@ -37,11 +37,11 @@ class API_Rquests {
         let url = URL(string: baseAPIurl + "/auth/userLogin")!
         var request = URLRequest(url: url)
         
-//        request.addValue("Bearer YOUR_ACCESS_TOKEN_HERE", forHTTPHeaderField: "Authorization")
-//        request.httpBody = try? JSONEncoder().encode(userLogin)
+        // request.httpBody = try? JSONEncoder().encode(userLogin)
+        
         request.addValue("token", forHTTPHeaderField: "apptoken")
         request.addValue("token", forHTTPHeaderField: "devtoken")
-        
+                
         request.addValue(userLogin.username, forHTTPHeaderField: "username")
         request.addValue(userLogin.password, forHTTPHeaderField: "password")
         

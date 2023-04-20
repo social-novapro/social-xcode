@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct UserView: View {
-    @Binding var userData: UserData
+    @Binding var userData: UserData?
     
     var body: some View {
-        Text(userData.username)
-        Text(userData.displayName)
+        Text(userData?.username ?? "Username")
+        Text(userData?.displayName ?? "displayname")
     }
 }
 

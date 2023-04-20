@@ -9,6 +9,7 @@ import SwiftUI
 
 struct LoginPage: View {
     @State private var userLoginData: UserLoginResponse?
+    var onDone: (UserData) -> Void
 
     let api_requests = API_Rquests()
     @State private var username: String = ""
@@ -59,6 +60,7 @@ struct LoginPage: View {
                         case .success(let userLoginData):
                             self.userLoginData = userLoginData
                             self.shouldNavigate = true
+                            onDone(userLoginData.publicData)
                         case .failure(let error):
                             print("Error: \(error.localizedDescription)")
                         }
@@ -74,14 +76,18 @@ struct LoginPage: View {
                  Text("Go to another view")
              }
              */
+//            NavigationLink(destination: Text("Success!"),isActive: $shouldNavigate) { //<- This will take it to rest
+//               EmptyView()
+//           }
+       
             
         }
         .navigationTitle("Log in")
     }
 }
 
-struct Login_Previews: PreviewProvider {
-    static var previews: some View {
-        LoginPage()
-    }
-}
+//struct Login_Previews: PreviewProvider {
+//    static var previews: some View {
+//        LoginPage()
+//    }
+//}
