@@ -10,11 +10,7 @@ import Foundation
 struct ErrorData : Decodable {
     let code: String
     let msg: String
-    
-//    private enum CodingKeys: String, CodingKey {
-//        case code
-//        case msg
-//    }
+
     init (code: String, msg: String) {
         self.code = code
         self.msg = msg
@@ -29,8 +25,4 @@ struct ErrorDataWithAuth: Decodable {
         self.authorized = authorized
         self.error = error
     }
-//    private enum CodingKeys: String, CodingKey {
-//        case authorized
-//        case error
-//    }
 }

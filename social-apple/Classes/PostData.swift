@@ -33,10 +33,6 @@ struct PostData: Decodable, Encodable {
         case quoteReplyID
     }
 }
-// used in /v1/get/allPosts
-//struct Response: Codeable {
-//    let allPosts: [AllPosts]
-//}
 
 struct AllPosts: Decodable {
     var typeData: TypeData

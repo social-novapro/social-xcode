@@ -9,10 +9,18 @@ import Foundation
 
 
 class API_Rquests {
+    var userTokenManager = UserTokenHandler()
+    var userTokens:UserTokenData?
+    
     let baseAPIurl = "https://interact-api.novapro.net/v1";
     let appToken = "token"
     let devToken = "token"
-
+    
+    init() {
+        userTokens = userTokenManager.getUserTokens()
+        print("userTokens: \(String(describing: userTokens))")
+    }
+    
     func getDataFromAPI(route: String, bodyData: Any, completion: @escaping (Result<Data, Error>) -> Void) {
         let url = URL(string: baseAPIurl + route)!
         var request = URLRequest(url: url)
@@ -80,21 +88,11 @@ class API_Rquests {
         }
         
         task.resume()
-        /*
-         
-         */
     }
-    func getAllPosts2() {
-//        let response = try JSONDecoder().decode(Response.self, from: jsonData)
-//               if let users = response.users {
-//                   print(users)
-//               }
-    }
+
     func getAllPosts(userTokens: UserTokenData, completion: @escaping (Result<[AllPosts], Error>) -> Void) {
         let url = URL(string: baseAPIurl + "/get/AllPosts")!
         var request = URLRequest(url: url)
-        
-        // request.httpBody = try? JSONEncoder().encode(userLogin)
         
         request.addValue(appToken, forHTTPHeaderField: "apptoken")
         request.addValue(devToken, forHTTPHeaderField: "devtoken")
@@ -102,6 +100,65 @@ class API_Rquests {
         request.addValue(userTokens.userToken, forHTTPHeaderField: "usertoken")
 
         request.addValue(userTokens.userID, forHTTPHeaderField: "userid")
+
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print ("ERROR ")
+                print(error)
+                // Handle error here
+                return
+            }
+            guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+                print(response!)
+                print(data!)
+                do {
+                    let error = try JSONDecoder().decode(ErrorDataWithAuth.self, from: data!)
+                    print("API error: \(error.error.msg), code: \(error.error.code)")
+                } catch {
+                    print("Error decoding API error: \(error.localizedDescription)")
+                }
+                print ("NOT 2XX result ")
+
+                return
+            }
+            guard let data = data else {
+                completion(.failure(NSError(domain: "com.example.error", code: 0, userInfo: nil)))
+                print ("data=data line ")
+
+                return
+            }
+            do {
+                let decoder = JSONDecoder()
+                let dataModel = try decoder.decode([AllPosts].self, from: data)
+                print ("DO AREWA")
+                print (dataModel)
+                completion(.success(dataModel))
+              } catch {
+                completion(.failure(error))
+              }
+        }
+        
+        task.resume()
+    }
+    
+    func handleError() {
+        
+    }
+    func getUserData(userID: String?, completion: @escaping (Result<UserData, Error>) -> Void) {
+        if ((userID == nil)) {
+            return 
+        }
+        
+        let url = URL(string: baseAPIurl + "/get/userByID/\(userID!)")!
+        var request = URLRequest(url: url)
+        
+        // request.httpBody = try? JSONEncoder().encode(userLogin)
+        
+        request.addValue(appToken, forHTTPHeaderField: "apptoken")
+        request.addValue(devToken, forHTTPHeaderField: "devtoken")
+        request.addValue(self.userTokens!.accessToken, forHTTPHeaderField: "accesstoken")
+        request.addValue(self.userTokens!.userToken, forHTTPHeaderField: "usertoken")
+        request.addValue(self.userTokens!.userID, forHTTPHeaderField: "userid")
 
 //        request.addValue(userLogin.username, forHTTPHeaderField: "username")
 //        request.addValue(userLogin.password, forHTTPHeaderField: "password")
@@ -113,9 +170,7 @@ class API_Rquests {
                 // Handle error here
                 return
             }
-            guard let httpResponse = response as? HTTPURLResponse,
-
-                  (200...299).contains(httpResponse.statusCode) else {
+            guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
                 print(response!)
                 print(data!)
                 do {
@@ -124,34 +179,27 @@ class API_Rquests {
                 } catch {
                     print("Error decoding API error: \(error.localizedDescription)")
                 }
-
-//                let decoder = JSONDecoder()
-//                let dataModel = try decoder.decode(ErrorDataWithAuth.self, from: data)
                 print ("NOT 2XX result ")
 
-                // Handle non-2xx status code here
                 return
             }
             guard let data = data else {
-                  completion(.failure(NSError(domain: "com.example.error", code: 0, userInfo: nil)))
+                completion(.failure(NSError(domain: "com.example.error", code: 0, userInfo: nil)))
                 print ("data=data line ")
 
-                  return
-              }
+                return
+            }
             do {
-                  let decoder = JSONDecoder()
-                  let dataModel = try decoder.decode([AllPosts].self, from: data)
+                let decoder = JSONDecoder()
+                let dataModel = try decoder.decode(UserData.self, from: data)
                 print ("DO AREWA")
                 print (dataModel)
-                  completion(.success(dataModel))
+                completion(.success(dataModel))
               } catch {
-                  completion(.failure(error))
+                completion(.failure(error))
               }
         }
         
         task.resume()
-        /*
-         
-         */
     }
 }

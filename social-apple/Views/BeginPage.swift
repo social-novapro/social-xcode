@@ -6,15 +6,26 @@
 //
 
 import SwiftUI
+import CoreData
 
 struct BeginPage: View {
+    @State var userTokenManager = UserTokenHandler()
     @State var userData: UserData?
     @State var userLoginResponse: UserLoginResponse?
     @State var userDataLoaded:Bool = false;
-    @State var userTokens: UserTokenData?
+    @State var userTokens:UserTokenData?
     
+    init() {
+        userTokens = userTokenManager.getUserTokens()
+        if (userTokens != nil) {
+            userDataLoaded = true
+        }
+        print("userTokens first: \(String(describing: userTokens))")
+    }
+
+
     var body: some View {
-        NavigationView {
+//        NavigationView {
 
             VStack {
                 Text("Hello, world!")
@@ -30,16 +41,25 @@ struct BeginPage: View {
                             userToken: userLoginResponseIn.userToken,
                             userID: userLoginResponseIn.userID
                          )
+                        userTokenManager.saveUserTokens(userTokenData: self.userTokens!)
+
                         print(userLoginResponseIn)
                     })
                 } else {
                     UserView(
-                        userData: $userData,
-                         userTokenData: $userTokens
+//                        userData: $userData,
+                        userTokenData: $userTokens
                     )
                 }
             }
+            .onAppear {
+                userDataLoaded = true
+                userTokens = userTokenManager.getUserTokens()
+                print("userTokens: \(String(describing: userTokens))")
+
+                
+           }
             .navigationTitle("Begin")
-        }
+//        }
     }
 }

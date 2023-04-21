@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 struct UserLoginData: Decodable, Encodable {
     let username: String
     let password: String
