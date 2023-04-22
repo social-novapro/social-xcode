@@ -22,12 +22,8 @@ struct LogoutView: View {
                     print("deleting pressed")
                     userTokenManager.deleteUserToken()
                     isLoggingOut = true
-//                    NavigationLink(destination: <#T##() -> _#>, label: <#T##() -> _#>)
                 }) {
                     Text("Log out")
-//                    NavigationLink(destination: BeginPage()) {
-//                        EmptyView()
-//                    }
                 }
             }
         }

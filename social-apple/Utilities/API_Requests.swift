@@ -14,13 +14,13 @@ class API_Rquests {
     
     let baseAPIurl = "https://interact-api.novapro.net/v1";
 //    let baseAPIurl = "http://localhost:5002/v1";
-    
+
     let appToken = "token"
     let devToken = "token"
     
     init() {
         userTokens = userTokenManager.getUserTokens()
-        print("userTokens: \(String(describing: userTokens))")
+        print("userTokens: init API_Request")
     }
     
     func getDataFromAPI(route: String, bodyData: Any, completion: @escaping (Result<Data, Error>) -> Void) {
@@ -48,8 +48,6 @@ class API_Rquests {
     func userLoginRequest(userLogin: UserLoginData, completion: @escaping (Result<UserLoginResponse, Error>) -> Void) {
         let url = URL(string: baseAPIurl + "/auth/userLogin")!
         var request = URLRequest(url: url)
-        
-        // request.httpBody = try? JSONEncoder().encode(userLogin)
         
         request.addValue(appToken, forHTTPHeaderField: "apptoken")
         request.addValue(devToken, forHTTPHeaderField: "devtoken")
@@ -86,8 +84,7 @@ class API_Rquests {
             do {
                 let decoder = JSONDecoder()
                 let dataModel = try decoder.decode(UserLoginResponse.self, from: data)
-                print ("DO AREWA")
-                print (dataModel)
+                print ("Data is valid, userLoginRquest")
                   completion(.success(dataModel))
               } catch {
                   completion(.failure(error))
@@ -137,8 +134,7 @@ class API_Rquests {
             do {
                 let decoder = JSONDecoder()
                 let dataModel = try decoder.decode([AllPosts].self, from: data)
-                print ("DO AREWA")
-                print (dataModel)
+                print ("Data is valid, getAllPosts")
                 completion(.success(dataModel.reversed()))
               } catch {
                 completion(.failure(error))
@@ -158,23 +154,17 @@ class API_Rquests {
         
         let url = URL(string: baseAPIurl + "/get/userByID/\(userID!)")!
         var request = URLRequest(url: url)
-        
-        // request.httpBody = try? JSONEncoder().encode(userLogin)
-        
+                
         request.addValue(appToken, forHTTPHeaderField: "apptoken")
         request.addValue(devToken, forHTTPHeaderField: "devtoken")
         request.addValue(self.userTokens!.accessToken, forHTTPHeaderField: "accesstoken")
         request.addValue(self.userTokens!.userToken, forHTTPHeaderField: "usertoken")
         request.addValue(self.userTokens!.userID, forHTTPHeaderField: "userid")
-
-//        request.addValue(userLogin.username, forHTTPHeaderField: "username")
-//        request.addValue(userLogin.password, forHTTPHeaderField: "password")
         
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
                 print ("ERROR ")
                 print(error)
-                // Handle error here
                 return
             }
             guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
@@ -199,8 +189,7 @@ class API_Rquests {
             do {
                 let decoder = JSONDecoder()
                 let dataModel = try decoder.decode(UserData.self, from: data)
-                print ("DO AREWA")
-                print (dataModel)
+                print ("Data is valid, getUserData")
                 completion(.success(dataModel))
               } catch {
                 completion(.failure(error))

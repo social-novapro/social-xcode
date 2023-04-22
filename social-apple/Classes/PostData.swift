@@ -56,35 +56,3 @@ struct TypeData: Decodable, Encodable{
         case post
     }
 }
-/*
- 
- struct FeedPosts<AllPosts>: MutableCollection, RandomAccessCollection {
- //    subscript(position: Array<AllPosts>.Index) -> AllPosts {
- //        get {{ return elements[position]}
- //        }
- //        set(newValue) {
- //            <#code#>
- //        }
- //    }
-     
-     var startIndex: Array<AllPosts>.Index
-     
-     var endIndex: Array<AllPosts>.Index
-     
-     var elements: [AllPosts]
-     
-     typealias Index = Array<AllPosts>.Index
-     typealias Element = AllPosts
-     typealias SubSequence = ArraySlice<AllPosts>
-     
-     subscript(position: Index) -> AllPosts {
-         get { return elements[position] }
-         set { elements[position] = newValue }
-     }
-     subscript(bounds: Range<Index>) -> SubSequence {
-         get { return elements[bounds] }
-         set { elements[bounds] = Array(newValue) }
-     }
- }
-
- */

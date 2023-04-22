@@ -8,11 +8,50 @@
 import SwiftUI
 
 struct PostPreView: View {
-    @Binding var postData: PostData?
-    @Binding var userData: UserData?
-
+    @State var feedDataIn: AllPosts
+    @State var feedData: AllPosts?
+    @State var showData: Bool = false
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack {
+            if showData {
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        HStack {
+                            Text(feedData!.userData?.displayName ?? "")
+                            Text("@\(feedData!.userData?.username ?? "")")
+                        }
+                        .background(.blue)
+                        
+                        Spacer()
+                        HStack {
+                            Text(feedData!.postData.content!)
+                            Spacer()
+                        }
+                        .background(.green)
+                        .foregroundColor(.black)
+                        
+                        Spacer()
+                    }
+                    Spacer()
+                }
+            }
+            else {
+                EmptyView()
+            }
+        }
+        .onAppear {
+            feedData = self.feedDataIn
+            if (feedData != nil) {
+                showData = true;
+                print ("showing")
+            }
+
+        }
+        .background(.red)
+        Spacer()
     }
 }
 
