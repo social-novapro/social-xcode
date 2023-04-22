@@ -13,6 +13,8 @@ class API_Rquests {
     var userTokens:UserTokenData?
     
     let baseAPIurl = "https://interact-api.novapro.net/v1";
+//    let baseAPIurl = "http://localhost:5002/v1";
+    
     let appToken = "token"
     let devToken = "token"
     
@@ -62,23 +64,28 @@ class API_Rquests {
                 // Handle error here
                 return
             }
-            guard let httpResponse = response as? HTTPURLResponse,
-
-                  (200...299).contains(httpResponse.statusCode) else {
-                print ("NOT 2XX result ")
-
+            guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
                 // Handle non-2xx status code here
+                do {
+                    let error = try JSONDecoder().decode(ErrorDataWithAuth.self, from: data!)
+                    print("API error: \(error.error.msg), code: \(error.error.code)")
+                } catch {
+                    print("Error decoding API error: \(error.localizedDescription)")
+                }
+                print ("NOT 2XX result ")
+                print (response!)
                 return
             }
+            
             guard let data = data else {
-                  completion(.failure(NSError(domain: "com.example.error", code: 0, userInfo: nil)))
+                completion(.failure(NSError(domain: "com.example.error", code: 0, userInfo: nil)))
                 print ("data=data line ")
 
-                  return
-              }
+                return
+            }
             do {
-                  let decoder = JSONDecoder()
-                  let dataModel = try decoder.decode(UserLoginResponse.self, from: data)
+                let decoder = JSONDecoder()
+                let dataModel = try decoder.decode(UserLoginResponse.self, from: data)
                 print ("DO AREWA")
                 print (dataModel)
                   completion(.success(dataModel))
@@ -132,7 +139,7 @@ class API_Rquests {
                 let dataModel = try decoder.decode([AllPosts].self, from: data)
                 print ("DO AREWA")
                 print (dataModel)
-                completion(.success(dataModel))
+                completion(.success(dataModel.reversed()))
               } catch {
                 completion(.failure(error))
               }

@@ -42,12 +42,17 @@ struct UserView: View {
     var body: some View {
         VStack {
             if !isLoading {
-                Text(userData?.username ?? "Username")
-                Text(userData?.displayName ?? "displayname")
+                VStack {
+                    Text("Your user")
+                    Text(userData?.username ?? "Username")
+                    Text(userData?.displayName ?? "displayname")
+                }
+                .background(.indigo)
             } else {
                 Text("Loading")
             }
             
+            /*
             Button(action: {
     //            let userLogin = UserLoginData(username: username, password: password)
                 api_requests.getAllPosts(userTokens: userTokenData ?? UserTokenData(accessToken: "", userToken: "", userID: "")) { result in
@@ -66,6 +71,7 @@ struct UserView: View {
             }) {
                 Text("Log in")
             }
+             */
         }
         .onAppear {
             api_requests.getUserData(userID: userTokenData?.userID) { result in

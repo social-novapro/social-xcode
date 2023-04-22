@@ -27,9 +27,11 @@ struct LoginPage: View {
                 SecureField("Password", text: $password)
                 
                 Button(action: {
+                    print("button pressed")
                     let userLogin = UserLoginData(username: username, password: password)
+                    print("userlogin : \(userLogin)")
                     api_requests.userLoginRequest(userLogin: userLogin) { result in
-                        print(result)
+                        print("api rquest login: \(result)")
                         switch result {
                         case .success(let userLoginData):
                             self.userLoginData = userLoginData

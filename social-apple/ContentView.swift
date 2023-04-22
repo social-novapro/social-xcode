@@ -24,6 +24,11 @@ struct ContentView: View {
                 } label: {
                     Text("Begin")
                 }
+                NavigationLink {
+                    LogoutView()
+                } label: {
+                    Text("Logout")
+                }
                 ForEach(items) { item in
                     NavigationLink {
                         Text("Item at \(item.timestamp!, formatter: itemFormatter)")

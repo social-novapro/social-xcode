@@ -14,6 +14,7 @@ struct BeginPage: View {
     @State var userLoginResponse: UserLoginResponse?
     @State var userDataLoaded:Bool = false;
     @State var userTokens:UserTokenData?
+    @State var pageLoading:Bool = true;
     
     init() {
         userTokens = userTokenManager.getUserTokens()
@@ -28,9 +29,13 @@ struct BeginPage: View {
 //        NavigationView {
 
             VStack {
-                Text("Hello, world!")
-               
-                if (!userDataLoaded) {
+                if (pageLoading) {
+//                    EmptyView()
+                    Text("Page loading! ")
+                }
+                if (!userDataLoaded && !pageLoading) {
+                    Text("Login" )
+
                     LoginPage(onDone: { userLoginResponseIn in
                         
                         self.userLoginResponse = userLoginResponseIn;
@@ -43,21 +48,29 @@ struct BeginPage: View {
                          )
                         userTokenManager.saveUserTokens(userTokenData: self.userTokens!)
 
-                        print(userLoginResponseIn)
+                        print("userresponsein \(userLoginResponseIn)")
                     })
                 } else {
                     UserView(
 //                        userData: $userData,
                         userTokenData: $userTokens
                     )
+                    FeedPage(userTokenData: $userTokens)
+        
                 }
             }
             .onAppear {
-                userDataLoaded = true
                 userTokens = userTokenManager.getUserTokens()
-                print("userTokens: \(String(describing: userTokens))")
-
-                
+                if (userTokens == nil) {
+                    print ("tokens NOT loaded at begin")
+                    self.pageLoading = false
+                }
+                else {
+                    print ("tokens loaded at begin")
+                    userDataLoaded = true
+                    print("userTokens: \(String(describing: userTokens))")
+                    self.pageLoading = false
+                }
            }
             .navigationTitle("Begin")
 //        }

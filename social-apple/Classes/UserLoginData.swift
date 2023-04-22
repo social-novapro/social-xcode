@@ -10,11 +10,11 @@ import Foundation
 struct UserLoginData: Decodable, Encodable {
     let username: String
     let password: String
-    
-    init (username: String, password: String)  {
-        self.username = username
-        self.password = password
-    }
+//    
+//    init (username: String, password: String)  {
+//        self.username = username
+//        self.password = password
+//    }
 }
 
 struct UserLoginResponse: Decodable {

@@ -65,5 +65,26 @@ class UserTokenHandler {
             return nil
         }
     }
+    
+    func deleteUserToken() {
+        let context = persistentContainer.viewContext
+            
+        let fetchRequest: NSFetchRequest<UserTokens> = UserTokens.fetchRequest()
+        fetchRequest.fetchLimit = 1
+            
+        do {
+            let results = try context.fetch(fetchRequest)
+            if let userTokens = results.first {
+                context.delete(userTokens)
+                try context.save()
+                print("User token data deleted successfully")
+            } else {
+                print("No user token data found to delete")
+            }
+        } catch {
+            print("Error deleting user token data: \(error.localizedDescription)")
+        }
+    }
+
 }
 

@@ -25,23 +25,23 @@ struct UserData: Decodable {
     var totalReplies: Int64? = nil
     var username: String? = nil
     
-    private enum CodingKeys: String, CodingKey {
-        case _id
-        case __v
-        case creationTimestamp
-        case description
-        case displayName
-        case followerCount
-        case followingCount
-        case lastEditDisplayname
-        case lastEditUsername
-        case likeCount
-        case likedCount
-        case pronouns
-        case statusTitle
-        case totalPosts
-        case totalReplies
-        case username
-        
-    }
+//    private enum CodingKeys: String, CodingKey {
+//        case _id
+//        case __v
+//        case creationTimestamp
+//        case description
+//        case displayName
+//        case followerCount
+//        case followingCount
+//        case lastEditDisplayname
+//        case lastEditUsername
+//        case likeCount
+//        case likedCount
+//        case pronouns
+//        case statusTitle
+//        case totalPosts
+//        case totalReplies
+//        case username
+//        
+//    }
 }
