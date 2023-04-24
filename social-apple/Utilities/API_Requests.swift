@@ -13,7 +13,7 @@ class API_Rquests {
     var userTokens:UserTokenData?
     
     let baseAPIurl = "https://interact-api.novapro.net/v1";
-//    let baseAPIurl = "http://localhost:5002/v1";
+//  let baseAPIurl = "http://localhost:5002/v1";
 
     let appToken = "token"
     let devToken = "token"
@@ -84,6 +84,7 @@ class API_Rquests {
             do {
                 let decoder = JSONDecoder()
                 let dataModel = try decoder.decode(UserLoginResponse.self, from: data)
+                self.userTokens = UserTokenData(accessToken: dataModel.accessToken, userToken: dataModel.userToken, userID: dataModel.userID)
                 print ("Data is valid, userLoginRquest")
                   completion(.success(dataModel))
               } catch {
@@ -157,6 +158,7 @@ class API_Rquests {
                 
         request.addValue(appToken, forHTTPHeaderField: "apptoken")
         request.addValue(devToken, forHTTPHeaderField: "devtoken")
+        // error here
         request.addValue(self.userTokens!.accessToken, forHTTPHeaderField: "accesstoken")
         request.addValue(self.userTokens!.userToken, forHTTPHeaderField: "usertoken")
         request.addValue(self.userTokens!.userID, forHTTPHeaderField: "userid")

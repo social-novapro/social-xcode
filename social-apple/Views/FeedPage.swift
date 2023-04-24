@@ -18,6 +18,7 @@ struct FeedPage: View {
     
     @State var allPosts: [AllPosts]? = []
     @State var originalPosts = [AllPosts]();
+    
     var body: some View {
         VStack {
             if (!isLoading) {
@@ -68,7 +69,7 @@ struct childFeed: View {
             allPosts = self.allPostsIn
             if (allPosts != nil) {
                 showData = true;
-                print ("showing")
+                print ("showing? why is it so many times")
             }
         }
     }
