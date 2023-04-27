@@ -18,20 +18,16 @@ struct PostData: Decodable, Encodable {
     var editedTimestamp: String? = nil
     var amountEdited: Int64? = nil
     var quoteReplyID: String? = nil
-//    var quotedPost: PostData
+    var replyingPostID: String? = nil
+    var quoteReplyPostID: String? = nil
     
-    private enum CodingKeys: String, CodingKey {
-        case _id
-        case userID
-        case timePosted
-        case content
-        case totalLikes
-        case totalReplies
-        case edited
-        case editedTimestamp
-        case amountEdited
-        case quoteReplyID
-    }
+}
+
+struct PostCreateContent: Encodable {
+    var userID: String
+    var content: String
+    var replyingPostID: String? = nil
+    var quoteReplyPostID: String? = nil
 }
 
 struct AllPosts: Decodable, Identifiable {
@@ -55,4 +51,12 @@ struct TypeData: Decodable, Encodable{
         case type
         case post
     }
+}
+
+struct PostInput: Decodable, Encodable {
+    var content: String
+    var isReply: Bool?
+    var replyID: String?
+    var isQuote: Bool?
+    var quoteID: String?
 }

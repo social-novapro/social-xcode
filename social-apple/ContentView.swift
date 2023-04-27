@@ -29,6 +29,13 @@ struct ContentView: View {
                     }
                     VStack {
                         NavigationLink {
+                            CreatePost(userTokenData: $userTokens)
+                        } label: {
+                            Text("Create Post")
+                        }
+                    }
+                    VStack {
+                        NavigationLink {
                             UserView(userTokenData: $userTokens)
                         } label: {
                             Text("Profile")
@@ -40,8 +47,7 @@ struct ContentView: View {
                         } label: {
                             Text("Logout")
                         }
-                    }
-                
+                    }                
                 }
                 // when user isnt logged in
                 else {
