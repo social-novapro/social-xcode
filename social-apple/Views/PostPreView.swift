@@ -8,9 +8,11 @@
 import SwiftUI
 
 struct PostPreView: View {
+    @Binding var userTokenData: UserTokenData?
     @State var feedDataIn: AllPosts
     @State var feedData: AllPosts?
     @State var showData: Bool = false
+    @State private var isActive:Bool = false
     
     var body: some View {
         VStack {
@@ -19,12 +21,28 @@ struct PostPreView: View {
                     Spacer()
                     HStack {
                         Spacer()
-                        HStack {
-                            Text(feedData!.userData?.displayName ?? "")
-                            Text("@\(feedData!.userData?.username ?? "")")
-                        }
-                        .background(.blue)
-                        
+//                        NavigationLink {
+//                            UserView(userTokenData: $userTokenData)
+//                        } label: {
+                            Button(action: {
+                                isActive=true
+                                print ("showing usuer?")
+                                // go to user
+                            }) {
+                                HStack {
+                                    Text(feedData!.userData?.displayName ?? "")
+                                    Text("@\(feedData!.userData?.username ?? "")")
+                                    if (feedData!.userData?.verified != nil) {
+                                        Image(systemName: "checkmark.seal.fill")
+                                    }
+                                }
+                            }
+                            .buttonStyle(PlainButtonStyle())
+
+//                        }
+//                        NavigationLink(destination: UserView(userTokenData: $userTokenData), isActive: $isActive) {
+//                            EmptyView()
+//                        }
                         Spacer()
                         HStack {
                             Text(feedData!.postData.content!)
@@ -33,6 +51,84 @@ struct PostPreView: View {
                         .background(.green)
                         .foregroundColor(.black)
                         
+                        Spacer()
+                    }
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        HStack {
+                            Button(action: {
+                                print("like button")
+                            }) {
+                                HStack {
+                                    if (feedData?.postData.totalLikes != nil && feedData?.postData.totalLikes != 0) {
+                                        if (feedData?.postData.totalLikes == 1) {
+                                            Text ("\(self.feedData?.postData.totalLikes ?? 0) Like")
+                                        }
+                                        else {
+                                            Text ("\(self.feedData?.postData.totalLikes ?? 0) Likes")
+                                        }
+                                    }
+                                    else {
+                                        Text("Like")
+                                           
+                                    }
+                                }
+                                .padding(5)
+                                .foregroundColor(.white)
+                                .background(Color.blue)
+                                .cornerRadius(10)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+
+                            Button(action: {
+                                print("quote button")
+                            }) {
+                                HStack {
+                                    if (feedData?.postData.totalQuotes != nil && feedData?.postData.totalQuotes != 0) {
+                                        if (feedData?.postData.totalLikes == 1) {
+                                            Text ("\(self.feedData?.postData.totalQuotes ?? 0) Quote")
+                                        }
+                                        else {
+                                            Text ("\(self.feedData?.postData.totalQuotes ?? 0) Quotes")
+                                        }
+                                    }
+                                    else {
+                                        Text("Quote")
+                                    }
+                                }
+                                .padding(5)
+                                .foregroundColor(.white)
+                                .background(Color.blue)
+                                .cornerRadius(10)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+
+                            Button(action: {
+                                print("reply button")
+                            }) {
+                                HStack {
+                                    if (feedData?.postData.totalReplies != nil && feedData?.postData.totalReplies != 0) {
+                                        if (feedData?.postData.totalLikes == 1) {
+                                            Text ("\(self.feedData?.postData.totalReplies ?? 0) Reply")
+                                        }
+                                        else {
+                                            Text ("\(self.feedData?.postData.totalReplies ?? 0) Replies")
+                                        }
+                                    }
+                                    else {
+                                        Text("Reply")
+                                    }
+                                }
+                                .padding(5)
+                                .foregroundColor(.white)
+                                .background(Color.blue)
+                                .cornerRadius(10)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+
+                            Spacer()
+                        }
                         Spacer()
                     }
                     Spacer()

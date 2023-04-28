@@ -41,6 +41,6 @@ struct CreatePost: View {
                 }
             }
         }
-        .navigationTitle("Log in")
+        .navigationTitle("Create")
     }
 }

@@ -40,7 +40,8 @@ struct BeginPage: View {
                 })
             } else {
                 UserView(
-                    userTokenData: $userTokens
+                    userTokenData: $userTokens//,
+//                    userID: $userTokens.userID
                 )
                 FeedPage(userTokenData: $userTokens)
     

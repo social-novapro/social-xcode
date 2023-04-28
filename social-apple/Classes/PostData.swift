@@ -14,6 +14,7 @@ struct PostData: Decodable, Encodable {
     var content: String? = nil
     var totalLikes: Int64? = nil
     var totalReplies: Int64? = nil
+    var totalQuotes: Int64? = nil
     var edited: Bool? = nil
     var editedTimestamp: String? = nil
     var amountEdited: Int64? = nil

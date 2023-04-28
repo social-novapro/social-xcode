@@ -22,7 +22,7 @@ struct FeedPage: View {
     var body: some View {
         VStack {
             if (!isLoading) {
-                childFeed(allPostsIn: $allPosts)
+                childFeed(userTokenData: $userTokenData, allPostsIn: $allPosts)
             }
             else {
                 Text("loading feed")
@@ -31,6 +31,7 @@ struct FeedPage: View {
         .onAppear {
             api_requests.getAllPosts(userTokens: userTokenData ?? UserTokenData(accessToken: "", userToken: "", userID: "")) { result in
                 print("allpost request")
+                
                 switch result {
                 case .success(let allPosts):
                     self.allPosts = allPosts
@@ -48,6 +49,7 @@ struct FeedPage: View {
 
 
 struct childFeed: View {
+    @Binding var userTokenData: UserTokenData?
     @Binding var allPostsIn: [AllPosts]?
     @State var allPosts: [AllPosts]?
     @State var showData: Bool = false
@@ -57,7 +59,7 @@ struct childFeed: View {
             if showData {
                 List {
                     ForEach(allPosts!) { post in
-                        PostPreView(feedDataIn: post)
+                        PostPreView(userTokenData: $userTokenData, feedDataIn: post)
                     }
                 }
             }

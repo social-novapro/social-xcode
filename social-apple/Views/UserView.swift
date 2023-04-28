@@ -9,7 +9,8 @@ import SwiftUI
 
 struct UserView: View {
     @Binding var userTokenData: UserTokenData?
-
+//    @Binding var userID: String?
+    
     let api_requests = API_Rquests()
 
     @State var userData: UserData?
@@ -28,6 +29,7 @@ struct UserView: View {
                 Text("Loading")
             }
         }
+        .navigationTitle("User View")
         .onAppear {
             api_requests.getUserData(userID: userTokenData?.userID) { result in
                 switch result {

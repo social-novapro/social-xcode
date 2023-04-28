@@ -24,4 +24,5 @@ struct UserData: Decodable {
     var totalPosts: Int64? = nil
     var totalReplies: Int64? = nil
     var username: String? = nil
+    var verified: Bool? = nil
 }
