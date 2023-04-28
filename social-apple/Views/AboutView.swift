@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct AboutView: View {
+    @Binding var devMode: DevModeData?
+    @State var devModeManager = DevModeHandler()
+
     var body: some View {
         VStack {
             VStack {
@@ -25,14 +28,27 @@ struct AboutView: View {
                 Text("Interact has an open API, letting anyone develop for it")
                 
             }
+            .padding(20)
+
+            VStack {
+                if (devMode?.isEnabled == true) {
+                    Text("Disable DevMode")
+                        .fontWeight(.heavy)
+                }
+                else {
+                    Text("Enable DevMode")
+                        .fontWeight(.heavy)
+                }
+                Button(action: {
+                    devMode = devModeManager.swapMode()
+                }) {
+                    Text("Dev Mode")
+                }
+            }
+            .padding(20)
+
         }
         .padding(20)
         .navigationTitle("About Interact")
-    }
-}
-
-struct AboutView_Previews: PreviewProvider {
-    static var previews: some View {
-        AboutView()
     }
 }

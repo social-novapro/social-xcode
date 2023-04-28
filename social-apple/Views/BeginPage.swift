@@ -9,6 +9,10 @@ import SwiftUI
 import CoreData
 
 struct BeginPage: View {
+    @Binding var userTokenData: UserTokenData?
+    @Binding var devMode: DevModeData?
+    @Binding var userTokensLoaded: Bool
+
     @State var userTokenManager = UserTokenHandler()
     @State var userData: UserData?
     @State var userLoginResponse: UserLoginResponse?
@@ -35,7 +39,7 @@ struct BeginPage: View {
                         userID: userLoginResponseIn.userID
                      )
                     userTokenManager.saveUserTokens(userTokenData: self.userTokens!)
-
+                    userTokensLoaded = true
                     print("userresponsein")
                 })
             } else {
@@ -43,7 +47,7 @@ struct BeginPage: View {
                     userTokenData: $userTokens//,
 //                    userID: $userTokens.userID
                 )
-                FeedPage(userTokenData: $userTokens)
+                FeedPage(userTokenData: $userTokens, devMode: $devMode)
     
             }
         }

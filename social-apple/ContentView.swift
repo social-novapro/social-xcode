@@ -10,10 +10,14 @@ import CoreData
 
 struct ContentView: View {
     @State var userTokenManager = UserTokenHandler()
+    @State var devModeManager = DevModeHandler()
+    
     @State var userLoginResponse: UserLoginResponse?
     @State var userTokens:UserTokenData?
-    @State var userTokensLoaded:Bool=false;
-    @State var pageLoading:Bool=true;
+    
+    @State var userTokensLoaded:Bool = false;
+    @State var pageLoading:Bool = true;
+    @State var devMode:DevModeData? = DevModeData(isEnabled: false);
     
     var body: some View {
         NavigationView {
@@ -22,7 +26,7 @@ struct ContentView: View {
                 if (userTokensLoaded) {
                     VStack {
                         NavigationLink {
-                            FeedPage(userTokenData: $userTokens)
+                            FeedPage(userTokenData: $userTokens, devMode: $devMode)
                         } label: {
                             Text("Feed")
                         }
@@ -43,7 +47,7 @@ struct ContentView: View {
                     }
                     VStack {
                         NavigationLink {
-                            LogoutView()
+                            LogoutView(userTokenData: $userTokens, devMode: $devMode, userTokensLoaded: $userTokensLoaded)
                         } label: {
                             Text("Logout")
                         }
@@ -53,17 +57,26 @@ struct ContentView: View {
                 else {
                     VStack {
                         NavigationLink {
-                            BeginPage()
+                            BeginPage(userTokenData: $userTokens, devMode: $devMode, userTokensLoaded: $userTokensLoaded)
                         } label: {
                             Text("Begin")
                         }
                     }
                 }
+                
                 // both
-            
+                if (devMode?.isEnabled == true) {
+                    VStack {
+                        NavigationLink {
+                            DevModeView(userTokenData: $userTokens, devMode: $devMode)
+                        } label: {
+                            Text("DevMode")
+                        }
+                    }
+                }
                 VStack {
                     NavigationLink {
-                        AboutView()
+                        AboutView(devMode: $devMode)
                     } label: {
                         Text("About")
                     }
@@ -71,7 +84,7 @@ struct ContentView: View {
             }
 
             if (userTokensLoaded) {
-                FeedPage(userTokenData: $userTokens)
+                FeedPage(userTokenData: $userTokens, devMode: $devMode)
             } else {
                 LoginPage(onDone: { userLoginResponseIn in
                     userTokensLoaded = true;
@@ -87,6 +100,8 @@ struct ContentView: View {
         }
         .navigationTitle("Interact")
         .onAppear {
+            devMode = devModeManager.getDevMode()
+            print ("devMode: \(devMode!)")
             userTokens = userTokenManager.getUserTokens()
             if (userTokens == nil) {
                 print ("tokens NOT loaded at begin")
@@ -98,7 +113,7 @@ struct ContentView: View {
                 print("userTokens: .onAppear, else, BeginPage()")
                 self.pageLoading = false
             }
-       }
+        }
     }
 }
 

@@ -1,14 +1,14 @@
 //
-//  GetUserTokens.swift
+//  DeveloperModeHandler.swift
 //  social-apple
 //
-//  Created by Daniel Kravec on 2023-04-20.
+//  Created by Daniel Kravec on 2023-04-28.
 //
 
 import Foundation
 import CoreData
 
-class UserTokenHandler {
+class DevModeHandler {
     private let persistentContainer: NSPersistentContainer
     
     init() {
@@ -20,54 +20,51 @@ class UserTokenHandler {
         })
     }
     
-    func saveUserTokens(userTokenData: UserTokenData) {
-        self.deleteUserToken()
+    func saveDevMode(devTokenData: DevModeData) {
         let context = persistentContainer.viewContext
         
-        let fetchRequest: NSFetchRequest<UserTokens> = UserTokens.fetchRequest()
+        let fetchRequest: NSFetchRequest<DevMode> = DevMode.fetchRequest()
         fetchRequest.fetchLimit = 1
         
         do {
             let results = try context.fetch(fetchRequest)
-            if let userTokens = results.first {
-                userTokens.accessToken = userTokenData.accessToken
-                userTokens.userToken = userTokenData.userToken
-                userTokens.userID = userTokenData.userID
+            if let devMode = results.first {
+                devMode.isEnabled = devTokenData.isEnabled;
+
                 print("Within if let")
             } else {
-                let userTokens = UserTokens(context: context)
-                userTokens.accessToken = userTokenData.accessToken
-                userTokens.userToken = userTokenData.userToken
-                userTokens.userID = userTokenData.userID
+                let devMode = DevMode(context: context)
+                devMode.isEnabled = devTokenData.isEnabled;
+                
                 print("within else in if let")
             }
             
             try context.save()
         } catch {
-            print("Error saving user tokens: \(error.localizedDescription)")
+            print("Error saving devmode: \(error.localizedDescription)")
         }
     }
     
-    func getUserTokens() -> UserTokenData? {
+    func getDevMode() -> DevModeData {
         let context = persistentContainer.viewContext
         
-        let fetchRequest: NSFetchRequest<UserTokens> = UserTokens.fetchRequest()
+        let fetchRequest: NSFetchRequest<DevMode> = DevMode.fetchRequest()
         fetchRequest.fetchLimit = 1
         
         do {
             let results = try context.fetch(fetchRequest)
-            if let userTokens = results.first {
-                return UserTokenData(accessToken: userTokens.accessToken!, userToken: userTokens.userToken!, userID: userTokens.userID!)
+            if let devMode = results.first {
+                return DevModeData(isEnabled: devMode.isEnabled)
             } else {
-                return nil
+                return DevModeData(isEnabled: false)
             }
         } catch {
-            print("Error fetching user tokens: \(error.localizedDescription)")
-            return nil
+            print("Error fetching devmode, defaulting false: \(error.localizedDescription)")
+            return DevModeData(isEnabled: false)
         }
     }
     
-    func deleteUserToken() {
+    func deleteDevMode() {
         let context = persistentContainer.viewContext
             
         let fetchRequest: NSFetchRequest<UserTokens> = UserTokens.fetchRequest()
@@ -78,13 +75,23 @@ class UserTokenHandler {
             if let userTokens = results.first {
                 context.delete(userTokens)
                 try context.save()
-                print("User token data deleted successfully")
+                print("Devmode data deleted successfully")
             } else {
-                print("No user token data found to delete")
+                print("No devmode data found to delete")
             }
         } catch {
-            print("Error deleting user token data: \(error.localizedDescription)")
+            print("Error deleting devmode data: \(error.localizedDescription)")
         }
+    }
+    func swapMode() -> DevModeData {
+        let current:DevModeData = self.getDevMode()
+        if (current.isEnabled == false) {
+            self.saveDevMode(devTokenData: DevModeData(isEnabled: true))
+        }
+        else {
+            self.saveDevMode(devTokenData: DevModeData(isEnabled: false))
+        }
+        return self.getDevMode()
     }
 }
 

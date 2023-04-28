@@ -8,13 +8,17 @@
 import SwiftUI
 
 struct LogoutView: View {
+    @Binding var userTokenData: UserTokenData?
+    @Binding var devMode: DevModeData?
+    @Binding var userTokensLoaded: Bool
     @State var userTokenManager = UserTokenHandler()
     @State private var isLoggingOut = false
+
 
     var body: some View {
         VStack {
             if (isLoggingOut) {
-                BeginPage()
+                BeginPage(userTokenData: $userTokenData, devMode: $devMode, userTokensLoaded: $userTokensLoaded)
             }
             else {
                 Text("Are you sure you want to logout?")
@@ -22,16 +26,11 @@ struct LogoutView: View {
                     print("deleting pressed")
                     userTokenManager.deleteUserToken()
                     isLoggingOut = true
+                    userTokensLoaded=false
                 }) {
                     Text("Log out")
                 }
             }
         }
-    }
-}
-
-struct LogoutView_Previews: PreviewProvider {
-    static var previews: some View {
-        LogoutView()
     }
 }

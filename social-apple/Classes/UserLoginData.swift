@@ -39,3 +39,7 @@ struct UserTokenData: Decodable, Encodable {
         self.userID = userID
     }
 }
+
+struct DevModeData: Decodable, Encodable {
+    let isEnabled: Bool
+}

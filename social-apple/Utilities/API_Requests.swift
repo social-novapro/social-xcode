@@ -10,16 +10,22 @@ import Foundation
 
 class API_Rquests {
     var userTokenManager = UserTokenHandler()
+    var apiData = API_Data()
     var userTokens:UserTokenData?
     
-    let baseAPIurl = "https://interact-api.novapro.net/v1";
-//  let baseAPIurl = "http://localhost:5002/v1";
+    var baseAPIurl:String = "https://interact-api.novapro.net/v1"
 
-    let appToken = "token"
-    let devToken = "token"
-    
+    var appToken = "token"
+    var devToken = "token"
+
     init() {
         userTokens = userTokenManager.getUserTokens()
+        
+        baseAPIurl = apiData.getURL()
+        appToken = apiData.getAppToken()
+        devToken = apiData.getDevToken()
+        print ("dev \(devToken), app \(appToken), env \(baseAPIurl)")
+        
         print("userTokens: init API_Request")
     }
     
@@ -84,6 +90,9 @@ class API_Rquests {
             do {
                 let decoder = JSONDecoder()
                 let dataModel = try decoder.decode(UserLoginResponse.self, from: data)
+                if (self.userTokens != nil) {
+                    print ("already")
+                }
                 self.userTokens = UserTokenData(accessToken: dataModel.accessToken, userToken: dataModel.userToken, userID: dataModel.userID)
                 print ("Data is valid, userLoginRquest")
                   completion(.success(dataModel))

@@ -8,15 +8,11 @@
 import SwiftUI
 
 struct CreatePost: View {
-//    @State private var userLoginData: UserLoginResponse?
-//    var onDone: (UserLoginResponse) -> Void
     let api_requests = API_Rquests()
     @Binding var userTokenData: UserTokenData?
     
     @State private var content: String = ""
     @State var newPost:PostData?
-//    @State private var password: String = ""
-//    @State private var shouldNavigate: Bool = false;
     
     var body: some View {
         VStack {

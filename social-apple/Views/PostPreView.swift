@@ -9,6 +9,7 @@ import SwiftUI
 
 struct PostPreView: View {
     @Binding var userTokenData: UserTokenData?
+    @Binding var devMode: DevModeData?
     @State var feedDataIn: AllPosts
     @State var feedData: AllPosts?
     @State var showData: Bool = false
@@ -21,9 +22,6 @@ struct PostPreView: View {
                     Spacer()
                     HStack {
                         Spacer()
-//                        NavigationLink {
-//                            UserView(userTokenData: $userTokenData)
-//                        } label: {
                             Button(action: {
                                 isActive=true
                                 print ("showing usuer?")
@@ -38,11 +36,6 @@ struct PostPreView: View {
                                 }
                             }
                             .buttonStyle(PlainButtonStyle())
-
-//                        }
-//                        NavigationLink(destination: UserView(userTokenData: $userTokenData), isActive: $isActive) {
-//                            EmptyView()
-//                        }
                         Spacer()
                         HStack {
                             Text(feedData!.postData.content!)
@@ -53,7 +46,9 @@ struct PostPreView: View {
                         
                         Spacer()
                     }
+                    
                     Spacer()
+                    
                     HStack {
                         Spacer()
                         HStack {
@@ -132,6 +127,15 @@ struct PostPreView: View {
                         Spacer()
                     }
                     Spacer()
+                    
+                    if (devMode?.isEnabled == true) {
+                        VStack {
+                            Text("PostID: \(feedData?.postData._id ?? "xx")")
+                            Text("UserID: \(feedData?.userData?._id ?? "xx")")
+                        }
+                        Spacer()
+                    }
+                    
                 }
             }
             else {

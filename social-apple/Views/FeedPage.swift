@@ -9,6 +9,7 @@ import SwiftUI
 
 struct FeedPage: View {
     @Binding var userTokenData: UserTokenData?
+    @Binding var devMode: DevModeData?
 //^ turn to state when using init
     //    @Binding var userID: String?
     let api_requests = API_Rquests()
@@ -22,7 +23,7 @@ struct FeedPage: View {
     var body: some View {
         VStack {
             if (!isLoading) {
-                childFeed(userTokenData: $userTokenData, allPostsIn: $allPosts)
+                childFeed(userTokenData: $userTokenData, allPostsIn: $allPosts, devMode: $devMode)
             }
             else {
                 Text("loading feed")
@@ -43,14 +44,13 @@ struct FeedPage: View {
             }
         }
         .navigationTitle("Feed")
-
     }
 }
-
 
 struct childFeed: View {
     @Binding var userTokenData: UserTokenData?
     @Binding var allPostsIn: [AllPosts]?
+    @Binding var devMode: DevModeData?
     @State var allPosts: [AllPosts]?
     @State var showData: Bool = false
     
@@ -59,7 +59,7 @@ struct childFeed: View {
             if showData {
                 List {
                     ForEach(allPosts!) { post in
-                        PostPreView(userTokenData: $userTokenData, feedDataIn: post)
+                        PostPreView(userTokenData: $userTokenData, devMode: $devMode, feedDataIn: post)
                     }
                 }
             }
