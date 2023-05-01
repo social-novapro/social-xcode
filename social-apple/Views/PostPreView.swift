@@ -14,7 +14,10 @@ struct PostPreView: View {
     @State var feedData: AllPosts?
     @State var showData: Bool = false
     @State private var isActive:Bool = false
+    @State var postIsLiked:Bool = false
     
+    let api_requests = API_Rquests()
+
     var body: some View {
         VStack {
             if showData {
@@ -54,8 +57,21 @@ struct PostPreView: View {
                         HStack {
                             Button(action: {
                                 print("like button")
+                                api_requests.likePost(postID: feedData!.postData._id) { result in
+                                    switch result {
+                                    case .success(let newPostData):
+                                        self.postIsLiked = true
+                                        self.feedData?.postData = newPostData
+                                    case .failure(let error):
+                                    //  if (error.code == "D010") {
+                                    //      self.postIsLiked = true
+                                    //  }
+                                        print("Error: \(error.localizedDescription)")
+                                    }
+                                }
                             }) {
                                 HStack {
+                                    
                                     if (feedData?.postData.totalLikes != nil && feedData?.postData.totalLikes != 0) {
                                         if (feedData?.postData.totalLikes == 1) {
                                             Text ("\(self.feedData?.postData.totalLikes ?? 0) Like")
@@ -70,7 +86,7 @@ struct PostPreView: View {
                                     }
                                 }
                                 .padding(5)
-                                .foregroundColor(.white)
+                                .foregroundColor(postIsLiked ? .red : .white)
                                 .background(Color.blue)
                                 .cornerRadius(10)
                             }

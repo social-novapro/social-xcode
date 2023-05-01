@@ -284,7 +284,7 @@ class API_Rquests {
     
     func likePost(postID: String, completion: @escaping (Result<PostData, Error>) -> Void) {
         
-        let url = URL(string: baseAPIurl + "/put/likePost")!
+        let url = URL(string: baseAPIurl + "/put/likePost/\(postID)")!
         var request = URLRequest(url: url)
         request.httpMethod = "PUT"
         
@@ -305,6 +305,7 @@ class API_Rquests {
                 print(error)
                 return
             }
+            
             guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
                 print(response!)
                 print(data!)
@@ -318,12 +319,14 @@ class API_Rquests {
                 print ("NOT 2XX result ")
                 return
             }
+            
             guard let data = data else {
                 completion(.failure(NSError(domain: "com.example.error", code: 0, userInfo: nil)))
                 print ("data=data line ")
 
                 return
             }
+            
             do {
                 let decoder = JSONDecoder()
                 let dataModel = try decoder.decode(PostData.self, from: data)
