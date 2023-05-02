@@ -339,4 +339,54 @@ class API_Rquests {
         
         task.resume()
     }
+    
+    func getAnalyticTrend(completion: @escaping (Result<[AnalyticTrendDataPoint], Error>) -> Void) {
+        let url = URL(string: baseAPIurl + "/get/analyticTrend")!
+        var request = URLRequest(url: url)
+                
+        request.addValue(appToken, forHTTPHeaderField: "apptoken")
+        request.addValue(devToken, forHTTPHeaderField: "devtoken")
+        // error here
+        if (self.userTokens == nil) {
+            print ("no tokens stored, getUserData")
+            
+        }
+
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print ("ERROR ")
+                print(error)
+                return
+            }
+            guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+                print(response!)
+                print(data!)
+                do {
+                    let error = try JSONDecoder().decode(ErrorDataWithAuth.self, from: data!)
+                    print("API error: \(error.error.msg), code: \(error.error.code)")
+                } catch {
+                    print("Error decoding API error: \(error.localizedDescription)")
+                }
+                print ("NOT 2XX result ")
+
+                return
+            }
+            guard let data = data else {
+                completion(.failure(NSError(domain: "com.example.error", code: 0, userInfo: nil)))
+                print ("data=data line ")
+
+                return
+            }
+            do {
+                let decoder = JSONDecoder()
+                let dataModel = try decoder.decode([AnalyticTrendDataPoint].self, from: data)
+                print ("Data is valid, analyticTrend")
+                completion(.success(dataModel))
+              } catch {
+                completion(.failure(error))
+              }
+        }
+        
+        task.resume()
+    }
 }

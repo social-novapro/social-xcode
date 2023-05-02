@@ -81,6 +81,13 @@ struct ContentView: View {
                         Text("About")
                     }
                 }
+                VStack {
+                    NavigationLink {
+                        AnalyticsView() // could pass devmode
+                    } label: {
+                        Text("Analytics")
+                    }
+                }
             }
 
             if (userTokensLoaded) {
