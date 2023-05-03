@@ -34,3 +34,28 @@ struct AnalyticTrendDataPoint: Decodable, Identifiable {
         case userConnections
     }
 }
+
+
+struct AnalyticFunctionDataPoint: Decodable {
+    var title:String
+    var graphType: String?
+    var points: [AnalyticFunctionPoint]?
+    var pointsXs: [String]?
+    var pointsYs: [Int64]?
+    var lineYs: [[Int64]]?
+    var xDomain: [Int64]?
+    var yDomain: [Int64]?
+}
+
+struct AnalyticFunctionPoint: Decodable, Identifiable {
+    var id = UUID()
+    var x: String?
+    var y: Int64?
+    var lineYs: [Int64]?
+    
+    private enum CodingKeys: String, CodingKey {
+        case x
+        case y
+        case lineYs
+    }
+}

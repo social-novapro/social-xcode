@@ -18,7 +18,7 @@
 		651757E329FB889900E90FBA /* DevModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651757E229FB889900E90FBA /* DevModeView.swift */; };
 		651757E529FB8B2E00E90FBA /* API_Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651757E429FB8B2E00E90FBA /* API_Data.swift */; };
 		651757E82A006D3E00E90FBA /* AnalyticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651757E72A006D3E00E90FBA /* AnalyticsView.swift */; };
-		651757EA2A006D4600E90FBA /* Graph1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651757E92A006D4600E90FBA /* Graph1.swift */; };
+		651757EA2A006D4600E90FBA /* Graph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651757E92A006D4600E90FBA /* Graph.swift */; };
 		651757EC2A006D6900E90FBA /* AnalyticData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651757EB2A006D6900E90FBA /* AnalyticData.swift */; };
 		655AB60929F0720500C61F3A /* social_appleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655AB60829F0720500C61F3A /* social_appleApp.swift */; };
 		655AB60B29F0720500C61F3A /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655AB60A29F0720500C61F3A /* Persistence.swift */; };
@@ -34,7 +34,6 @@
 		655AB62C29F0E25600C61F3A /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655AB62B29F0E25600C61F3A /* HomeView.swift */; };
 		655AB62E29F0EDD900C61F3A /* PostData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655AB62D29F0EDD900C61F3A /* PostData.swift */; };
 		655AB63029F19B0A00C61F3A /* ErrorData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655AB62F29F19B0A00C61F3A /* ErrorData.swift */; };
-		65EE37DE2A00C02900EFBF39 /* Graph2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65EE37DD2A00C02900EFBF39 /* Graph2.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,7 +48,7 @@
 		651757E229FB889900E90FBA /* DevModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevModeView.swift; sourceTree = "<group>"; };
 		651757E429FB8B2E00E90FBA /* API_Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API_Data.swift; sourceTree = "<group>"; };
 		651757E72A006D3E00E90FBA /* AnalyticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsView.swift; sourceTree = "<group>"; };
-		651757E92A006D4600E90FBA /* Graph1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Graph1.swift; sourceTree = "<group>"; };
+		651757E92A006D4600E90FBA /* Graph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Graph.swift; sourceTree = "<group>"; };
 		651757EB2A006D6900E90FBA /* AnalyticData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticData.swift; sourceTree = "<group>"; };
 		655AB60529F0720500C61F3A /* social-apple.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "social-apple.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		655AB60829F0720500C61F3A /* social_appleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = social_appleApp.swift; sourceTree = "<group>"; };
@@ -67,7 +66,6 @@
 		655AB62B29F0E25600C61F3A /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		655AB62D29F0EDD900C61F3A /* PostData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostData.swift; sourceTree = "<group>"; };
 		655AB62F29F19B0A00C61F3A /* ErrorData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorData.swift; sourceTree = "<group>"; };
-		65EE37DD2A00C02900EFBF39 /* Graph2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Graph2.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,8 +82,7 @@
 		651757E62A006D2D00E90FBA /* Analytics */ = {
 			isa = PBXGroup;
 			children = (
-				651757E92A006D4600E90FBA /* Graph1.swift */,
-				65EE37DD2A00C02900EFBF39 /* Graph2.swift */,
+				651757E92A006D4600E90FBA /* Graph.swift */,
 			);
 			path = Analytics;
 			sourceTree = "<group>";
@@ -261,14 +258,13 @@
 				6503515C29F370CA005C4253 /* FeedPage.swift in Sources */,
 				655AB62C29F0E25600C61F3A /* HomeView.swift in Sources */,
 				655AB61029F0720500C61F3A /* ContentView.swift in Sources */,
-				651757EA2A006D4600E90FBA /* Graph1.swift in Sources */,
+				651757EA2A006D4600E90FBA /* Graph.swift in Sources */,
 				655AB63029F19B0A00C61F3A /* ErrorData.swift in Sources */,
 				655AB62A29F080CB00C61F3A /* UserView.swift in Sources */,
 				651757E129FB816F00E90FBA /* social_apple.xcdatamodeld in Sources */,
 				651757EC2A006D6900E90FBA /* AnalyticData.swift in Sources */,
 				655AB60B29F0720500C61F3A /* Persistence.swift in Sources */,
 				655AB62529F0741200C61F3A /* LoginPage.swift in Sources */,
-				65EE37DE2A00C02900EFBF39 /* Graph2.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

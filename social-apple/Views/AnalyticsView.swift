@@ -14,6 +14,7 @@ struct AnalyticsView: View {
     @State var analytics: [AnalyticTrendDataPoint]?
     @State var graphIsShown:Bool = false
     @State var graphNumber:Int64? = nil
+    @State var isGraphShown: Bool = false
     
     var body: some View {
         VStack {
@@ -21,55 +22,54 @@ struct AnalyticsView: View {
                 Text("Please wait")
             } else {
                 VStack {
+                    if (graphNumber != nil) {
+                        EmptyView()
+                    }
+                    Text("\(graphNumber ?? 0)")
                     Button(action: {
-                        graphNumber = 1
-                        graphIsShown = true
+                        self.graphNumber = 1
+                        self.graphIsShown = true
                         print("button1 button")
                     }) {
                         Text("Open graph1")
                     }
                     Button(action: {
-                        graphNumber = 0
-                        graphIsShown = true
+                        self.graphNumber = 2
+                        self.graphIsShown = true
                         print("button2 button")
                     }) {
-                        Text("Open graph0")
+                        Text("Open graph2")
+                    }
+                    Button(action: {
+                        self.graphNumber = 3
+                        self.graphIsShown = true
+                        print("button2 button")
+                    }) {
+                        Text("Open graph3")
+                    }
+                    Button(action: {
+                        self.graphNumber = 4
+                        self.graphIsShown = true
+                        print("button2 button")
+                    }) {
+                        Text("Open graph4")
                     }
                 }
+                .padding(20)
             }
         }
         .sheet(isPresented: $graphIsShown, onDismiss: didDismiss) {
-            ZStack() {
+            VStack {
                 Spacer()
                 VStack {
                     Spacer()
                     HStack {
                         Spacer()
-                        
-                        if (graphNumber == nil) {
-                            Text("not loaded ")
-                        }
-                        else {
-//                            if let graphNumber = graphNumber {
-//                                switch graphNumber {
-//                                case 1:
-//                                    Graph1(analytics: self.analytics)
-//                                case 2:
-//                                    Graph2(analytics: self.analytics)
-//                                default:
-//                                    Text("Unknown graph")
-//                                }
-//                            }
-                            switch graphNumber {
-                            case 1:
-                                Graph1(analytics: self.analytics)
-                            case 2:
-                                Graph1(analytics: self.analytics)
-                            case .none:
-                                Text("None set")
-                            case .some(_):
-                                Text("Unknown setting")
-                            }
+                        if ((graphNumber ?? 0 ) > 0 && (graphNumber ?? 0) < 5) {
+                            Graph(graphType: graphNumber, analytics: self.analytics)
+
+                        } else {
+                            Text("Something went wrong with the graph number. \(graphNumber ?? 0)")
                         }
                         Spacer()
                     }
@@ -97,8 +97,10 @@ struct AnalyticsView: View {
         }
         .navigationTitle("Analytics")
     }
+    
     func didDismiss() {
         self.graphIsShown = false
+        self.graphNumber = nil
     }
 }
 
@@ -107,3 +109,39 @@ struct AnalyticsView_Previews: PreviewProvider {
         AnalyticsView()
     }
 }
+
+// testing
+struct secondaryAnalyticView: View {
+    @State var openSheet: Bool = false
+    @State var numberGraph: Int? = nil
+
+    var body: some View {
+        VStack {
+            Text("Button \(String(numberGraph ?? 0))")
+            Button(action: {
+                self.numberGraph = 1
+                self.openSheet = true
+            }) {
+                Text("Open Graph 1")
+            }
+            
+            Button(action: {
+                self.numberGraph = 2
+                self.openSheet = true
+            }) {
+                Text("Open Graph 2")
+            }
+        }
+        .sheet(isPresented: $openSheet) {
+           if let numberGraph = self.numberGraph {
+               VStack {
+                   Text("Sheet opened")
+                   Text("My number is \(numberGraph)")
+               }
+           } else {
+               Text("Not loaded")
+           }
+       }
+    }
+}
+

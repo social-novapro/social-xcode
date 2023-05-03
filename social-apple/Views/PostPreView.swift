@@ -15,8 +15,7 @@ struct PostPreView: View {
     @State var showData: Bool = false
     @State private var isActive:Bool = false
     @State var postIsLiked:Bool = false
-    
-    let api_requests = API_Rquests()
+    @State var api_requests: API_Rquests
 
     var body: some View {
         VStack {

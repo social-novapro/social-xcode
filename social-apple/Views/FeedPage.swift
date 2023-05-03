@@ -23,7 +23,7 @@ struct FeedPage: View {
     var body: some View {
         VStack {
             if (!isLoading) {
-                childFeed(userTokenData: $userTokenData, allPostsIn: $allPosts, devMode: $devMode)
+                childFeed(userTokenData: $userTokenData, allPostsIn: $allPosts, devMode: $devMode, api_requests: api_requests)
             }
             else {
                 Text("loading feed")
@@ -53,13 +53,14 @@ struct childFeed: View {
     @Binding var devMode: DevModeData?
     @State var allPosts: [AllPosts]?
     @State var showData: Bool = false
+    @State var api_requests: API_Rquests
     
     var body: some View {
         VStack {
             if showData {
                 List {
                     ForEach(allPosts!) { post in
-                        PostPreView(userTokenData: $userTokenData, devMode: $devMode, feedDataIn: post)
+                        PostPreView(userTokenData: $userTokenData, devMode: $devMode, feedDataIn: post, api_requests: api_requests)
                     }
                 }
             }
