@@ -22,22 +22,37 @@ struct PostPreView: View {
             if showData {
                 VStack {
                     Spacer()
+
+                    // user
                     HStack {
                         Spacer()
-                            Button(action: {
-                                isActive=true
-                                print ("showing usuer?")
-                                // go to user
-                            }) {
-                                HStack {
-                                    Text(feedData!.userData?.displayName ?? "")
-                                    Text("@\(feedData!.userData?.username ?? "")")
-                                    if (feedData!.userData?.verified != nil) {
-                                        Image(systemName: "checkmark.seal.fill")
-                                    }
+                        Button(action: {
+                            isActive=true
+                            print ("showing usuer?")
+                            // go to user
+                        }) {
+                            HStack {
+                                Text(feedData!.userData?.displayName ?? "")
+                                Text("@\(feedData!.userData?.username ?? "")")
+                                if (feedData!.userData?.verified != nil) {
+                                    Image(systemName: "checkmark.seal.fill")
                                 }
                             }
-                            .buttonStyle(PlainButtonStyle())
+                            Spacer()
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        Spacer()
+                    }
+                    .padding(20)
+                    .border(.gray, width: 1)
+
+                    .background(.red)
+                    .shadow(color: Color.red, radius: 5)
+                    .cornerRadius(15)
+
+                    
+                    Spacer()
+                    HStack {
                         Spacer()
                         HStack {
                             Text(feedData!.postData.content!)
@@ -152,6 +167,8 @@ struct PostPreView: View {
                     }
                     
                 }
+                .background(Color.cyan)
+                
             }
             else {
                 EmptyView()
@@ -165,7 +182,6 @@ struct PostPreView: View {
             }
 
         }
-        .background(.red)
         Spacer()
     }
 }
