@@ -10,10 +10,12 @@ import Foundation
 struct ErrorData : Decodable {
     let code: String
     let msg: String
+    let error: Bool
 
-    init (code: String, msg: String) {
+    init (code: String, msg: String, error: Bool) {
         self.code = code
         self.msg = msg
+        self.error = error
     }
 }
 

@@ -71,8 +71,8 @@ class API_Rquests {
             guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
                 // Handle non-2xx status code here
                 do {
-                    let error = try JSONDecoder().decode(ErrorDataWithAuth.self, from: data!)
-                    print("API error: \(error.error.msg), code: \(error.error.code)")
+                    let error = try JSONDecoder().decode(ErrorData.self, from: data!)
+                    print("API error: \(error.msg), code: \(error.code)")
                 } catch {
                     print("Error decoding API error: \(error.localizedDescription)")
                 }
