@@ -105,7 +105,7 @@ class API_Rquests {
     }
 
     func getAllPosts(userTokens: UserTokenData, completion: @escaping (Result<[AllPosts], Error>) -> Void) {
-        let url = URL(string: baseAPIurl + "/get/AllPosts")!
+        let url = URL(string: baseAPIurl + "/feeds/userFeed")!
         var request = URLRequest(url: url)
         
         request.addValue(appToken, forHTTPHeaderField: "apptoken")
@@ -292,7 +292,7 @@ class API_Rquests {
         request.addValue(devToken, forHTTPHeaderField: "devtoken")
         // error here
         if (self.userTokens == nil) {
-            print ("no tokens stored, getUserData")
+            print ("no tokens stored, likePost")
             
         }
         request.addValue(self.userTokens!.accessToken, forHTTPHeaderField: "accesstoken")
@@ -330,7 +330,65 @@ class API_Rquests {
             do {
                 let decoder = JSONDecoder()
                 let dataModel = try decoder.decode(PostData.self, from: data)
-                print ("Data is valid, getUserData")
+                print ("Data is valid, likePost")
+                completion(.success(dataModel))
+              } catch {
+                completion(.failure(error))
+              }
+        }
+        
+        task.resume()
+    }
+    
+    func unlikePost(postID: String, completion: @escaping (Result<PostData, Error>) -> Void) {
+        
+        let url = URL(string: baseAPIurl + "/delete/unlikePost/\(postID)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        
+        request.addValue(appToken, forHTTPHeaderField: "apptoken")
+        request.addValue(devToken, forHTTPHeaderField: "devtoken")
+        // error here
+        if (self.userTokens == nil) {
+            print ("no tokens stored, unlikePost")
+            
+        }
+        request.addValue(self.userTokens!.accessToken, forHTTPHeaderField: "accesstoken")
+        request.addValue(self.userTokens!.userToken, forHTTPHeaderField: "usertoken")
+        request.addValue(self.userTokens!.userID, forHTTPHeaderField: "userid")
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print ("ERROR ")
+                print(error)
+                return
+            }
+            
+            guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+                print(response!)
+                print(data!)
+                do {
+                    let error = try JSONDecoder().decode(ErrorData.self, from: data!)
+                    print("API error2: \(error.msg), code: \(error.code)")
+                } catch {
+                    print("Error decoding API error: \(error.localizedDescription)")
+                   
+                }
+                print ("NOT 2XX result ")
+                return
+            }
+            
+            guard let data = data else {
+                completion(.failure(NSError(domain: "com.example.error", code: 0, userInfo: nil)))
+                print ("data=data line ")
+
+                return
+            }
+            
+            do {
+                let decoder = JSONDecoder()
+                let dataModel = try decoder.decode(PostData.self, from: data)
+                print ("Data is valid, unlikePost")
                 completion(.success(dataModel))
               } catch {
                 completion(.failure(error))

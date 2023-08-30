@@ -16,7 +16,8 @@ struct PostPreView: View {
     @State private var isActive:Bool = false
     @State var postIsLiked:Bool = false
     @State var api_requests: API_Rquests
-
+    
+    
     var body: some View {
         VStack {
             if showData {
@@ -56,16 +57,33 @@ struct PostPreView: View {
                         HStack {
                             Button(action: {
                                 print("like button")
-                                api_requests.likePost(postID: feedData!.postData._id) { result in
-                                    switch result {
-                                    case .success(let newPostData):
-                                        self.postIsLiked = true
-                                        self.feedData?.postData = newPostData
-                                    case .failure(let error):
-                                    //  if (error.code == "D010") {
-                                    //      self.postIsLiked = true
-                                    //  }
-                                        print("Error: \(error.localizedDescription)")
+                                if (feedData!.postData.liked == true) {
+                                    api_requests.unlikePost(postID: feedData!.postData._id) { result in
+                                        switch result {
+                                        case .success(let newPostData):
+                                            self.postIsLiked = false
+                                            self.feedData?.postData = newPostData
+                                            self.feedData?.postData.liked = false // temp code
+                                        case .failure(let error):
+                                        //  if (error.code == "D010") {
+                                        //      self.postIsLiked = true
+                                        //  }
+                                            print("Error: \(error.localizedDescription)")
+                                        }
+                                    }
+                                } else {
+                                    api_requests.likePost(postID: feedData!.postData._id) { result in
+                                        switch result {
+                                        case .success(let newPostData):
+                                            self.postIsLiked = true
+                                            self.feedData?.postData = newPostData
+                                            self.feedData?.postData.liked = true // temp code
+                                        case .failure(let error):
+                                        //  if (error.code == "D010") {
+                                        //      self.postIsLiked = true
+                                        //  }
+                                            print("Error: \(error.localizedDescription)")
+                                        }
                                     }
                                 }
                             }) {
@@ -85,7 +103,7 @@ struct PostPreView: View {
                                     }
                                 }
                                 .padding(5)
-                                .foregroundColor(postIsLiked ? .red : .white)
+                                .foregroundColor(feedData!.postData.liked == true ? .red : .white)
                                 .background(Color.blue)
                                 .cornerRadius(10)
                             }

@@ -21,6 +21,7 @@ struct PostData: Decodable, Encodable {
     var quoteReplyID: String? = nil
     var replyingPostID: String? = nil
     var quoteReplyPostID: String? = nil
+    var liked:Bool? = nil
 }
 
 struct PostCreateContent: Encodable {
