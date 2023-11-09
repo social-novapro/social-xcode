@@ -216,7 +216,7 @@ class API_Rquests {
     
     func createPost(postCreateContent: PostCreateContent, completion: @escaping (Result<PostData, Error>) -> Void) {
         
-        let url = URL(string: baseAPIurl + "/post/createPost")!
+        let url = URL(string: baseAPIurl + "/posts/create")!
         var request = URLRequest(url: url)
 
         let jsonEncoder = JSONEncoder()
@@ -284,7 +284,7 @@ class API_Rquests {
     
     func likePost(postID: String, completion: @escaping (Result<PostData, Error>) -> Void) {
         
-        let url = URL(string: baseAPIurl + "/put/likePost/\(postID)")!
+        let url = URL(string: baseAPIurl + "/posts/like/\(postID)")!
         var request = URLRequest(url: url)
         request.httpMethod = "PUT"
         
@@ -342,7 +342,7 @@ class API_Rquests {
     
     func unlikePost(postID: String, completion: @escaping (Result<PostData, Error>) -> Void) {
         
-        let url = URL(string: baseAPIurl + "/delete/unlikePost/\(postID)")!
+        let url = URL(string: baseAPIurl + "/posts/unlike/\(postID)")!
         var request = URLRequest(url: url)
         request.httpMethod = "DELETE"
         

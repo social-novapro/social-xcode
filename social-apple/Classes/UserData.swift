@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct UserData: Decodable {
+struct UserData: Decodable, Encodable {
     var _id: String? = nil
     var __v: Int64? = nil
     var creationTimestamp: String? = nil

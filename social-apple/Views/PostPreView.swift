@@ -49,6 +49,42 @@ struct PostPreView: View {
                         
                         Spacer()
                     }
+                    VStack {
+                        if (feedData?.quoteData != nil) {
+                            Divider()
+                            VStack {
+                                if (feedData?.quoteData?.quotePost != nil) {
+                                    Spacer()
+                                        Button(action: {
+                                            isActive=true
+                                            print ("showing usuer?")
+                                            // go to user
+                                        }) {
+                                            if (feedData?.quoteData?.quoteUser != nil) {
+                                                HStack {
+                                                    Text(feedData!.quoteData?.quoteUser?.displayName ?? "")
+                                                    Text("@\(feedData!.quoteData?.quoteUser?.username ?? "")")
+                                                    if (feedData!.userData?.verified != nil) {
+                                                        Image(systemName: "checkmark.seal.fill")
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        .buttonStyle(PlainButtonStyle())
+                                    Spacer()
+                                    HStack {
+                                        Text(feedData!.quoteData?.quotePost?.content! ?? "empty quote")
+                                        Spacer()
+                                    }
+                                    .background(.green)
+                                    .foregroundColor(.black)
+                                    
+                                    Spacer()
+                                }
+                            }
+                           
+                        }
+                    }
                     
                     Spacer()
                     
@@ -57,13 +93,15 @@ struct PostPreView: View {
                         HStack {
                             Button(action: {
                                 print("like button")
-                                if (feedData!.postData.liked == true) {
+                                if (feedData!.extraData.liked == true) {
                                     api_requests.unlikePost(postID: feedData!.postData._id) { result in
                                         switch result {
                                         case .success(let newPostData):
+                                            print(feedData!)
+
                                             self.postIsLiked = false
                                             self.feedData?.postData = newPostData
-                                            self.feedData?.postData.liked = false // temp code
+                                            self.feedData?.extraData.liked = false // temp code
                                         case .failure(let error):
                                         //  if (error.code == "D010") {
                                         //      self.postIsLiked = true
@@ -77,7 +115,7 @@ struct PostPreView: View {
                                         case .success(let newPostData):
                                             self.postIsLiked = true
                                             self.feedData?.postData = newPostData
-                                            self.feedData?.postData.liked = true // temp code
+                                            self.feedData?.extraData.liked = true // temp code
                                         case .failure(let error):
                                         //  if (error.code == "D010") {
                                         //      self.postIsLiked = true
@@ -103,7 +141,7 @@ struct PostPreView: View {
                                     }
                                 }
                                 .padding(5)
-                                .foregroundColor(feedData!.postData.liked == true ? .red : .white)
+                                .foregroundColor(feedData!.extraData.liked == true ? .red : .white)
                                 .background(Color.blue)
                                 .cornerRadius(10)
                             }
@@ -165,6 +203,34 @@ struct PostPreView: View {
                         VStack {
                             Text("PostID: \(feedData?.postData._id ?? "xx")")
                             Text("UserID: \(feedData?.userData?._id ?? "xx")")
+                            
+//                            if (feedData?.quoteData?.quoteUser != nil) {
+                                Text("Quoted UserID: \(feedData?.quoteData?.quoteUser?._id ?? "xx")")
+                                Text("Quoted PostID: \(feedData?.quoteData?.quotePost?._id ?? "xx")")
+//                            }
+                            
+//                            if (feedData?.pollData != nil) {
+                                Text("PollID: \(feedData?.pollData?._id ?? "xx")")
+                                
+//                                if (feedData?.voteData != nil) {
+                                    Text("VoteID: \(feedData?.voteData?._id ?? "xx")")
+
+//                                }
+//                            }
+//
+//                            if (feedData?.typeData.quote != nil) {
+//                                Text("Quoted UserID: \(feedData?.quoteData?.quoteUser?._id ?? "xx")")
+//                                Text("Quoted PostID: \(feedData?.quoteData?.quotePost?._id ?? "xx")")
+//                            }
+//                            
+//                            if (feedData?.typeData.poll != nil) {
+//                                Text("PollID: \(feedData?.pollData?._id ?? "xx")")
+//                                r
+//                                if (feedData?.typeData.vote != nil) {
+//                                    Text("VoteID: \(feedData?.voteData?._id ?? "xx")")
+//
+//                                }
+//                            }
                         }
                         Spacer()
                     }
