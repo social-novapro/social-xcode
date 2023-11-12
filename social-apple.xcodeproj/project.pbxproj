@@ -35,6 +35,7 @@
 		655AB62E29F0EDD900C61F3A /* PostData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655AB62D29F0EDD900C61F3A /* PostData.swift */; };
 		655AB63029F19B0A00C61F3A /* ErrorData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655AB62F29F19B0A00C61F3A /* ErrorData.swift */; };
 		6593B0202AFC733B0096C480 /* LiveChatData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6593B01F2AFC733B0096C480 /* LiveChatData.swift */; };
+		6593B0222B0092700096C480 /* CurrentNavigationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6593B0212B0092700096C480 /* CurrentNavigationHandler.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -68,6 +69,7 @@
 		655AB62D29F0EDD900C61F3A /* PostData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostData.swift; sourceTree = "<group>"; };
 		655AB62F29F19B0A00C61F3A /* ErrorData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorData.swift; sourceTree = "<group>"; };
 		6593B01F2AFC733B0096C480 /* LiveChatData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveChatData.swift; path = ../../../../LiveChatData.swift; sourceTree = "<group>"; };
+		6593B0212B0092700096C480 /* CurrentNavigationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CurrentNavigationHandler.swift; path = ../../../../CurrentNavigationHandler.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,6 +139,7 @@
 				6503515029F1FBF6005C4253 /* UserTokenHandler.swift */,
 				651757DD29FB811300E90FBA /* DevModeHandler.swift */,
 				651757E429FB8B2E00E90FBA /* API_Data.swift */,
+				6593B0212B0092700096C480 /* CurrentNavigationHandler.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -157,6 +160,7 @@
 		655AB62629F0741A00C61F3A /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				6593B0232B0099F30096C480 /* Navigation */,
 				651757E62A006D2D00E90FBA /* Analytics */,
 				655AB62229F0740B00C61F3A /* BeginPage.swift */,
 				655AB62929F080CB00C61F3A /* UserView.swift */,
@@ -171,6 +175,13 @@
 				651757E72A006D3E00E90FBA /* AnalyticsView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		6593B0232B0099F30096C480 /* Navigation */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Navigation;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -267,6 +278,7 @@
 				651757E129FB816F00E90FBA /* social_apple.xcdatamodeld in Sources */,
 				651757EC2A006D6900E90FBA /* AnalyticData.swift in Sources */,
 				655AB60B29F0720500C61F3A /* Persistence.swift in Sources */,
+				6593B0222B0092700096C480 /* CurrentNavigationHandler.swift in Sources */,
 				655AB62529F0741200C61F3A /* LoginPage.swift in Sources */,
 				6593B0202AFC733B0096C480 /* LiveChatData.swift in Sources */,
 			);
@@ -402,6 +414,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "social-apple/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Interact;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -410,8 +424,8 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
@@ -442,6 +456,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "social-apple/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Interact;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -450,8 +466,8 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";

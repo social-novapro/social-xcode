@@ -43,3 +43,7 @@ struct UserTokenData: Decodable, Encodable {
 struct DevModeData: Decodable, Encodable {
     let isEnabled: Bool
 }
+
+struct CurrentNavigationData: Decodable, Encodable {
+    let selectedTab: Int16
+}

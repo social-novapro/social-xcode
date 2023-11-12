@@ -47,6 +47,7 @@ struct BeginPage: View {
                     userTokenData: $userTokens//,
 //                    userID: $userTokens.userID
                 )
+                LogoutView(userTokenData: $userTokenData, devMode: $devMode, userTokensLoaded: $userDataLoaded)
                 FeedPage(userTokenData: $userTokens, devMode: $devMode)
     
             }

@@ -44,9 +44,8 @@ struct PostPreView: View {
                             Text(feedData!.postData.content!)
                             Spacer()
                         }
-                        .background(.green)
-                        .foregroundColor(.black)
-                        
+                        .background(devMode?.isEnabled == true ? Color.green : Color.clear)
+                        .foregroundColor(devMode?.isEnabled == true ? Color.black : Color.primary)
                         Spacer()
                     }
                     VStack {
@@ -73,12 +72,11 @@ struct PostPreView: View {
                                         .buttonStyle(PlainButtonStyle())
                                     Spacer()
                                     HStack {
-                                        Text(feedData!.quoteData?.quotePost?.content! ?? "empty quote")
+                                        Text(feedData?.quoteData?.quotePost?.content ?? "empty quote")
                                         Spacer()
                                     }
-                                    .background(.green)
-                                    .foregroundColor(.black)
-                                    
+                                    .foregroundColor(.secondary)
+                                    .background(devMode?.isEnabled == true ? Color.green : Color.clear)
                                     Spacer()
                                 }
                             }
@@ -141,8 +139,8 @@ struct PostPreView: View {
                                     }
                                 }
                                 .padding(5)
-                                .foregroundColor(feedData!.extraData.liked == true ? .red : .white)
-                                .background(Color.blue)
+                                .foregroundColor(feedData!.extraData.liked == true ? .accentColor : .secondary)
+                                .background(devMode?.isEnabled == true ? Color.blue : Color.clear)
                                 .cornerRadius(10)
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -164,8 +162,9 @@ struct PostPreView: View {
                                     }
                                 }
                                 .padding(5)
-                                .foregroundColor(.white)
-                                .background(Color.blue)
+                                .foregroundColor(.secondary)
+                                .background(devMode?.isEnabled == true ? Color.blue : Color.clear)
+
                                 .cornerRadius(10)
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -187,8 +186,8 @@ struct PostPreView: View {
                                     }
                                 }
                                 .padding(5)
-                                .foregroundColor(.white)
-                                .background(Color.blue)
+                                .foregroundColor(.secondary)
+                                .background(devMode?.isEnabled == true ? Color.blue : Color.clear)
                                 .cornerRadius(10)
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -249,8 +248,7 @@ struct PostPreView: View {
             }
 
         }
-        .background(.red)
-        Spacer()
+        .background(devMode?.isEnabled == true ? Color.red : Color.clear)
     }
 }
 
