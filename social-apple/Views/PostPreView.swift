@@ -80,7 +80,13 @@ struct PostPreView: View {
                                     Spacer()
                                 }
                             }
-                           
+                        }
+                        VStack {
+                            if (feedData?.pollData != nil) {
+                                Divider()
+                                PollView(
+                                    pollData: feedData?.pollData ?? PollData(_id: ""), voteOption: feedData?.voteData?.pollOptionID ?? "")
+                            }
                         }
                     }
                     

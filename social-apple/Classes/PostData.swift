@@ -52,18 +52,55 @@ struct AllPosts: Decodable, Identifiable {
     }
 }
 
-
 struct QuoteData: Decodable, Encodable {
     var quotePost: PostData? = nil
     var quoteUser: UserData? = nil
 }
 
+struct PollOptions: Decodable, Encodable, Identifiable {
+    var id = UUID()
+    var _id: String
+    var optionTitle: String?
+    var timestamp: Int64?
+    var currentIndexID: String?
+//    var amountVoted: Int32?
+    
+    private enum CodingKeys: String, CodingKey {
+        case _id
+        case optionTitle
+        case timestamp
+        case currentIndexID
+//        case amountVoted
+    }
+    /*
+     _id: nonreqString, // pollOptionID
+     optionTitle: nonreqString,
+     timestamp: nonreqNum, // time added option (maybe can add option later)
+     currentIndexID: nonreqString, // pollVoteIndexID (changes)
+     amountVoted: nonreqNum // amount of votes
+     */
+}
+
 struct PollData: Decodable, Encodable {
     var _id: String
+    var timestamp: Int64?
+    var userID: String?
+    var postID: String?
+    var timestampEnding: Int64?
+    var lastEdited: Int64?
+    var pollName: String?
+    var pollOptions: [PollOptions]?
 }
 
 struct VoteData: Decodable, Encodable {
     var _id: String
+    var _version: Int16?
+    var pollID: String?
+    var userID: String?
+    var lastEdited: Int64?
+    var timestamp: Int64?
+    var pollIndexID: String?
+    var pollOptionID: String?
 }
 
 struct ExtraData: Decodable, Encodable {

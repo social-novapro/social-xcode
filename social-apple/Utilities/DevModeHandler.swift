@@ -67,13 +67,13 @@ class DevModeHandler {
     func deleteDevMode() {
         let context = persistentContainer.viewContext
             
-        let fetchRequest: NSFetchRequest<UserTokens> = UserTokens.fetchRequest()
+        let fetchRequest: NSFetchRequest<DevMode> = DevMode.fetchRequest()
         fetchRequest.fetchLimit = 1
             
         do {
             let results = try context.fetch(fetchRequest)
-            if let userTokens = results.first {
-                context.delete(userTokens)
+            if let devMode = results.first {
+                context.delete(devMode)
                 try context.save()
                 print("Devmode data deleted successfully")
             } else {

@@ -248,7 +248,7 @@ struct AppTabNavigation: View {
                         }
                     }) {
 //                        TabButton(buttonIcon: "arrow.right", num: 3, isActive: true)
-                        Image(systemName: "arrow.right")
+                        Image(systemName: "arrow.left")
                             .font(.system(size: 22))
                             .foregroundColor(.accentColor).padding()
                     }

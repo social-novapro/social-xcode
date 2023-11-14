@@ -36,6 +36,7 @@
 		655AB63029F19B0A00C61F3A /* ErrorData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655AB62F29F19B0A00C61F3A /* ErrorData.swift */; };
 		6593B0202AFC733B0096C480 /* LiveChatData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6593B01F2AFC733B0096C480 /* LiveChatData.swift */; };
 		6593B0222B0092700096C480 /* CurrentNavigationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6593B0212B0092700096C480 /* CurrentNavigationHandler.swift */; };
+		65F6B76F2B03360E00D9D5DD /* PollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F6B76E2B03360E00D9D5DD /* PollView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -70,6 +71,7 @@
 		655AB62F29F19B0A00C61F3A /* ErrorData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorData.swift; sourceTree = "<group>"; };
 		6593B01F2AFC733B0096C480 /* LiveChatData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveChatData.swift; path = ../../../../LiveChatData.swift; sourceTree = "<group>"; };
 		6593B0212B0092700096C480 /* CurrentNavigationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CurrentNavigationHandler.swift; path = ../../../../CurrentNavigationHandler.swift; sourceTree = "<group>"; };
+		65F6B76E2B03360E00D9D5DD /* PollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PollView.swift; path = ../../../../PollView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -173,6 +175,7 @@
 				651757DB29FA254500E90FBA /* CreatePost.swift */,
 				651757E229FB889900E90FBA /* DevModeView.swift */,
 				651757E72A006D3E00E90FBA /* AnalyticsView.swift */,
+				65F6B76E2B03360E00D9D5DD /* PollView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -257,6 +260,7 @@
 				651757DC29FA254500E90FBA /* CreatePost.swift in Sources */,
 				651757E329FB889900E90FBA /* DevModeView.swift in Sources */,
 				6503515A29F2F663005C4253 /* LogoutView.swift in Sources */,
+				65F6B76F2B03360E00D9D5DD /* PollView.swift in Sources */,
 				651757DE29FB811300E90FBA /* DevModeHandler.swift in Sources */,
 				6503514D29F1F84C005C4253 /* PostPreView.swift in Sources */,
 				651757E82A006D3E00E90FBA /* AnalyticsView.swift in Sources */,
