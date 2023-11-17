@@ -40,6 +40,24 @@ struct UserTokenData: Decodable, Encodable {
     }
 }
 
+struct TokenData: Decodable, Encodable {
+    let appToken: String
+    let devToken: String
+    let accessToken: String
+    let userToken: String
+    let userID: String
+}
+
+func genTokenData(appToken: String?, devToken: String?, userTokenData: UserTokenData?) -> TokenData {
+    return TokenData(
+        appToken: appToken ?? "",
+        devToken: devToken ?? "",
+        accessToken: userTokenData?.accessToken ?? "",
+        userToken: userTokenData?.userToken ?? "",
+        userID: userTokenData?.userID ?? ""
+    )
+}
+
 struct DevModeData: Decodable, Encodable {
     let isEnabled: Bool
 }

@@ -9,6 +9,7 @@ import SwiftUI
 import CoreData
 
 struct ContentView: View {
+//    @ObservedObject var websocket = LiveChatWebSocket()
     @State var userTokenManager = UserTokenHandler()
     @State var devModeManager = DevModeHandler()
     @State var currentNavigationManager = CurrentNavigationHandler()
@@ -51,6 +52,9 @@ struct ContentView: View {
                         }
                         if (self.currentNavigation?.selectedTab==3) {
                             DevModeView(userTokenData: $userTokens, devMode: $devMode)
+                        }
+                        if (self.currentNavigation?.selectedTab==4) {
+                            LiveChatView(userTokenData: $userTokens)
                         }
                     } else {
                         LoginPage(onDone: { userLoginResponseIn in
@@ -297,6 +301,16 @@ struct AppTabNavigation: View {
                                 .padding(.horizontal)
                         }
                         Spacer(minLength: 5)
+                    }
+                    Spacer(minLength: 5)
+                    Button(action: {
+                        currentNavigation = currentNavigationManager.switchTab(newTab: 4)
+                    }) {
+//                        TabButton(buttonIcon: "hexagon", num: 0, isActive:self.currentNavigation?.selectedTab == 0)
+                        Image(systemName: "bubble.circle")
+                            .font(.system(size: 22))
+                            .foregroundColor(self.currentNavigation?.selectedTab == 4 ? .accentColor: .secondary)
+                            .padding(.horizontal)
                     }
                     Button(action: {
                         withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
