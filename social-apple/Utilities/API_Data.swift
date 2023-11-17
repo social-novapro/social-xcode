@@ -19,7 +19,6 @@ class API_Data {
         }
     }
     
-
     func getAppToken() -> String {
         if (prodMode != true) {
             return "235e9cce-88c0-44e8-94c5-76bc615659a6"

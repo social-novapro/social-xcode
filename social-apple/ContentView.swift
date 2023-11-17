@@ -307,7 +307,7 @@ struct AppTabNavigation: View {
                         currentNavigation = currentNavigationManager.switchTab(newTab: 4)
                     }) {
 //                        TabButton(buttonIcon: "hexagon", num: 0, isActive:self.currentNavigation?.selectedTab == 0)
-                        Image(systemName: "bubble.circle")
+                        Image(systemName: "bubble")
                             .font(.system(size: 22))
                             .foregroundColor(self.currentNavigation?.selectedTab == 4 ? .accentColor: .secondary)
                             .padding(.horizontal)

@@ -41,20 +41,20 @@ struct UserTokenData: Decodable, Encodable {
 }
 
 struct TokenData: Decodable, Encodable {
-    let appToken: String
-    let devToken: String
-    let accessToken: String
-    let userToken: String
-    let userID: String
+    let apptoken: String
+    let devtoken: String
+    let accesstoken: String
+    let usertoken: String
+    let userid: String
 }
 
 func genTokenData(appToken: String?, devToken: String?, userTokenData: UserTokenData?) -> TokenData {
     return TokenData(
-        appToken: appToken ?? "",
-        devToken: devToken ?? "",
-        accessToken: userTokenData?.accessToken ?? "",
-        userToken: userTokenData?.userToken ?? "",
-        userID: userTokenData?.userID ?? ""
+        apptoken: appToken ?? "",
+        devtoken: devToken ?? "",
+        accesstoken: userTokenData?.accessToken ?? "",
+        usertoken: userTokenData?.userToken ?? "",
+        userid: userTokenData?.userID ?? ""
     )
 }
 
