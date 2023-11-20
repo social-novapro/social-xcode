@@ -9,6 +9,7 @@ import SwiftUI
 import CoreData
 
 struct BeginPage: View {
+    @Binding var client: ApiClient
     @Binding var userTokenData: UserTokenData?
     @Binding var devMode: DevModeData?
     @Binding var userTokensLoaded: Bool
@@ -28,7 +29,7 @@ struct BeginPage: View {
             if (!userDataLoaded && !pageLoading) {
                 Text("Login" )
 
-                LoginPage(onDone: { userLoginResponseIn in
+                LoginPage(client: $client, onDone: { userLoginResponseIn in
                     
                     self.userLoginResponse = userLoginResponseIn;
                     self.userData = userLoginResponseIn.publicData;
@@ -47,8 +48,8 @@ struct BeginPage: View {
                     userTokenData: $userTokens//,
 //                    userID: $userTokens.userID
                 )
-                LogoutView(userTokenData: $userTokenData, devMode: $devMode, userTokensLoaded: $userDataLoaded)
-                FeedPage(userTokenData: $userTokens, devMode: $devMode)
+                LogoutView(client: $client, userTokenData: $userTokenData, devMode: $devMode, userTokensLoaded: $userDataLoaded)
+                FeedPage(client: $client, userTokenData: $userTokens, devMode: $devMode)
     
             }
         }

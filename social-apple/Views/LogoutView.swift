@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct LogoutView: View {
+    @Binding var client: ApiClient
     @Binding var userTokenData: UserTokenData?
     @Binding var devMode: DevModeData?
     @Binding var userTokensLoaded: Bool
@@ -18,7 +19,7 @@ struct LogoutView: View {
     var body: some View {
         VStack {
             if (isLoggingOut) {
-                BeginPage(userTokenData: $userTokenData, devMode: $devMode, userTokensLoaded: $userTokensLoaded)
+                BeginPage(client: $client, userTokenData: $userTokenData, devMode: $devMode, userTokensLoaded: $userTokensLoaded)
             }
             else {
                 Text("Are you sure you want to logout?")

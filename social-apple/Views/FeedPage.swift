@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct FeedPage: View {
+    @Binding var client: ApiClient
+    
     @Binding var userTokenData: UserTokenData?
     @Binding var devMode: DevModeData?
 //^ turn to state when using init
@@ -23,7 +25,7 @@ struct FeedPage: View {
     var body: some View {
         VStack {
             if (!isLoading) {
-                childFeed(userTokenData: $userTokenData, allPostsIn: $allPosts, devMode: $devMode, api_requests: api_requests)
+                childFeed(client: $client, userTokenData: $userTokenData, allPostsIn: $allPosts, devMode: $devMode, api_requests: api_requests)
             }
             else {
                 Text("loading feed")
@@ -48,6 +50,8 @@ struct FeedPage: View {
 }
 
 struct childFeed: View {
+    @Binding var client: ApiClient
+
     @Binding var userTokenData: UserTokenData?
     @Binding var allPostsIn: [AllPosts]?
     @Binding var devMode: DevModeData?
@@ -60,7 +64,7 @@ struct childFeed: View {
             if showData {
                 List {
                     ForEach(allPosts!) { post in
-                        PostPreView(userTokenData: $userTokenData, devMode: $devMode, feedDataIn: post, api_requests: api_requests)
+                        PostPreView(client: $client, userTokenData: $userTokenData, devMode: $devMode, feedDataIn: post, api_requests: api_requests)
                     }
                 }
             }

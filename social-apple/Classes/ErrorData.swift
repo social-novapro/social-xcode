@@ -28,3 +28,8 @@ struct ErrorDataWithAuth: Decodable {
         self.error = error
     }
 }
+
+struct ApiHeader: Decodable {
+    let value: String
+    let field: String
+}

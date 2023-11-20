@@ -11,7 +11,10 @@ import CoreData
 struct LoginPage: View {
     @Environment(\.managedObjectContext) private var viewContext
 
+    @Binding var client: ApiClient
     @State private var userLoginData: UserLoginResponse?
+    
+    
     var onDone: (UserLoginResponse) -> Void
 //    @Binding var api_requests: API_Rquests
     let api_requests = API_Rquests()
@@ -30,11 +33,12 @@ struct LoginPage: View {
                     print("button pressed")
                     let userLogin = UserLoginData(username: username, password: password)
                     print("userlogin, LoginPage")
-                    api_requests.userLoginRequest(userLogin: userLogin) { result in
+                    client.auth.userLoginRequest(userLogin: userLogin) { result in
                         print("api rquest login:")
                         switch result {
                         case .success(let userLoginData):
                             self.userLoginData = userLoginData
+                            client.provideTokens(userLoginResponse: userLoginData)
                             self.shouldNavigate = true
                             onDone(userLoginData)
                         case .failure(let error):

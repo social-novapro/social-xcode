@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct PostPreView: View {
+    @Binding var client: ApiClient
     @Binding var userTokenData: UserTokenData?
     @Binding var devMode: DevModeData?
     @State var feedDataIn: AllPosts
@@ -98,39 +99,30 @@ struct PostPreView: View {
                             Button(action: {
                                 print("like button")
                                 if (feedData!.extraData.liked == true) {
-                                    api_requests.unlikePost(postID: feedData!.postData._id) { result in
+                                    client.posts.unlikePost(postID: feedData!.postData._id) { result in
                                         switch result {
                                         case .success(let newPostData):
-                                            print(feedData!)
-
                                             self.postIsLiked = false
                                             self.feedData?.postData = newPostData
                                             self.feedData?.extraData.liked = false // temp code
                                         case .failure(let error):
-                                        //  if (error.code == "D010") {
-                                        //      self.postIsLiked = true
-                                        //  }
                                             print("Error: \(error.localizedDescription)")
                                         }
                                     }
                                 } else {
-                                    api_requests.likePost(postID: feedData!.postData._id) { result in
+                                    client.posts.likePost(postID: feedData!.postData._id) { result in
                                         switch result {
                                         case .success(let newPostData):
                                             self.postIsLiked = true
                                             self.feedData?.postData = newPostData
                                             self.feedData?.extraData.liked = true // temp code
                                         case .failure(let error):
-                                        //  if (error.code == "D010") {
-                                        //      self.postIsLiked = true
-                                        //  }
                                             print("Error: \(error.localizedDescription)")
                                         }
                                     }
                                 }
                             }) {
                                 HStack {
-                                    
                                     if (feedData?.postData.totalLikes != nil && feedData?.postData.totalLikes != 0) {
                                         if (feedData?.postData.totalLikes == 1) {
                                             Text ("\(self.feedData?.postData.totalLikes ?? 0) Like")
@@ -170,7 +162,6 @@ struct PostPreView: View {
                                 .padding(5)
                                 .foregroundColor(.secondary)
                                 .background(devMode?.isEnabled == true ? Color.blue : Color.clear)
-
                                 .cornerRadius(10)
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -181,10 +172,10 @@ struct PostPreView: View {
                                 HStack {
                                     if (feedData?.postData.totalReplies != nil && feedData?.postData.totalReplies != 0) {
                                         if (feedData?.postData.totalLikes == 1) {
-                                            Text ("\(self.feedData?.postData.totalReplies ?? 0) Reply")
+                                            Text("\(self.feedData?.postData.totalReplies ?? 0) Reply")
                                         }
                                         else {
-                                            Text ("\(self.feedData?.postData.totalReplies ?? 0) Replies")
+                                            Text("\(self.feedData?.postData.totalReplies ?? 0) Replies")
                                         }
                                     }
                                     else {
@@ -209,37 +200,20 @@ struct PostPreView: View {
                             Text("PostID: \(feedData?.postData._id ?? "xx")")
                             Text("UserID: \(feedData?.userData?._id ?? "xx")")
                             
-//                            if (feedData?.quoteData?.quoteUser != nil) {
+                            if (feedData?.quoteData?.quoteUser != nil) {
                                 Text("Quoted UserID: \(feedData?.quoteData?.quoteUser?._id ?? "xx")")
                                 Text("Quoted PostID: \(feedData?.quoteData?.quotePost?._id ?? "xx")")
-//                            }
+                            }
                             
-//                            if (feedData?.pollData != nil) {
+                            if (feedData?.pollData != nil) {
                                 Text("PollID: \(feedData?.pollData?._id ?? "xx")")
-                                
-//                                if (feedData?.voteData != nil) {
+                                if (feedData?.voteData != nil) {
                                     Text("VoteID: \(feedData?.voteData?._id ?? "xx")")
-
-//                                }
-//                            }
-//
-//                            if (feedData?.typeData.quote != nil) {
-//                                Text("Quoted UserID: \(feedData?.quoteData?.quoteUser?._id ?? "xx")")
-//                                Text("Quoted PostID: \(feedData?.quoteData?.quotePost?._id ?? "xx")")
-//                            }
-//                            
-//                            if (feedData?.typeData.poll != nil) {
-//                                Text("PollID: \(feedData?.pollData?._id ?? "xx")")
-//                                r
-//                                if (feedData?.typeData.vote != nil) {
-//                                    Text("VoteID: \(feedData?.voteData?._id ?? "xx")")
-//
-//                                }
-//                            }
+                                }
+                            }
                         }
                         Spacer()
                     }
-                    
                 }
             }
             else {

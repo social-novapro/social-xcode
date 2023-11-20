@@ -17,9 +17,12 @@ class API_Rquests {
 
     var appToken = "token"
     var devToken = "token"
+    var api_helper:API_Helper
 
     init() {
         userTokens = userTokenManager.getUserTokens()
+        api_helper = API_Helper(userTokensProv: userTokens ?? UserTokenData(accessToken: "", userToken: "", userID: ""))
+
         
         baseAPIurl = apiData.getURL()
         appToken = apiData.getAppToken()
@@ -94,6 +97,8 @@ class API_Rquests {
                     print ("already")
                 }
                 self.userTokens = UserTokenData(accessToken: dataModel.accessToken, userToken: dataModel.userToken, userID: dataModel.userID)
+                self.api_helper = API_Helper(userTokensProv: self.userTokens!)
+
                 print ("Data is valid, userLoginRquest")
                   completion(.success(dataModel))
               } catch {
@@ -105,58 +110,22 @@ class API_Rquests {
     }
 
     func getAllPosts(userTokens: UserTokenData, completion: @escaping (Result<[AllPosts], Error>) -> Void) {
-        let url = URL(string: baseAPIurl + "/feeds/userFeed")!
-        var request = URLRequest(url: url)
-        
-        request.addValue(appToken, forHTTPHeaderField: "apptoken")
-        request.addValue(devToken, forHTTPHeaderField: "devtoken")
-        request.addValue(userTokens.accessToken, forHTTPHeaderField: "accesstoken")
-        request.addValue(userTokens.userToken, forHTTPHeaderField: "usertoken")
-
-        request.addValue(userTokens.userID, forHTTPHeaderField: "userid")
-
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
-                print ("ERROR ")
-                print(error)
-                // Handle error here
-                return
+        print("Getting all posts")
+        let APIUrl = baseAPIurl + "/feeds/userFeed"
+        api_helper.requestData(urlString: APIUrl) { (result: Result<[AllPosts], Error>) in
+            switch result {
+            case .success(let allPosts):
+                completion(.success(allPosts.reversed()))
+            case .failure(let error):
+                print("Error: \(error)")
             }
-            guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
-                print(response!)
-                print(data!)
-                do {
-                    let error = try JSONDecoder().decode(ErrorDataWithAuth.self, from: data!)
-                    print("API error: \(error.error.msg), code: \(error.error.code)")
-                } catch {
-                    print("Error decoding API error: \(error.localizedDescription)")
-                }
-                print ("NOT 2XX result ")
-
-                return
-            }
-            guard let data = data else {
-                completion(.failure(NSError(domain: "com.example.error", code: 0, userInfo: nil)))
-                print ("data=data line ")
-
-                return
-            }
-            do {
-                let decoder = JSONDecoder()
-                let dataModel = try decoder.decode([AllPosts].self, from: data)
-                print ("Data is valid, getAllPosts")
-                completion(.success(dataModel.reversed()))
-              } catch {
-                completion(.failure(error))
-              }
         }
-        
-        task.resume()
     }
     
     func handleError() {
         
     }
+    
     func getUserData(userID: String?, completion: @escaping (Result<UserData, Error>) -> Void) {
         if ((userID == nil)) {
             return 
@@ -206,6 +175,7 @@ class API_Rquests {
                 let dataModel = try decoder.decode(UserData.self, from: data)
                 print ("Data is valid, getUserData")
                 completion(.success(dataModel))
+                
               } catch {
                 completion(.failure(error))
               }

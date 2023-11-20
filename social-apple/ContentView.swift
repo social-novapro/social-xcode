@@ -10,6 +10,15 @@ import CoreData
 
 struct ContentView: View {
 //    @ObservedObject var websocket = LiveChatWebSocket()
+    @State var client = ApiClient()
+    /*
+     takes over 
+     - userTokenManager
+     - userLoginresponse
+     - userTokens
+     - userTokensLoaded (maybe)
+     */
+    
     @State var userTokenManager = UserTokenHandler()
     @State var devModeManager = DevModeHandler()
     @State var currentNavigationManager = CurrentNavigationHandler()
@@ -32,13 +41,14 @@ struct ContentView: View {
                 if horizontalSizeClass == .compact {
                     if (userTokensLoaded) {
                         if (self.currentNavigation?.selectedTab==0) {
-                            FeedPage(userTokenData: $userTokens, devMode: $devMode)
+                            FeedPage(client: $client, userTokenData: $userTokens, devMode: $devMode)
                         }
                         if (self.currentNavigation?.selectedTab==1) {
                             AboutView(devMode: $devMode)
                         }
                         if (self.currentNavigation?.selectedTab==2) {
                             SideBarNavigation(
+                                client: $client,
                                 userTokenManager: $userTokenManager,
                                 devModeManager: $devModeManager,
                                 currentNavigationManager: $currentNavigationManager,
@@ -57,7 +67,7 @@ struct ContentView: View {
                             LiveChatView(userTokenData: $userTokens)
                         }
                     } else {
-                        LoginPage(onDone: { userLoginResponseIn in
+                        LoginPage(client: $client, onDone: { userLoginResponseIn in
                             userTokensLoaded = true;
                             self.userTokens = UserTokenData(
                                 accessToken: userLoginResponseIn.accessToken,
@@ -77,6 +87,7 @@ struct ContentView: View {
                         AppTabNavigation(currentNavigation: $currentNavigation, devMode: $devMode)
                     } else {
                         SideBarNavigation(
+                            client: $client,
                             userTokenManager: $userTokenManager,
                             devModeManager: $devModeManager,
                             currentNavigationManager: $currentNavigationManager,
@@ -106,9 +117,9 @@ struct ContentView: View {
             }
             if horizontalSizeClass != .compact {
                 if (userTokensLoaded) {
-                    FeedPage(userTokenData: $userTokens, devMode: $devMode)
+                    FeedPage(client: $client, userTokenData: $userTokens, devMode: $devMode)
                 } else {
-                    LoginPage(onDone: { userLoginResponseIn in
+                    LoginPage(client: $client, onDone: { userLoginResponseIn in
                         userTokensLoaded = true;
                         self.userTokens = UserTokenData(
                             accessToken: userLoginResponseIn.accessToken,
@@ -141,6 +152,8 @@ struct ContentView: View {
 }
 
 struct SideBarNavigation: View {
+    @Binding var client: ApiClient
+    
     @Binding var userTokenManager:UserTokenHandler
     @Binding var devModeManager:DevModeHandler
     @Binding var currentNavigationManager:CurrentNavigationHandler
@@ -160,7 +173,7 @@ struct SideBarNavigation: View {
             if (userTokensLoaded) {
                 VStack {
                     NavigationLink {
-                        FeedPage(userTokenData: $userTokens, devMode: $devMode)
+                        FeedPage(client: $client, userTokenData: $userTokens, devMode: $devMode)
                     } label: {
                         Text("Feed")
                     }
@@ -181,7 +194,7 @@ struct SideBarNavigation: View {
                 }
                 VStack {
                     NavigationLink {
-                        LogoutView(userTokenData: $userTokens, devMode: $devMode, userTokensLoaded: $userTokensLoaded)
+                        LogoutView(client: $client, userTokenData: $userTokens, devMode: $devMode, userTokensLoaded: $userTokensLoaded)
                     } label: {
                         Text("Logout")
                     }
@@ -191,7 +204,7 @@ struct SideBarNavigation: View {
             else {
                 VStack {
                     NavigationLink {
-                        BeginPage(userTokenData: $userTokens, devMode: $devMode, userTokensLoaded: $userTokensLoaded)
+                        BeginPage(client: $client, userTokenData: $userTokens, devMode: $devMode, userTokensLoaded: $userTokensLoaded)
                     } label: {
                         Text("Begin")
                     }
