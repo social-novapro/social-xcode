@@ -37,7 +37,7 @@ struct ContentView: View {
     @ViewBuilder var body: some View {
         NavigationView {
             ZStack {
-                #if os(iOS)
+#if os(iOS)
                 if horizontalSizeClass == .compact {
                     if (userTokensLoaded) {
                         if (self.currentNavigation?.selectedTab==0) {
@@ -73,19 +73,16 @@ struct ContentView: View {
                                 accessToken: userLoginResponseIn.accessToken,
                                 userToken: userLoginResponseIn.userToken,
                                 userID: userLoginResponseIn.userID
-                             )
+                            )
                             userTokenManager.saveUserTokens(userTokenData: self.userTokens!)
                             print("userresponsein")
                         })
                     }
                 }
-                #endif
+#endif
                 VStack {
-                    #if os(iOS)
-                    if horizontalSizeClass == .compact {
-                        Spacer()
-                        AppTabNavigation(currentNavigation: $currentNavigation, devMode: $devMode)
-                    } else {
+#if os(iOS)
+                    if horizontalSizeClass != .compact {
                         SideBarNavigation(
                             client: $client,
                             userTokenManager: $userTokenManager,
@@ -99,9 +96,10 @@ struct ContentView: View {
                             currentNavigation: $currentNavigation
                         )
                     }
-                    #endif
-                    #if os(macOS)
+#endif
+#if os(macOS)
                     SideBarNavigation(
+                        client: $client,
                         userTokenManager: $userTokenManager,
                         devModeManager: $devModeManager,
                         currentNavigationManager: $currentNavigationManager,
@@ -112,7 +110,7 @@ struct ContentView: View {
                         devMode: $devMode,
                         currentNavigation: $currentNavigation
                     )
-                    #endif
+#endif
                 }
             }
             if horizontalSizeClass != .compact {
@@ -132,6 +130,17 @@ struct ContentView: View {
                 }
             }
         }
+#if os(iOS)
+        .if(horizontalSizeClass == .compact) { view in
+            view.overlay(
+                AppTabNavigation(currentNavigation: $currentNavigation, devMode: $devMode)
+                    .frame(height: 50)
+                    .padding(.bottom, 8),
+                alignment: .bottom
+            )
+            .navigationViewStyle(StackNavigationViewStyle())
+        }
+#endif
         .onAppear {
             devMode = devModeManager.getDevMode()
             print ("devMode: \(devMode!)")
@@ -147,6 +156,16 @@ struct ContentView: View {
                 print("userTokens: .onAppear, else, BeginPage()")
                 self.pageLoading = false
             }
+        }
+    }
+}
+
+extension View {
+    @ViewBuilder func `if`<Content: View>(_ condition: Bool, content: (Self) -> Content) -> some View {
+        if condition {
+            content(self)
+        } else {
+            self
         }
     }
 }
@@ -264,7 +283,6 @@ struct AppTabNavigation: View {
                             self.expand.toggle()
                         }
                     }) {
-//                        TabButton(buttonIcon: "arrow.right", num: 3, isActive: true)
                         Image(systemName: "arrow.left")
                             .font(.system(size: 22))
                             .foregroundColor(.accentColor).padding()
@@ -275,7 +293,6 @@ struct AppTabNavigation: View {
                     Button(action: {
                         currentNavigation = currentNavigationManager.switchTab(newTab: 0)
                     }) {
-//                        TabButton(buttonIcon: "hexagon", num: 0, isActive:self.currentNavigation?.selectedTab == 0)
                         Image(systemName: "tray.2")
                             .font(.system(size: 22))
                             .foregroundColor(self.currentNavigation?.selectedTab == 0 ? .accentColor: .secondary)
@@ -285,8 +302,6 @@ struct AppTabNavigation: View {
                     Button(action: {
                         currentNavigation = currentNavigationManager.switchTab(newTab: 1)
                     }) {
-//                        TabButton(buttonIcon: "info.circle", num: 1, isActive:self.currentNavigation?.selectedTab == 1)
-
                         Image(systemName: "info.circle")
                             .font(.system(size: 22))
                             .foregroundColor(self.currentNavigation?.selectedTab == 1 ? .accentColor: .secondary)
@@ -296,8 +311,6 @@ struct AppTabNavigation: View {
                     Button(action: {
                         currentNavigation = currentNavigationManager.switchTab(newTab: 2)
                     }) {
-//                        TabButton(buttonIcon: "gear", num: 2, isActive:self.currentNavigation?.selectedTab == 2)
-
                         Image(systemName: "gear")
                             .font(.system(size: 22))
                             .foregroundColor(self.currentNavigation?.selectedTab == 2 ? .accentColor: .secondary)
@@ -319,7 +332,6 @@ struct AppTabNavigation: View {
                     Button(action: {
                         currentNavigation = currentNavigationManager.switchTab(newTab: 4)
                     }) {
-//                        TabButton(buttonIcon: "hexagon", num: 0, isActive:self.currentNavigation?.selectedTab == 0)
                         Image(systemName: "bubble")
                             .font(.system(size: 22))
                             .foregroundColor(self.currentNavigation?.selectedTab == 4 ? .accentColor: .secondary)
@@ -331,7 +343,6 @@ struct AppTabNavigation: View {
                         }
                         
                     }) {
-//                        TabButton(buttonIcon: "arrow.right", num: 3, isActive: false)
                         Image(systemName: "arrow.right")
                             .font(.system(size: 22))
                             .foregroundColor(.secondary).padding()

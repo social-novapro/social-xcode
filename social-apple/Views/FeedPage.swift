@@ -67,6 +67,9 @@ struct childFeed: View {
                         PostPreView(client: $client, userTokenData: $userTokenData, devMode: $devMode, feedDataIn: post, api_requests: api_requests)
                     }
                 }
+                .listStyle(.plain)
+                .listRowInsets(EdgeInsets())
+                .listRowSeparator(.hidden)
             }
             else {
                 Text("Loading")

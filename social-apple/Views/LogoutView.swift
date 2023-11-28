@@ -15,7 +15,6 @@ struct LogoutView: View {
     @State var userTokenManager = UserTokenHandler()
     @State private var isLoggingOut = false
 
-
     var body: some View {
         VStack {
             if (isLoggingOut) {

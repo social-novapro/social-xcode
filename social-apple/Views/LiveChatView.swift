@@ -18,7 +18,6 @@ struct SendLiveChatView: View {
         VStack {
             Form {
                 TextField("Content", text: $content)
-                
                 Button("Send Message") {
                     print(webSocketManager.tokens)
                     let liveChatSend = createLiveSendData(type: 2, mesType: 2, content: self.content, replyTo: nil, userTokenData: userTokenData)
@@ -48,44 +47,43 @@ struct LiveChatView: View {
     var body: some View {
         VStack {
             HStack {
-                ForEach(typers) { typer in
-                    Text(typer.username)
-                }
-                if (typers.count > 0) {
-                    Text(" is typing")
-                }
-                
-            }
-            ScrollView {
-                ForEach(messages) { message in
-                    ChatMessageView(chatMessage: message)
-                }
-            }
-            Spacer()
-            Form {
-                TextField("Content", text: $content)
-                if (content != "") {
-                    Button("Send Message") {
-                        print(webSocketManager.tokens)
-                        let liveChatSend = createLiveSendData(type: 2, mesType: 2, content: self.content, replyTo: nil, userTokenData: userTokenData)
-                        webSocketManager.sendMessage(liveChatSendData: liveChatSend)
-                        self.content = ""
+                HStack {
+                    ForEach(typers) { typer in
+                        Text(typer.username)
+                    }
+                    if (typers.count > 0) {
+                        Text(" is typing")
                     }
                 }
             }
-//            Button("Write a message") {
-//                print(webSocketManager.tokens)
-//                self.writingPopover = true
-//            }
-//            Button("Send Message") {
-//                let liveChatSend = createLiveSendData(type: 2, mesType: 2, content: "New message", replyTo: nil, userTokenData: userTokenData)
-//                webSocketManager.sendMessage(liveChatSendData: liveChatSend)
+            HStack {
+                VStack {
+                    ScrollView {
+                        ForEach(messages) { message in
+                            ChatMessageView(chatMessage: message)
+                        }
+                    }
+//                    .listStyle(.plain)
+//                    .listRowInsets(EdgeInsets())
+                }
+            }
+            HStack {
+                Spacer()
+                Form {
+                    TextField("Content", text: $content)
+                    if (content != "") {
+                        Button("Send Message") {
+                            print(webSocketManager.tokens)
+                            let liveChatSend = createLiveSendData(type: 2, mesType: 2, content: self.content, replyTo: nil, userTokenData: userTokenData)
+                            webSocketManager.sendMessage(liveChatSendData: liveChatSend)
+                            self.content = ""
+                        }
+                    }
+                }
+//                .alignment
+            }
         }
         .navigationTitle("Live Chat")
-//        .popover(isPresented: $writingPopover) {
-//            
-//            SendLiveChatView(webSocketManager: webSocketManager, userTokenData: $userTokenData, writingPopover: $writingPopover)
-//        }
         .onAppear {
             if self.isInitialized == true {
                 return
@@ -93,8 +91,6 @@ struct LiveChatView: View {
             
             webSocketManager.connectWS(userID: userTokenData?.userID ?? "")
             self.isInitialized = true
-//            webSocketManager = LiveChatWebSocket(userID: userTokenData.userID)
-            // Perform any additional setup or send initial messages when the view appears
         }
         .onReceive(webSocketManager.$receivedDataQueue) { newQueue in
             DispatchQueue.main.async {
@@ -112,7 +108,6 @@ struct LiveChatView: View {
                             let authSend:LiveChatSendData = createLiveSendData(type: 10, mesType: 2, content: "tokens", replyTo: nil, userTokenData: userTokenData ?? nil)
                             webSocketManager.sendMessage(liveChatSendData: authSend)
                             print(webSocketManager.tokens)
-
                         }
                         break;
                     case 2:
