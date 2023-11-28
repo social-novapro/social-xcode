@@ -7,14 +7,20 @@
 
 import Foundation
 
-class ApiClient {
+class ApiClient: ObservableObject {
     var auth: AuthApi
     var posts: PostsApi
     var users: UsersApi
     
-    private var userTokenManager = UserTokenHandler()
-    private var userTokens: UserTokenData
-    private var loggedIn:Bool
+    @Published var loggedIn:Bool
+    @Published var devMode: DevModeData? = DevModeData(isEnabled: false)
+    @Published var navigation: CurrentNavigationData? = CurrentNavigationData(selectedTab: 0)
+    
+    var userTokenManager = UserTokenHandler()
+    var devModeManager = DevModeHandler()
+    var navigationManager = CurrentNavigationHandler()
+
+    var userTokens: UserTokenData
     
     init() {
         let tokensFound = userTokenManager.getUserTokens()
@@ -26,10 +32,10 @@ class ApiClient {
             self.loggedIn = false
         }
         
+        self.devMode = self.devModeManager.getDevMode()
         self.auth = AuthApi(userTokensProv: userTokens)
         self.posts = PostsApi(userTokensProv: userTokens)
         self.users = UsersApi(userTokensProv: userTokens)
-        
     }
     
     func hasTokens() {

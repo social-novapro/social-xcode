@@ -8,25 +8,21 @@
 import SwiftUI
 
 struct LogoutView: View {
-    @Binding var client: ApiClient
-    @Binding var userTokenData: UserTokenData?
-    @Binding var devMode: DevModeData?
-    @Binding var userTokensLoaded: Bool
-    @State var userTokenManager = UserTokenHandler()
+    @ObservedObject var client: ApiClient
     @State private var isLoggingOut = false
 
     var body: some View {
         VStack {
             if (isLoggingOut) {
-                BeginPage(client: $client, userTokenData: $userTokenData, devMode: $devMode, userTokensLoaded: $userTokensLoaded)
+                BeginPage(client: client)
             }
             else {
                 Text("Are you sure you want to logout?")
                 Button(action: {
                     print("deleting pressed")
-                    userTokenManager.deleteUserToken()
+                    client.userTokenManager.deleteUserToken()
+                    client.loggedIn = false
                     isLoggingOut = true
-                    userTokensLoaded=false
                 }) {
                     Text("Log out")
                 }

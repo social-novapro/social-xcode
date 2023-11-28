@@ -10,13 +10,11 @@ import CoreData
 
 struct LoginPage: View {
     @Environment(\.managedObjectContext) private var viewContext
-
-    @Binding var client: ApiClient
+    @ObservedObject var client: ApiClient
     @State private var userLoginData: UserLoginResponse?
     
     
     var onDone: (UserLoginResponse) -> Void
-//    @Binding var api_requests: API_Rquests
     let api_requests = API_Rquests()
     
     @State private var username: String = ""

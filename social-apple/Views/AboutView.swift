@@ -7,9 +7,9 @@
 
 import SwiftUI
 
+
 struct AboutView: View {
-    @Binding var devMode: DevModeData?
-    @State var devModeManager = DevModeHandler()
+    @ObservedObject var client: ApiClient
 
     var body: some View {
         VStack {
@@ -31,7 +31,7 @@ struct AboutView: View {
             .padding(20)
 
             VStack {
-                if (devMode?.isEnabled == true) {
+                if (client.devMode?.isEnabled == true) {
                     Text("Disable DevMode")
                         .fontWeight(.heavy)
                 }
@@ -40,7 +40,7 @@ struct AboutView: View {
                         .fontWeight(.heavy)
                 }
                 Button(action: {
-                    devMode = devModeManager.swapMode()
+                    client.devMode = client.devModeManager.swapMode()
                 }) {
                     Text("Dev Mode")
                 }

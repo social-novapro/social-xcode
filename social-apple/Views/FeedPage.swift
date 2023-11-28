@@ -8,12 +8,7 @@
 import SwiftUI
 
 struct FeedPage: View {
-    @Binding var client: ApiClient
-    
-    @Binding var userTokenData: UserTokenData?
-    @Binding var devMode: DevModeData?
-//^ turn to state when using init
-    //    @Binding var userID: String?
+    @ObservedObject var client: ApiClient
     let api_requests = API_Rquests()
 
     @State var userData: UserData?
@@ -25,14 +20,14 @@ struct FeedPage: View {
     var body: some View {
         VStack {
             if (!isLoading) {
-                childFeed(client: $client, userTokenData: $userTokenData, allPostsIn: $allPosts, devMode: $devMode, api_requests: api_requests)
+                childFeed(client: client, allPostsIn: $allPosts, api_requests: api_requests)
             }
             else {
                 Text("loading feed")
             }
         }
         .onAppear {
-            api_requests.getAllPosts(userTokens: userTokenData ?? UserTokenData(accessToken: "", userToken: "", userID: "")) { result in
+            api_requests.getAllPosts(userTokens: client.userTokens) { result in
                 print("allpost request")
                 
                 switch result {
@@ -50,11 +45,8 @@ struct FeedPage: View {
 }
 
 struct childFeed: View {
-    @Binding var client: ApiClient
-
-    @Binding var userTokenData: UserTokenData?
+    @ObservedObject var client: ApiClient
     @Binding var allPostsIn: [AllPosts]?
-    @Binding var devMode: DevModeData?
     @State var allPosts: [AllPosts]?
     @State var showData: Bool = false
     @State var api_requests: API_Rquests
@@ -64,11 +56,13 @@ struct childFeed: View {
             if showData {
                 List {
                     ForEach(allPosts!) { post in
-                        PostPreView(client: $client, userTokenData: $userTokenData, devMode: $devMode, feedDataIn: post, api_requests: api_requests)
+                            PostPreView(client: client, feedDataIn: post, api_requests: api_requests)
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets())
+                            .padding(10)
                     }
                 }
                 .listStyle(.plain)
-                .listRowInsets(EdgeInsets())
                 .listRowSeparator(.hidden)
             }
             else {

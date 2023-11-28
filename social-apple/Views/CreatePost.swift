@@ -8,9 +8,8 @@
 import SwiftUI
 
 struct CreatePost: View {
-    let api_requests = API_Rquests()
-    @Binding var userTokenData: UserTokenData?
-    
+    @ObservedObject var client: ApiClient
+    let api_requests = API_Rquests()    
     @State private var content: String = ""
     @State var newPost:PostData?
     
@@ -22,12 +21,13 @@ struct CreatePost: View {
                 Button(action: {
                     print("button pressed")
                     print("createPost")
-                    let postCreateContent = PostCreateContent(userID: userTokenData?.userID ?? "xx", content: self.content)
+                    let postCreateContent = PostCreateContent(userID: client.userTokens.userID, content: self.content)
                     api_requests.createPost(postCreateContent: postCreateContent) { result in
                         print("api rquest login:")
                         switch result {
                         case .success(let newPost):
                             self.newPost = newPost
+                            self.content = ""
                         case .failure(let error):
                             print("Error: \(error.localizedDescription)")
                         }

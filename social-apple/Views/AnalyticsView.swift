@@ -104,12 +104,6 @@ struct AnalyticsView: View {
     }
 }
 
-struct AnalyticsView_Previews: PreviewProvider {
-    static var previews: some View {
-        AnalyticsView()
-    }
-}
-
 // testing
 struct secondaryAnalyticView: View {
     @State var openSheet: Bool = false

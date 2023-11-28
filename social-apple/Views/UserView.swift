@@ -8,9 +8,7 @@
 import SwiftUI
 
 struct UserView: View {
-    @Binding var userTokenData: UserTokenData?
-//    @Binding var userID: String?
-    
+    @ObservedObject var client: ApiClient    
     let api_requests = API_Rquests()
 
     @State var userData: UserData?
@@ -31,7 +29,7 @@ struct UserView: View {
         }
         .navigationTitle("User View")
         .onAppear {
-            api_requests.getUserData(userID: userTokenData?.userID) { result in
+            api_requests.getUserData(userID: client.userTokens.userID) { result in
                 switch result {
                 case .success(let userData):
                     print("userData, UserView ")

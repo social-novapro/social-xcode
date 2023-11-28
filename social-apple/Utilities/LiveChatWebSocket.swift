@@ -16,12 +16,7 @@ class LiveChatWebSocket: ObservableObject {
     var tokens:Bool = false
     
     init() {
-//        let url = URL(string: "wss://interact-api.novapro.net/?userID=\(userID)")!
-//        let session = URLSession(configuration: .default)
-//
-//        webSocketTask = session.webSocketTask(with: url)
-//        receiveData()
-//        webSocketTask.resume()
+
     }
     
     func connectWS(userID: String) {
@@ -59,18 +54,6 @@ class LiveChatWebSocket: ObservableObject {
                     } catch {
                         print("Error decoding JSON from text: \(error)")
                     }
-//                    let decoder = JSONDecoder()
-//                    decoder.keyDecodingStrategy = .convertFromSnakeCase
-//
-//                    do {
-//                        let decodedData = try decoder.decode(LiveChatData.self, from: text.data(using: .utf8)!)
-//                        DispatchQueue.main.async {
-//                            self.addToQueue(decodedData)
-//                        }
-//                    } catch {
-//                        print("Error decoding JSON from text: \(error)")
-//                    }
-
                 @unknown default:
                     print("Unexpected receivent")
                 }
@@ -101,15 +84,6 @@ class LiveChatWebSocket: ObservableObject {
         processQueue()
       }
 
-    
-    // Send data if needed
-//    func sendData(data: Data) {
-//        webSocketTask.send(.data(data)) { error in
-//            if let error = error {
-//                print("WebSocket send error: \(error)")
-//            }
-//        }
-//    }
     func isTyping(userTokenData: UserTokenData) {
         
     }
@@ -141,39 +115,7 @@ class LiveChatWebSocket: ObservableObject {
             print("Error encoding JSON: \(error)")
         }
     }
-
-
-//    func sendMessage(liveChatSendData: LiveChatSendData) {
-//        do {
-//            let encodedData = try JSONEncoder().encode(liveChatSendData)
-//
-//            if let jsonString = String(data: encodedData, encoding: .utf8) {
-//                webSocketTask.send(.string(jsonString)) { error in
-//                    if let error = error {
-//                        print("WebSocket send error: \(error)")
-//                    }
-//                }
-//            } else {
-//                print("Failed to convert JSON Data to String.")
-//            }
-//        } catch {
-//            print("Error encoding JSON: \(error)")
-//        }
-//    }
-
-//    func sendMessage(liveChatSendData: LiveChatSendData) {
-//            do {
-//                let encodedData = try JSONEncoder().encode(liveChatSendData)
-//                webSocketTask.send(.data(encodedData)) { error in
-//                    if let error = error {
-//                        print("WebSocket send error: \(error)")
-//                    }
-//                }
-//            } catch {
-//                print("Error encoding JSON: \(error)")
-//            }
-//        }
-
+    
     // Handle cleanup on deinit if needed
     deinit {
         webSocketTask.cancel(with: .goingAway, reason: nil)

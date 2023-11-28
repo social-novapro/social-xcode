@@ -9,63 +9,22 @@ import SwiftUI
 import CoreData
 
 struct BeginPage: View {
-    @Binding var client: ApiClient
-    @Binding var userTokenData: UserTokenData?
-    @Binding var devMode: DevModeData?
-    @Binding var userTokensLoaded: Bool
-
-    @State var userTokenManager = UserTokenHandler()
-    @State var userData: UserData?
-    @State var userLoginResponse: UserLoginResponse?
-    @State var userDataLoaded:Bool = false;
-    @State var userTokens:UserTokenData?
-    @State var pageLoading:Bool = true;
-
+    @ObservedObject var client: ApiClient
+    
     var body: some View {
         VStack {
-            if (pageLoading) {
-                Text("Page loading! ")
-            }
-            if (!userDataLoaded && !pageLoading) {
+            if (!client.loggedIn) {
                 Text("Login" )
-
-                LoginPage(client: $client, onDone: { userLoginResponseIn in
-                    
-                    self.userLoginResponse = userLoginResponseIn;
-                    self.userData = userLoginResponseIn.publicData;
-                    userDataLoaded = true;
-                    self.userTokens = UserTokenData(
-                        accessToken: userLoginResponseIn.accessToken,
-                        userToken: userLoginResponseIn.userToken,
-                        userID: userLoginResponseIn.userID
-                     )
-                    userTokenManager.saveUserTokens(userTokenData: self.userTokens!)
-                    userTokensLoaded = true
+                LoginPage(client: client, onDone: { userLoginResponseIn in
                     print("userresponsein")
                 })
             } else {
-                UserView(
-                    userTokenData: $userTokens//,
-//                    userID: $userTokens.userID
-                )
-                LogoutView(client: $client, userTokenData: $userTokenData, devMode: $devMode, userTokensLoaded: $userDataLoaded)
-                FeedPage(client: $client, userTokenData: $userTokens, devMode: $devMode)
+                UserView(client: client)
+                LogoutView(client: client)
+                FeedPage(client: client)
     
             }
         }
-        .onAppear {
-            userTokens = userTokenManager.getUserTokens()
-            if (userTokens == nil) {
-                print ("tokens NOT loaded at begin")
-                self.pageLoading = false
-            }
-            else {
-                print ("tokens loaded at begin")
-                userDataLoaded = true
-                print("userTokens: .onAppear, else, BeginPage()")
-                self.pageLoading = false
-            }
-       }
         .navigationTitle("Begin")
     }
 }

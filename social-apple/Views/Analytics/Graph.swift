@@ -20,7 +20,7 @@ struct Graph: View {
         VStack {
             if (dataLoaded == true) {
                 Text("\(functionData?.title ?? "Unknown Title")")
-                //  GroupBox( "what") {
+
                 Chart {
                     ForEach((functionData?.points!)!) { point in
                         BarMark(
@@ -29,7 +29,6 @@ struct Graph: View {
                         )
                     }
                 }
-                //  }
             }
             else {
                 Text("loading")

@@ -34,7 +34,8 @@ struct SendLiveChatView: View {
 }
 
 struct LiveChatView: View {
-    @Binding var userTokenData: UserTokenData?
+    @ObservedObject var client: ApiClient
+//    @Binding var userTokenData: UserTokenData?
     @State var verifiedConnection: Bool = false
     @State var messages: [LiveChatData] = []
     @State var typers: [LiveChatTypers] = []
@@ -63,8 +64,6 @@ struct LiveChatView: View {
                             ChatMessageView(chatMessage: message)
                         }
                     }
-//                    .listStyle(.plain)
-//                    .listRowInsets(EdgeInsets())
                 }
             }
             HStack {
@@ -74,13 +73,12 @@ struct LiveChatView: View {
                     if (content != "") {
                         Button("Send Message") {
                             print(webSocketManager.tokens)
-                            let liveChatSend = createLiveSendData(type: 2, mesType: 2, content: self.content, replyTo: nil, userTokenData: userTokenData)
+                            let liveChatSend = createLiveSendData(type: 2, mesType: 2, content: self.content, replyTo: nil, userTokenData: client.userTokens)
                             webSocketManager.sendMessage(liveChatSendData: liveChatSend)
                             self.content = ""
                         }
                     }
                 }
-//                .alignment
             }
         }
         .navigationTitle("Live Chat")
@@ -89,7 +87,7 @@ struct LiveChatView: View {
                 return
             }
             
-            webSocketManager.connectWS(userID: userTokenData?.userID ?? "")
+            webSocketManager.connectWS(userID: client.userTokens.userID)
             self.isInitialized = true
         }
         .onReceive(webSocketManager.$receivedDataQueue) { newQueue in
@@ -105,7 +103,7 @@ struct LiveChatView: View {
                     case 10:
                         print("incoming auth request")
                         if (newReceivedData.mesType==1) {
-                            let authSend:LiveChatSendData = createLiveSendData(type: 10, mesType: 2, content: "tokens", replyTo: nil, userTokenData: userTokenData ?? nil)
+                            let authSend:LiveChatSendData = createLiveSendData(type: 10, mesType: 2, content: "tokens", replyTo: nil, userTokenData: client.userTokens)
                             webSocketManager.sendMessage(liveChatSendData: authSend)
                             print(webSocketManager.tokens)
                         }

@@ -8,9 +8,8 @@
 import SwiftUI
 
 struct DevModeView: View {
-    @Binding var userTokenData: UserTokenData?
-    @Binding var devMode: DevModeData?
-    
+    @ObservedObject var client: ApiClient
+
     @State var userTokenManager = UserTokenHandler()
     @State var devModeManager = DevModeHandler()
     @State var currentNavigationManager = CurrentNavigationHandler()
@@ -30,14 +29,14 @@ struct DevModeView: View {
                 if hideTokens {
                     Text("Tokens are censored. Click the button to reveal.")
                 } else {
-                    Text("userID: \(userTokenData?.userID ?? "not logged")")
-                    Text("userToken: \(userTokenData?.userToken ?? "not logged")")
-                    Text("accessToken: \(userTokenData?.accessToken ?? "not logged")")
+                    Text("userID: \(client.userTokens.userID)")
+                    Text("userToken: \(client.userTokens.userToken)")
+                    Text("accessToken: \(client.userTokens.accessToken)")
                 }
 
                 Button(action: {
                     withAnimation {
-                        hideTokens.toggle() // Toggle the censorship state
+                        hideTokens.toggle() 
                     }
                 }) {
                     if hideTokens {
@@ -61,17 +60,16 @@ struct DevModeView: View {
                 Text("Delete Data, you will need to resign into the application")
                 Text("You will need to relaunch the app to resign in")
                 Button("Are you sure?") {
-    //                self.userTokenData.
-                    devModeManager.deleteDevMode()
-                    currentNavigationManager.deleteCurrentNavigation()
-                    userTokenManager.deleteUserToken()
+                    client.devModeManager.deleteDevMode()
+                    client.navigationManager.deleteCurrentNavigation()
+                    client.userTokenManager.deleteUserToken()
                     
-                    userTokenData = userTokenManager.getUserTokens()
-                    devMode = devModeManager.getDevMode()
+                    client.userTokens = UserTokenData(accessToken: "", userToken: "", userID: "")
+                    client.devMode = client.devModeManager.getDevMode()
+                    client.loggedIn = false
                 }
                 .padding(15)
                 .background(Color.red)
-                
             }
             Spacer()
             Button("Toggle Full Screen") {

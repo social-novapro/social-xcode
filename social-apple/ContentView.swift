@@ -10,7 +10,7 @@ import CoreData
 
 struct ContentView: View {
 //    @ObservedObject var websocket = LiveChatWebSocket()
-    @State var client = ApiClient()
+    @StateObject var client = ApiClient()
     /*
      takes over 
      - userTokenManager
@@ -18,15 +18,7 @@ struct ContentView: View {
      - userTokens
      - userTokensLoaded (maybe)
      */
-    
-    @State var userTokenManager = UserTokenHandler()
-    @State var devModeManager = DevModeHandler()
-    @State var currentNavigationManager = CurrentNavigationHandler()
 
-    @State var userLoginResponse: UserLoginResponse?
-    @State var userTokens:UserTokenData?
-    
-    @State var userTokensLoaded:Bool = false;
     @State var pageLoading:Bool = true;
     
     @State var devMode:DevModeData? = DevModeData(isEnabled: false);
@@ -39,42 +31,24 @@ struct ContentView: View {
             ZStack {
 #if os(iOS)
                 if horizontalSizeClass == .compact {
-                    if (userTokensLoaded) {
-                        if (self.currentNavigation?.selectedTab==0) {
-                            FeedPage(client: $client, userTokenData: $userTokens, devMode: $devMode)
+                    if (client.loggedIn) {
+                        if (client.navigation?.selectedTab==0) {
+                            FeedPage(client: client)
                         }
-                        if (self.currentNavigation?.selectedTab==1) {
-                            AboutView(devMode: $devMode)
+                        if (client.navigation?.selectedTab==1) {
+                            AboutView(client: client)
                         }
-                        if (self.currentNavigation?.selectedTab==2) {
-                            SideBarNavigation(
-                                client: $client,
-                                userTokenManager: $userTokenManager,
-                                devModeManager: $devModeManager,
-                                currentNavigationManager: $currentNavigationManager,
-                                userLoginResponse: $userLoginResponse,
-                                userTokens: $userTokens,
-                                userTokensLoaded: $userTokensLoaded,
-                                pageLoading: $pageLoading,
-                                devMode: $devMode,
-                                currentNavigation: $currentNavigation
-                            )
+                        if (client.navigation?.selectedTab==2) {
+                            SideBarNavigation(client: client)
                         }
-                        if (self.currentNavigation?.selectedTab==3) {
-                            DevModeView(userTokenData: $userTokens, devMode: $devMode)
+                        if (client.navigation?.selectedTab==3) {
+                            DevModeView(client: client)
                         }
-                        if (self.currentNavigation?.selectedTab==4) {
-                            LiveChatView(userTokenData: $userTokens)
+                        if (client.navigation?.selectedTab==4) {
+                            LiveChatView(client: client)
                         }
                     } else {
-                        LoginPage(client: $client, onDone: { userLoginResponseIn in
-                            userTokensLoaded = true;
-                            self.userTokens = UserTokenData(
-                                accessToken: userLoginResponseIn.accessToken,
-                                userToken: userLoginResponseIn.userToken,
-                                userID: userLoginResponseIn.userID
-                            )
-                            userTokenManager.saveUserTokens(userTokenData: self.userTokens!)
+                        LoginPage(client: client, onDone: { userLoginResponseIn in
                             print("userresponsein")
                         })
                     }
@@ -83,48 +57,19 @@ struct ContentView: View {
                 VStack {
 #if os(iOS)
                     if horizontalSizeClass != .compact {
-                        SideBarNavigation(
-                            client: $client,
-                            userTokenManager: $userTokenManager,
-                            devModeManager: $devModeManager,
-                            currentNavigationManager: $currentNavigationManager,
-                            userLoginResponse: $userLoginResponse,
-                            userTokens: $userTokens,
-                            userTokensLoaded: $userTokensLoaded,
-                            pageLoading: $pageLoading,
-                            devMode: $devMode,
-                            currentNavigation: $currentNavigation
-                        )
+                        SideBarNavigation(client: client)
                     }
 #endif
 #if os(macOS)
-                    SideBarNavigation(
-                        client: $client,
-                        userTokenManager: $userTokenManager,
-                        devModeManager: $devModeManager,
-                        currentNavigationManager: $currentNavigationManager,
-                        userLoginResponse: $userLoginResponse,
-                        userTokens: $userTokens,
-                        userTokensLoaded: $userTokensLoaded,
-                        pageLoading: $pageLoading,
-                        devMode: $devMode,
-                        currentNavigation: $currentNavigation
-                    )
+                    SideBarNavigation(client: client)
 #endif
                 }
             }
             if horizontalSizeClass != .compact {
-                if (userTokensLoaded) {
-                    FeedPage(client: $client, userTokenData: $userTokens, devMode: $devMode)
+                if (client.loggedIn) {
+                    FeedPage(client: client)
                 } else {
-                    LoginPage(client: $client, onDone: { userLoginResponseIn in
-                        userTokensLoaded = true;
-                        self.userTokens = UserTokenData(
-                            accessToken: userLoginResponseIn.accessToken,
-                            userToken: userLoginResponseIn.userToken,
-                            userID: userLoginResponseIn.userID
-                        )
-                        userTokenManager.saveUserTokens(userTokenData: self.userTokens!)
+                    LoginPage(client: client, onDone: { userLoginResponseIn in
                         print("userresponsein")
                     })
                 }
@@ -133,7 +78,7 @@ struct ContentView: View {
 #if os(iOS)
         .if(horizontalSizeClass == .compact) { view in
             view.overlay(
-                AppTabNavigation(currentNavigation: $currentNavigation, devMode: $devMode)
+                AppTabNavigation(client: client)
                     .frame(height: 50)
                     .padding(.bottom, 8),
                 alignment: .bottom
@@ -142,20 +87,8 @@ struct ContentView: View {
         }
 #endif
         .onAppear {
-            devMode = devModeManager.getDevMode()
             print ("devMode: \(devMode!)")
-            currentNavigation = currentNavigationManager.getCurrentNavigation()
             print ("page: \(currentNavigation?.selectedTab ?? -1)")
-            userTokens = userTokenManager.getUserTokens()
-            if (userTokens == nil) {
-                print ("tokens NOT loaded at begin")
-                self.pageLoading = false
-            } else {
-                print ("tokens loaded at begin")
-                userTokensLoaded = true
-                print("userTokens: .onAppear, else, BeginPage()")
-                self.pageLoading = false
-            }
         }
     }
 }
@@ -171,49 +104,36 @@ extension View {
 }
 
 struct SideBarNavigation: View {
-    @Binding var client: ApiClient
-    
-    @Binding var userTokenManager:UserTokenHandler
-    @Binding var devModeManager:DevModeHandler
-    @Binding var currentNavigationManager:CurrentNavigationHandler
-
-    @Binding var userLoginResponse: UserLoginResponse?
-    @Binding var userTokens:UserTokenData?
-    
-    @Binding var userTokensLoaded:Bool
-    @Binding var pageLoading:Bool
-    
-    @Binding var devMode:DevModeData?
-    @Binding var currentNavigation:CurrentNavigationData?
+    @ObservedObject var client: ApiClient
     
     var body: some View {
         List {
             // when user is logged in
-            if (userTokensLoaded) {
+            if (client.loggedIn) {
                 VStack {
                     NavigationLink {
-                        FeedPage(client: $client, userTokenData: $userTokens, devMode: $devMode)
+                        FeedPage(client: client)
                     } label: {
                         Text("Feed")
                     }
                 }
                 VStack {
                     NavigationLink {
-                        CreatePost(userTokenData: $userTokens)
+                        CreatePost(client: client)
                     } label: {
                         Text("Create Post")
                     }
                 }
                 VStack {
                     NavigationLink {
-                        UserView(userTokenData: $userTokens)
+                        UserView(client: client)
                     } label: {
                         Text("Profile")
                     }
                 }
                 VStack {
                     NavigationLink {
-                        LogoutView(client: $client, userTokenData: $userTokens, devMode: $devMode, userTokensLoaded: $userTokensLoaded)
+                        LogoutView(client: client)
                     } label: {
                         Text("Logout")
                     }
@@ -223,7 +143,7 @@ struct SideBarNavigation: View {
             else {
                 VStack {
                     NavigationLink {
-                        BeginPage(client: $client, userTokenData: $userTokens, devMode: $devMode, userTokensLoaded: $userTokensLoaded)
+                        BeginPage(client: client)
                     } label: {
                         Text("Begin")
                     }
@@ -231,10 +151,10 @@ struct SideBarNavigation: View {
             }
             
             // both
-            if (devMode?.isEnabled == true) {
+            if (client.devMode?.isEnabled == true) {
                 VStack {
                     NavigationLink {
-                        DevModeView(userTokenData: $userTokens, devMode: $devMode)
+                        DevModeView(client: client)
                     } label: {
                         Text("DevMode")
                     }
@@ -242,7 +162,7 @@ struct SideBarNavigation: View {
             }
             VStack {
                 NavigationLink {
-                    AboutView(devMode: $devMode)
+                    AboutView(client: client)
                 } label: {
                     Text("About")
                 }
@@ -267,98 +187,99 @@ struct SideBarNavigation: View {
 }
 
 struct AppTabNavigation: View {
-    @Binding var currentNavigation:CurrentNavigationData?
-    @Binding var devMode: DevModeData?
-
-    @State var currentNavigationManager = CurrentNavigationHandler()
+    @ObservedObject var client: ApiClient
     @State var expand = false
 
     var body: some View {
         HStack (alignment: .center) {
-            Spacer(minLength: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/)
-            HStack {
-                if !self.expand {
-                    Button(action: {
-                        withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
-                            self.expand.toggle()
-                        }
-                    }) {
-                        Image(systemName: "arrow.left")
-                            .font(.system(size: 22))
-                            .foregroundColor(.accentColor).padding()
-                    }
-                }
-                else {
-                    Spacer(minLength: 5)
-                    Button(action: {
-                        currentNavigation = currentNavigationManager.switchTab(newTab: 0)
-                    }) {
-                        Image(systemName: "tray.2")
-                            .font(.system(size: 22))
-                            .foregroundColor(self.currentNavigation?.selectedTab == 0 ? .accentColor: .secondary)
-                            .padding(.horizontal)
-                    }
-                    Spacer(minLength: 5)
-                    Button(action: {
-                        currentNavigation = currentNavigationManager.switchTab(newTab: 1)
-                    }) {
-                        Image(systemName: "info.circle")
-                            .font(.system(size: 22))
-                            .foregroundColor(self.currentNavigation?.selectedTab == 1 ? .accentColor: .secondary)
-                            .padding(.horizontal)
-                    }
-                    Spacer(minLength: 5)
-                    Button(action: {
-                        currentNavigation = currentNavigationManager.switchTab(newTab: 2)
-                    }) {
-                        Image(systemName: "gear")
-                            .font(.system(size: 22))
-                            .foregroundColor(self.currentNavigation?.selectedTab == 2 ? .accentColor: .secondary)
-                            .padding(.horizontal)
-                    }
-                    Spacer(minLength: 5)
-                    if (devMode?.isEnabled == true) {
+            if (client.loggedIn == false) {
+                EmptyView()
+            }
+            else {
+                Spacer(minLength: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/)
+                HStack {
+                    if !self.expand {
                         Button(action: {
-                            currentNavigation = currentNavigationManager.switchTab(newTab: 3)
+                            withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
+                                self.expand.toggle()
+                            }
                         }) {
-                            Image(systemName: "hammer")
+                            Image(systemName: "arrow.left")
                                 .font(.system(size: 22))
-                                .foregroundColor(self.currentNavigation?.selectedTab == 3 ? .accentColor: .secondary)
+                                .foregroundColor(.accentColor).padding()
+                        }
+                    }
+                    else {
+                        Spacer(minLength: 5)
+                        Button(action: {
+                            client.navigation = client.navigationManager.switchTab(newTab: 0)
+                        }) {
+                            Image(systemName: "tray.2")
+                                .font(.system(size: 22))
+                                .foregroundColor(client.navigation?.selectedTab == 0 ? .accentColor: .secondary)
                                 .padding(.horizontal)
                         }
                         Spacer(minLength: 5)
-                    }
-                    Spacer(minLength: 5)
-                    Button(action: {
-                        currentNavigation = currentNavigationManager.switchTab(newTab: 4)
-                    }) {
-                        Image(systemName: "bubble")
-                            .font(.system(size: 22))
-                            .foregroundColor(self.currentNavigation?.selectedTab == 4 ? .accentColor: .secondary)
-                            .padding(.horizontal)
-                    }
-                    Button(action: {
-                        withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
-                            self.expand.toggle()
+                        Button(action: {
+                            client.navigation = client.navigationManager.switchTab(newTab: 1)
+                        }) {
+                            Image(systemName: "info.circle")
+                                .font(.system(size: 22))
+                                .foregroundColor(client.navigation?.selectedTab == 1 ? .accentColor: .secondary)
+                                .padding(.horizontal)
                         }
-                        
-                    }) {
-                        Image(systemName: "arrow.right")
-                            .font(.system(size: 22))
-                            .foregroundColor(.secondary).padding()
+                        Spacer(minLength: 5)
+                        Button(action: {
+                            client.navigation = client.navigationManager.switchTab(newTab: 2)
+                        }) {
+                            Image(systemName: "gear")
+                                .font(.system(size: 22))
+                                .foregroundColor(client.navigation?.selectedTab == 2 ? .accentColor: .secondary)
+                                .padding(.horizontal)
+                        }
+                        Spacer(minLength: 5)
+                        if (client.devMode?.isEnabled == true) {
+                            Button(action: {
+                                client.navigation = client.navigationManager.switchTab(newTab: 3)
+                            }) {
+                                Image(systemName: "hammer")
+                                    .font(.system(size: 22))
+                                    .foregroundColor(client.navigation?.selectedTab == 3 ? .accentColor: .secondary)
+                                    .padding(.horizontal)
+                            }
+                            Spacer(minLength: 5)
+                        }
+                        Spacer(minLength: 5)
+                        Button(action: {
+                            client.navigation = client.navigationManager.switchTab(newTab: 4)
+                        }) {
+                            Image(systemName: "bubble")
+                                .font(.system(size: 22))
+                                .foregroundColor(client.navigation?.selectedTab == 4 ? .accentColor: .secondary)
+                                .padding(.horizontal)
+                        }
+                        Button(action: {
+                            withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
+                                self.expand.toggle()
+                            }
+                            
+                        }) {
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 22))
+                                .foregroundColor(.secondary).padding()
+                        }
+                        Spacer(minLength: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/)
                     }
-                    Spacer(minLength: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/)
+                }
+                .padding(.vertical, self.expand ? 10 : 10)
+                .padding(.horizontal, self.expand ? 10 : 8)
+                .background(.regularMaterial)
+                .clipShape(Capsule())
+                .padding(22)
+                .onLongPressGesture {
+                    self.expand.toggle()
                 }
             }
-            .padding(.vertical, self.expand ? 10 : 10)
-            .padding(.horizontal, self.expand ? 10 : 8)
-            .background(.regularMaterial)
-            .clipShape(Capsule())
-            .padding(22)
-            .onLongPressGesture {
-                self.expand.toggle()
-            }
-//            .animation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6))
         }
     }
 }
