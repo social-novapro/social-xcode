@@ -48,9 +48,7 @@ struct ContentView: View {
                             LiveChatView(client: client)
                         }
                     } else {
-                        LoginPage(client: client, onDone: { userLoginResponseIn in
-                            print("userresponsein")
-                        })
+                        BeginPage(client: client)
                     }
                 }
 #endif
@@ -69,9 +67,7 @@ struct ContentView: View {
                 if (client.loggedIn) {
                     FeedPage(client: client)
                 } else {
-                    LoginPage(client: client, onDone: { userLoginResponseIn in
-                        print("userresponsein")
-                    })
+                    BeginPage(client: client)
                 }
             }
         }

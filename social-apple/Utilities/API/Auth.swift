@@ -23,4 +23,17 @@ class AuthApi: API_Helper {
             }
         }
     }
+    func userCreateRequest(userCreate: UserCreateData, completion: @escaping (Result<UserLoginResponse, Error>) -> Void) {
+        print("Request create user")
+
+        let APIUrl = baseAPIurl + "Priv/post/newUser"
+        self.requestDataWithBody(urlString: APIUrl, httpMethod: "post", httpBody: userCreate) { (result: Result<UserLoginResponse, Error>) in
+            switch result {
+            case .success(let userLoginData):
+                completion(.success(userLoginData))
+            case .failure(let error):
+                print("Error: \(error)")
+            }
+        }
+    }
 }

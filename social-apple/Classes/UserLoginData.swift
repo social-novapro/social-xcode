@@ -12,6 +12,16 @@ struct UserLoginData: Decodable, Encodable {
     let password: String
 }
 
+struct UserCreateData: Decodable, Encodable {
+    let email: String
+    let username: String
+    let password: String
+    let displayName: String
+    let description: String
+    let pronouns: String
+    let status: String
+}
+
 struct UserLoginResponse: Decodable {
     let login: Bool
     let publicData: UserData

@@ -41,6 +41,7 @@ struct PostPreView: View {
                                             if (feedData!.userData?.verified != nil) {
                                                 Image(systemName: "checkmark.seal.fill")
                                             }
+                                            Text(stringTimeFormatter(timestamp: feedData?.postData.timePosted ?? ""))
                                             Spacer()
                                         }
                                     }

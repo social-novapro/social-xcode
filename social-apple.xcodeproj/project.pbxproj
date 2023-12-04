@@ -45,6 +45,8 @@
 		655BC0C82B0756D100949356 /* PollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655BC0C72B0756D000949356 /* PollView.swift */; };
 		655BC0CA2B07575100949356 /* CurrentNavigationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655BC0C92B07575100949356 /* CurrentNavigationHandler.swift */; };
 		65996A282B15BFE7005A60E3 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65996A272B15BFE7005A60E3 /* ProfileView.swift */; };
+		65DA82BB2B1D2041008509E2 /* CreateUserPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DA82BA2B1D2041008509E2 /* CreateUserPage.swift */; };
+		65DA82BD2B1D236F008509E2 /* TimeFormater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DA82BC2B1D236F008509E2 /* TimeFormater.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -88,6 +90,8 @@
 		655BC0C72B0756D000949356 /* PollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollView.swift; sourceTree = "<group>"; };
 		655BC0C92B07575100949356 /* CurrentNavigationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentNavigationHandler.swift; sourceTree = "<group>"; };
 		65996A272B15BFE7005A60E3 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ProfileView.swift; path = ../../../../ProfileView.swift; sourceTree = "<group>"; };
+		65DA82BA2B1D2041008509E2 /* CreateUserPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserPage.swift; sourceTree = "<group>"; };
+		65DA82BC2B1D236F008509E2 /* TimeFormater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TimeFormater.swift; path = ../../../../TimeFormater.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -172,6 +176,7 @@
 				651757DD29FB811300E90FBA /* DevModeHandler.swift */,
 				655BC0C92B07575100949356 /* CurrentNavigationHandler.swift */,
 				655BC0C52B07569E00949356 /* LiveChatWebSocket.swift */,
+				65DA82BC2B1D236F008509E2 /* TimeFormater.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -192,11 +197,10 @@
 		655AB62629F0741A00C61F3A /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				65DA82B92B1D2037008509E2 /* Begin */,
 				6593B0232B0099F30096C480 /* Navigation */,
 				651757E62A006D2D00E90FBA /* Analytics */,
-				655AB62229F0740B00C61F3A /* BeginPage.swift */,
 				655AB62929F080CB00C61F3A /* UserView.swift */,
-				655AB62429F0741200C61F3A /* LoginPage.swift */,
 				655AB62B29F0E25600C61F3A /* HomeView.swift */,
 				6503514C29F1F84C005C4253 /* PostPreView.swift */,
 				6503515929F2F663005C4253 /* LogoutView.swift */,
@@ -217,6 +221,16 @@
 			children = (
 			);
 			path = Navigation;
+			sourceTree = "<group>";
+		};
+		65DA82B92B1D2037008509E2 /* Begin */ = {
+			isa = PBXGroup;
+			children = (
+				655AB62229F0740B00C61F3A /* BeginPage.swift */,
+				655AB62429F0741200C61F3A /* LoginPage.swift */,
+				65DA82BA2B1D2041008509E2 /* CreateUserPage.swift */,
+			);
+			path = Begin;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -292,6 +306,7 @@
 				651757DC29FA254500E90FBA /* CreatePost.swift in Sources */,
 				651757E329FB889900E90FBA /* DevModeView.swift in Sources */,
 				6503515A29F2F663005C4253 /* LogoutView.swift in Sources */,
+				65DA82BB2B1D2041008509E2 /* CreateUserPage.swift in Sources */,
 				655BC0CA2B07575100949356 /* CurrentNavigationHandler.swift in Sources */,
 				651757DE29FB811300E90FBA /* DevModeHandler.swift in Sources */,
 				6503514D29F1F84C005C4253 /* PostPreView.swift in Sources */,
@@ -302,6 +317,7 @@
 				655AB62E29F0EDD900C61F3A /* PostData.swift in Sources */,
 				6503515E29F474A9005C4253 /* AboutView.swift in Sources */,
 				651757E529FB8B2E00E90FBA /* API_Data.swift in Sources */,
+				65DA82BD2B1D236F008509E2 /* TimeFormater.swift in Sources */,
 				655AB62329F0740B00C61F3A /* BeginPage.swift in Sources */,
 				6503515129F1FBF6005C4253 /* UserTokenHandler.swift in Sources */,
 				655AB62829F0778300C61F3A /* UserLoginData.swift in Sources */,
@@ -451,7 +467,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "social-apple/social_apple.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 26;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"social-apple/Preview Content\"";
 				DEVELOPMENT_TEAM = VHCWBN8GY3;
@@ -493,7 +509,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "social-apple/social_apple.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 26;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"social-apple/Preview Content\"";
 				DEVELOPMENT_TEAM = VHCWBN8GY3;

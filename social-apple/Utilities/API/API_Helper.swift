@@ -44,7 +44,7 @@ class API_Helper {
         }
         
         var request = URLRequest(url: url)
-        request.httpMethod = "DELETE"
+        request.httpMethod = httpMethod
 
         request.addValue(appToken, forHTTPHeaderField: "apptoken")
         request.addValue(devToken, forHTTPHeaderField: "devtoken")

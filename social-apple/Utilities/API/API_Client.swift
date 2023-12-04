@@ -12,7 +12,7 @@ class ApiClient: ObservableObject {
     var posts: PostsApi
     var users: UsersApi
     
-    @Published var loggedIn:Bool
+    @Published var loggedIn:Bool = false
     @Published var devMode: DevModeData? = DevModeData(isEnabled: false)
     @Published var navigation: CurrentNavigationData? = CurrentNavigationData(selectedTab: 0)
     
