@@ -45,6 +45,8 @@
 		655BC0C82B0756D100949356 /* PollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655BC0C72B0756D000949356 /* PollView.swift */; };
 		655BC0CA2B07575100949356 /* CurrentNavigationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655BC0C92B07575100949356 /* CurrentNavigationHandler.swift */; };
 		65996A282B15BFE7005A60E3 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65996A272B15BFE7005A60E3 /* ProfileView.swift */; };
+		659B62EA2B2BBE4800CF2FA4 /* LocalLogsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659B62E92B2BBE4800CF2FA4 /* LocalLogsHandler.swift */; };
+		659B62EC2B2BBE5600CF2FA4 /* LocalLogData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659B62EB2B2BBE5600CF2FA4 /* LocalLogData.swift */; };
 		65DA82BB2B1D2041008509E2 /* CreateUserPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DA82BA2B1D2041008509E2 /* CreateUserPage.swift */; };
 		65DA82BD2B1D236F008509E2 /* TimeFormater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DA82BC2B1D236F008509E2 /* TimeFormater.swift */; };
 /* End PBXBuildFile section */
@@ -90,6 +92,8 @@
 		655BC0C72B0756D000949356 /* PollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollView.swift; sourceTree = "<group>"; };
 		655BC0C92B07575100949356 /* CurrentNavigationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentNavigationHandler.swift; sourceTree = "<group>"; };
 		65996A272B15BFE7005A60E3 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ProfileView.swift; path = ../../../../ProfileView.swift; sourceTree = "<group>"; };
+		659B62E92B2BBE4800CF2FA4 /* LocalLogsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLogsHandler.swift; sourceTree = "<group>"; };
+		659B62EB2B2BBE5600CF2FA4 /* LocalLogData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLogData.swift; sourceTree = "<group>"; };
 		65DA82BA2B1D2041008509E2 /* CreateUserPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserPage.swift; sourceTree = "<group>"; };
 		65DA82BC2B1D236F008509E2 /* TimeFormater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TimeFormater.swift; path = ../../../../TimeFormater.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -177,6 +181,7 @@
 				655BC0C92B07575100949356 /* CurrentNavigationHandler.swift */,
 				655BC0C52B07569E00949356 /* LiveChatWebSocket.swift */,
 				65DA82BC2B1D236F008509E2 /* TimeFormater.swift */,
+				659B62E92B2BBE4800CF2FA4 /* LocalLogsHandler.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -190,6 +195,7 @@
 				655AB62D29F0EDD900C61F3A /* PostData.swift */,
 				655AB62F29F19B0A00C61F3A /* ErrorData.swift */,
 				651757EB2A006D6900E90FBA /* AnalyticData.swift */,
+				659B62EB2B2BBE5600CF2FA4 /* LocalLogData.swift */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -261,7 +267,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1430;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 1510;
 				TargetAttributes = {
 					655AB60429F0720500C61F3A = {
 						CreatedOnToolsVersion = 14.3;
@@ -322,6 +328,7 @@
 				6503515129F1FBF6005C4253 /* UserTokenHandler.swift in Sources */,
 				655AB62829F0778300C61F3A /* UserLoginData.swift in Sources */,
 				6516E5A92B0AE993008A84E4 /* API_Client.swift in Sources */,
+				659B62EC2B2BBE5600CF2FA4 /* LocalLogData.swift in Sources */,
 				655AB61D29F0724000C61F3A /* API_Requests.swift in Sources */,
 				655AB60929F0720500C61F3A /* social_appleApp.swift in Sources */,
 				6503515C29F370CA005C4253 /* FeedPage.swift in Sources */,
@@ -336,6 +343,7 @@
 				65996A282B15BFE7005A60E3 /* ProfileView.swift in Sources */,
 				655AB62A29F080CB00C61F3A /* UserView.swift in Sources */,
 				651757E129FB816F00E90FBA /* social_apple.xcdatamodeld in Sources */,
+				659B62EA2B2BBE4800CF2FA4 /* LocalLogsHandler.swift in Sources */,
 				655BC0C22B07565200949356 /* LiveChatData.swift in Sources */,
 				651757EC2A006D6900E90FBA /* AnalyticData.swift in Sources */,
 				655AB60B29F0720500C61F3A /* Persistence.swift in Sources */,
@@ -467,7 +475,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "social-apple/social_apple.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 26;
+				CURRENT_PROJECT_VERSION = 27;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"social-apple/Preview Content\"";
 				DEVELOPMENT_TEAM = VHCWBN8GY3;
@@ -509,7 +517,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "social-apple/social_apple.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 26;
+				CURRENT_PROJECT_VERSION = 27;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"social-apple/Preview Content\"";
 				DEVELOPMENT_TEAM = VHCWBN8GY3;
