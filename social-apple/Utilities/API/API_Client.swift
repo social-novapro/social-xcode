@@ -33,6 +33,7 @@ class ApiClient: ObservableObject {
         }
         
         self.devMode = self.devModeManager.getDevMode()
+        self.navigation = self.navigationManager.getCurrentNavigation()
         self.auth = AuthApi(userTokensProv: userTokens)
         self.posts = PostsApi(userTokensProv: userTokens)
         self.users = UsersApi(userTokensProv: userTokens)

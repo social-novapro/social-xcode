@@ -36,7 +36,7 @@ struct ContentView: View {
                             FeedPage(client: client)
                         }
                         if (client.navigation?.selectedTab==1) {
-                            AboutView(client: client)
+                            CreatePost(client: client)
                         }
                         if (client.navigation?.selectedTab==2) {
                             SideBarNavigation(client: client)
@@ -76,7 +76,7 @@ struct ContentView: View {
             view.overlay(
                 AppTabNavigation(client: client)
                     .frame(height: 50)
-                    .padding(.bottom, 8),
+                    .padding(.bottom, 25),
                 alignment: .bottom
             )
             .navigationViewStyle(StackNavigationViewStyle())
@@ -219,7 +219,7 @@ struct AppTabNavigation: View {
                         Button(action: {
                             client.navigation = client.navigationManager.switchTab(newTab: 1)
                         }) {
-                            Image(systemName: "info.circle")
+                            Image(systemName: "pencil.circle")
                                 .font(.system(size: 22))
                                 .foregroundColor(client.navigation?.selectedTab == 1 ? .accentColor: .secondary)
                                 .padding(.horizontal)
@@ -271,7 +271,12 @@ struct AppTabNavigation: View {
                 .padding(.horizontal, self.expand ? 10 : 8)
                 .background(.regularMaterial)
                 .clipShape(Capsule())
+                .overlay(
+                    RoundedRectangle(cornerRadius: 35)
+                        .stroke(Color.accentColor, lineWidth: 2)
+                )
                 .padding(22)
+                .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
                 .onLongPressGesture {
                     self.expand.toggle()
                 }

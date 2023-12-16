@@ -12,23 +12,50 @@ struct CreatePost: View {
     let api_requests = API_Rquests()    
     @State private var content: String = ""
     @State var newPost:PostData?
+    @State var sending: Bool = false
+    @State var sent: Bool = false
+    @State var failed: Bool = false
     
     var body: some View {
         VStack {
+            Spacer()
+            if sending==true {
+                HStack {
+                    Text("Status: ")
+                    if sent==true {
+                        Text("Sent!")
+                    } else {
+                        if failed==true {
+                            Text("Failed to send!")
+                        } else {
+                            Text("Sending")
+                        }
+                    }
+                }
+            }
+            
             Form {
                 TextField("Content", text: $content)
                 
                 Button(action: {
                     print("button pressed")
                     print("createPost")
+
                     let postCreateContent = PostCreateContent(userID: client.userTokens.userID, content: self.content)
+                    
+                    self.content = ""
+                    self.sending = true
+                    
                     api_requests.createPost(postCreateContent: postCreateContent) { result in
                         print("api rquest login:")
                         switch result {
                         case .success(let newPost):
                             self.newPost = newPost
-                            self.content = ""
+                            self.sent = true
+                            
                         case .failure(let error):
+                            self.failed = true
+
                             print("Error: \(error.localizedDescription)")
                         }
                     }
@@ -36,6 +63,7 @@ struct CreatePost: View {
                     Text("Publish Post")
                 }
             }
+            Spacer()
         }
         .navigationTitle("Create")
     }

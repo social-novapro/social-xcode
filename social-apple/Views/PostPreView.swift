@@ -94,6 +94,7 @@ struct PostPreView: View {
                                         }
                                         .foregroundColor(.secondary)
                                         .background(client.devMode?.isEnabled == true ? Color.green : Color.clear)
+                                        
                                         Spacer()
                                     }
                                 }
