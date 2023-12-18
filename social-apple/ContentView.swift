@@ -10,6 +10,7 @@ import CoreData
 
 struct ContentView: View {
 //    @ObservedObject var websocket = LiveChatWebSocket()
+        
     @StateObject var client = ApiClient()
     /*
      takes over 
@@ -125,6 +126,13 @@ struct SideBarNavigation: View {
                         UserView(client: client)
                     } label: {
                         Text("Profile")
+                    }
+                }
+                VStack {
+                    NavigationLink {
+                        PushNotifications(client: client)
+                    } label: {
+                        Text("Notifications")
                     }
                 }
                 VStack {

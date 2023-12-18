@@ -6,3 +6,15 @@
 //
 
 import Foundation
+
+struct PushNotificationSend: Decodable, Encodable {
+    let deviceToken: String
+    let deviceType: String
+    let userID: String
+}
+
+
+struct PushNotificationRes: Decodable, Encodable {
+    let msg: String
+}
+

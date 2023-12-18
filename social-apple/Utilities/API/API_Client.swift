@@ -9,6 +9,7 @@ import Foundation
 
 class ApiClient: ObservableObject {
     var auth: AuthApi
+    var notifications: NotificationsApi
     var posts: PostsApi
     var users: UsersApi
     
@@ -35,6 +36,7 @@ class ApiClient: ObservableObject {
         self.devMode = self.devModeManager.getDevMode()
         self.navigation = self.navigationManager.getCurrentNavigation()
         self.auth = AuthApi(userTokensProv: userTokens)
+        self.notifications = NotificationsApi(userTokensProv: userTokens)
         self.posts = PostsApi(userTokensProv: userTokens)
         self.users = UsersApi(userTokensProv: userTokens)
     }

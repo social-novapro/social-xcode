@@ -8,11 +8,16 @@
 import SwiftUI
 
 struct PushNotifications: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
-}
+    @ObservedObject var client: ApiClient
+    @UIApplicationDelegateAdaptor private var appDelegate: MyAppDelegate
 
-#Preview {
-    PushNotifications()
+    var body: some View {
+        Text("Welcome to Notification Panel")
+        Text("To change notifications, im not sure, you cant just yet!")
+        Button(action: {
+            appDelegate.registerPushNotifications()
+        }, label: {
+            Text("Register")
+        })
+    }
 }

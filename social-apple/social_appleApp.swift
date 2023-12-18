@@ -10,6 +10,7 @@ import SwiftUI
 @main
 struct social_appleApp: App {
     let persistenceController = PersistenceController.shared
+    @UIApplicationDelegateAdaptor private var appDelegate: MyAppDelegate
 
     var body: some Scene {
         WindowGroup {
