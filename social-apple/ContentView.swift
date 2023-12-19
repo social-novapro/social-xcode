@@ -31,6 +31,7 @@ struct ContentView: View {
         NavigationView {
             ZStack {
 #if os(iOS)
+
                 if horizontalSizeClass == .compact {
                     if (client.loggedIn) {
                         if (client.navigation?.selectedTab==0) {
@@ -48,6 +49,7 @@ struct ContentView: View {
                         if (client.navigation?.selectedTab==4) {
                             LiveChatView(client: client)
                         }
+                        
                     } else {
                         BeginPage(client: client)
                     }
@@ -80,6 +82,17 @@ struct ContentView: View {
                     .padding(.bottom, 25),
                 alignment: .bottom
             )
+          
+            .navigationViewStyle(StackNavigationViewStyle())
+        }
+        .if(horizontalSizeClass == .compact) { view in
+            view.overlay(
+                NotificationView(client: client)
+                    .frame(height: 50)
+                    .padding(.top, 25),
+                alignment: .top
+            )
+          
             .navigationViewStyle(StackNavigationViewStyle())
         }
 #endif
@@ -97,6 +110,59 @@ extension View {
         } else {
             self
         }
+    }
+}
+
+struct NotificationView: View {
+    @ObservedObject var client: ApiClient
+    @State var expand = false
+    @State var newNotification = false
+    @State var notificationBody = ""
+    @UIApplicationDelegateAdaptor private var appDelegate: MyAppDelegate
+
+    var body: some View {
+        VStack {
+            if self.newNotification==true {
+                HStack (alignment: .center) {
+                    VStack {
+                        Text("\(notificationBody)")
+                    }
+                    
+                    Button(action: {
+                        self.newNotification = false
+                        self.notificationBody = ""
+                    }, label: {
+                        Image(systemName: "x.circle")
+                            .font(.system(size: 22))
+                    })
+                }
+
+                .padding(.vertical, self.expand ? 10 : 10)
+                .padding(.horizontal, self.expand ? 10 : 8)
+                .background(.regularMaterial)
+                .clipShape(Capsule())
+                .overlay(
+                    RoundedRectangle(cornerRadius: 35)
+                        .stroke(Color.accentColor, lineWidth: 2)
+                )
+                .padding(22)
+                .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+                .onLongPressGesture {
+                    self.expand.toggle()
+                }
+            }
+        }
+        .onAppear {
+            // Subscribe to changes in the MyAppDelegate
+            NotificationCenter.default.addObserver(forName: NSNotification.Name("NotificationReceived"), object: nil, queue: nil) { notification in
+                print("Received new message: \(notification)")
+                self.notificationBody = notification.object as! String
+                // Refresh the view when a notification is received
+                self.newNotification = true
+                print("App is in the foreground")
+            }
+        }
+
     }
 }
 

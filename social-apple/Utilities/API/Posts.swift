@@ -22,6 +22,19 @@ class PostsApi: API_Helper {
         }
     }
     
+    func getAllPosts(userTokens: UserTokenData, completion: @escaping (Result<[AllPosts], Error>) -> Void) {
+        print("Getting all posts")
+        let APIUrl = baseAPIurl + "/feeds/userFeed"
+        self.requestData(urlString: APIUrl) { (result: Result<[AllPosts], Error>) in
+            switch result {
+            case .success(let allPosts):
+                completion(.success(allPosts.reversed()))
+            case .failure(let error):
+                print("Error: \(error)")
+            }
+        }
+    }
+    
     func createPost(postCreateContent: PostCreateContent, completion: @escaping (Result<PostData, Error>) -> Void) {
         print("Creating post")
         let APIUrl = baseAPIurl + "/posts/create"

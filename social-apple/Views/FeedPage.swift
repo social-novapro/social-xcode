@@ -9,8 +9,6 @@ import SwiftUI
 
 struct FeedPage: View {
     @ObservedObject var client: ApiClient
-    let api_requests = API_Rquests()
-
     @State var userData: UserData?
     @State var isLoading:Bool = true
     
@@ -20,14 +18,14 @@ struct FeedPage: View {
     var body: some View {
         VStack {
             if (!isLoading) {
-                childFeed(client: client, allPostsIn: $allPosts, api_requests: api_requests)
+                childFeed(client: client, allPostsIn: $allPosts)
             }
             else {
                 Text("loading feed")
             }
         }
         .onAppear {
-            api_requests.getAllPosts(userTokens: client.userTokens) { result in
+            client.posts.getAllPosts(userTokens: client.userTokens) { result in
                 print("allpost request")
                 
                 switch result {
@@ -49,14 +47,12 @@ struct childFeed: View {
     @Binding var allPostsIn: [AllPosts]?
     @State var allPosts: [AllPosts]?
     @State var showData: Bool = false
-    @State var api_requests: API_Rquests
-    
     var body: some View {
         VStack {
             if showData {
                 List {
                     ForEach(allPosts!) { post in
-                            PostPreView(client: client, feedDataIn: post, api_requests: api_requests)
+                            PostPreView(client: client, feedDataIn: post)
                             .listRowSeparator(.hidden)
                             .listRowInsets(EdgeInsets())
                             .padding(10)
