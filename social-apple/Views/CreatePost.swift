@@ -9,7 +9,6 @@ import SwiftUI
 
 struct CreatePost: View {
     @ObservedObject var client: ApiClient
-    let api_requests = API_Rquests()    
     @State private var content: String = ""
     @State var newPost:PostData?
     @State var sending: Bool = false
@@ -46,7 +45,7 @@ struct CreatePost: View {
                     self.content = ""
                     self.sending = true
                     
-                    api_requests.createPost(postCreateContent: postCreateContent) { result in
+                    client.posts.createPost(postCreateContent: postCreateContent) { result in
                         print("api rquest login:")
                         switch result {
                         case .success(let newPost):

@@ -38,7 +38,7 @@ class PostsApi: API_Helper {
     func createPost(postCreateContent: PostCreateContent, completion: @escaping (Result<PostData, Error>) -> Void) {
         print("Creating post")
         let APIUrl = baseAPIurl + "/posts/create"
-        self.requestData(urlString: APIUrl) { (result: Result<PostData, Error>) in
+        self.requestDataWithBody(urlString: APIUrl, httpMethod: "POST", httpBody: postCreateContent) { (result: Result<PostData, Error>) in
             switch result {
             case .success(let postData):
                 print("Created Post")

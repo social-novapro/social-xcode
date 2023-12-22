@@ -47,17 +47,37 @@ struct childFeed: View {
     @Binding var allPostsIn: [AllPosts]?
     @State var allPosts: [AllPosts]?
     @State var showData: Bool = false
+    @State var activePost: AllPosts?
+    @State var activeAction: Int32 = 0
+    /*
+     0=none
+     1=reply
+     2=quote
+     3=share
+     */
+    
     var body: some View {
         VStack {
             if showData {
                 List {
                     ForEach(allPosts!) { post in
-                            PostPreView(client: client, feedDataIn: post)
+                        PostPreView(client: client, feedDataIn: post)
                             .listRowSeparator(.hidden)
                             .listRowInsets(EdgeInsets())
                             .padding(10)
                     }
                 }
+                .refreshable {
+                    client.posts.getAllPosts(userTokens: client.userTokens) { result in
+                        switch result {
+                        case .success(let allPosts):
+                            self.allPosts = allPosts
+                            print("Done")
+                        case .failure(let error):
+                            print("Error: \(error.localizedDescription)")
+                        }
+                    }
+               }
                 .listStyle(.plain)
                 .listRowSeparator(.hidden)
             }

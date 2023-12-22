@@ -18,6 +18,10 @@ struct PostData: Decodable, Encodable {
     var edited: Bool? = nil
     var editedTimestamp: String? = nil
     var amountEdited: Int64? = nil
+    var isReply: Bool? = nil
+    var isQuote: Bool? = nil
+    var hasPoll: Bool? = nil
+    
     var quoteReplyID: String? = nil
     var replyingPostID: String? = nil
     var quoteReplyPostID: String? = nil
@@ -37,6 +41,7 @@ struct AllPosts: Decodable, Identifiable {
     var postData: PostData
     var userData: UserData? = nil
     var quoteData: QuoteData? = nil
+    var replyData: ReplyData? = nil
     var pollData: PollData? = nil
     var voteData: VoteData? = nil
     var extraData: ExtraData
@@ -46,6 +51,7 @@ struct AllPosts: Decodable, Identifiable {
         case postData
         case userData
         case quoteData
+        case replyData
         case pollData
         case voteData
         case extraData
@@ -55,6 +61,11 @@ struct AllPosts: Decodable, Identifiable {
 struct QuoteData: Decodable, Encodable {
     var quotePost: PostData? = nil
     var quoteUser: UserData? = nil
+}
+
+struct ReplyData: Decodable, Encodable {
+    var replyPost: PostData? = nil
+    var replyUser: UserData? = nil
 }
 
 struct PollOptions: Decodable, Encodable, Identifiable {
