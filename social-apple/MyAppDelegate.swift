@@ -5,6 +5,7 @@
 //  Created by Daniel Kravec on 2023-12-18.
 //
 
+#if os(iOS)
 import UIKit
 import UserNotifications
 
@@ -128,3 +129,4 @@ extension MyAppDelegate : UNUserNotificationCenterDelegate {
     }
     
 }
+#endif 

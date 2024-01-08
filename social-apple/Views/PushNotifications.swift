@@ -9,7 +9,9 @@ import SwiftUI
 
 struct PushNotifications: View {
     @ObservedObject var client: ApiClient
+    #if os(iOS)
     @UIApplicationDelegateAdaptor private var appDelegate: MyAppDelegate
+    #endif
     @State var deviceSettings: [NotificationDeviceSetting]? = []
     @State var isLoading: Bool = true
 
@@ -18,10 +20,13 @@ struct PushNotifications: View {
 //    @State var possibleSettings: [NotificationPossibleOptions]
     
     var body: some View {
+        #if os(iOS)
+
         VStack {
             Text("Welcome to Notification Panel")
             Text("Press register to sign up for notifications! You will be able to deregister, and change what notifications to recieve!")
             Button(action: {
+                
                 appDelegate.registerPushNotifications()
                 self.registered = true
             }, label: {
@@ -67,6 +72,12 @@ struct PushNotifications: View {
             getDeviceSettings()
         }
         .navigationTitle("Notifications")
+        #else
+        VStack {
+            Text("Can't sign up for notifications on macOS")
+        }
+        #endif
+        
     }
     
     func getDeviceSettings() {

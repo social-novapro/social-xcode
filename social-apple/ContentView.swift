@@ -118,9 +118,13 @@ struct NotificationView: View {
     @State var expand = false
     @State var newNotification = false
     @State var notificationBody = ""
+    #if os(iOS)
     @UIApplicationDelegateAdaptor private var appDelegate: MyAppDelegate
+    #endif
 
     var body: some View {
+    #if os(iOS)
+
         VStack {
             if self.newNotification==true {
                 HStack (alignment: .center) {
@@ -162,7 +166,11 @@ struct NotificationView: View {
                 print("App is in the foreground")
             }
         }
-
+        #else
+        VStack {
+            Text("Can't show notifications")
+        }
+        #endif
     }
 }
 
