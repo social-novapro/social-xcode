@@ -11,6 +11,7 @@ struct PostData: Decodable, Encodable {
     var _id: String
     var userID: String? = nil
     var timePosted: String? = nil
+    var timestamp: Int64? = nil
     var content: String? = nil
     var totalLikes: Int64? = nil
     var totalReplies: Int64? = nil
@@ -35,7 +36,11 @@ struct PostCreateContent: Encodable {
     var quoteReplyPostID: String? = nil
 }
 
-struct AllPosts: Decodable, Identifiable {
+struct AllPosts: Decodable, Identifiable, Equatable {
+    static func == (lhs: AllPosts, rhs: AllPosts) -> Bool {
+        return (lhs.postData._id == rhs.postData._id)
+    }
+    
     var id = UUID()
     var typeData: TypeData
     var postData: PostData

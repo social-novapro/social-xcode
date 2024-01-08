@@ -10,7 +10,7 @@ import Foundation
 struct UserData: Decodable, Encodable {
     var _id: String? = nil
     var __v: Int64? = nil
-    var creationTimestamp: String? = nil
+    var creationTimestamp: Int64? = nil
     var description: String? = nil
     var displayName: String? = nil
     var followerCount: Int64? = nil

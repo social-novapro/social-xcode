@@ -65,6 +65,14 @@ struct childFeed: View {
                             .listRowSeparator(.hidden)
                             .listRowInsets(EdgeInsets())
                             .padding(10)
+                            .onAppear(){
+                                if (self.allPosts?.last == post){
+                                    print("hit bottom")
+    //                                newsfeed.loadData(pageNum: page + 1)
+    //                                self.page =+ 1
+                                }
+                            }
+
                     }
                 }
                 .refreshable {
