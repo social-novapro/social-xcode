@@ -37,16 +37,13 @@ struct CreatePost: View {
                 TextField("Content", text: $content)
                 
                 Button(action: {
-                    print("button pressed")
-                    print("createPost")
-
                     let postCreateContent = PostCreateContent(userID: client.userTokens.userID, content: self.content)
                     
                     self.content = ""
                     self.sending = true
                     
                     client.posts.createPost(postCreateContent: postCreateContent) { result in
-                        print("api rquest login:")
+                        print("api request login:")
                         switch result {
                         case .success(let newPost):
                             self.newPost = newPost
@@ -54,7 +51,6 @@ struct CreatePost: View {
                             
                         case .failure(let error):
                             self.failed = true
-
                             print("Error: \(error.localizedDescription)")
                         }
                     }

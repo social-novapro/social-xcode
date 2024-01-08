@@ -9,6 +9,7 @@ import Foundation
 
 struct PostData: Decodable, Encodable {
     var _id: String
+    var coposters: [String]? = nil
     var userID: String? = nil
     var timePosted: String? = nil
     var timestamp: Int64? = nil
@@ -36,6 +37,16 @@ struct PostCreateContent: Encodable {
     var quoteReplyPostID: String? = nil
 }
 
+
+struct FeedV2Data: Decodable {
+//    var _id: String
+    var nextIndexID: String? = nil
+    var prevIndexID: String? = nil
+    var amount: Int64
+    var feedVersion: Int64? = nil
+    var posts: [AllPosts]
+}
+
 struct AllPosts: Decodable, Identifiable, Equatable {
     static func == (lhs: AllPosts, rhs: AllPosts) -> Bool {
         return (lhs.postData._id == rhs.postData._id)
@@ -49,7 +60,9 @@ struct AllPosts: Decodable, Identifiable, Equatable {
     var replyData: ReplyData? = nil
     var pollData: PollData? = nil
     var voteData: VoteData? = nil
+    var coposterData: [UserData]? = nil
     var extraData: ExtraData
+    
     
     private enum CodingKeys: String, CodingKey {
         case typeData = "type"
@@ -59,6 +72,7 @@ struct AllPosts: Decodable, Identifiable, Equatable {
         case replyData
         case pollData
         case voteData
+        case coposterData
         case extraData
     }
 }

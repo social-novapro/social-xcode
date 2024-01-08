@@ -7,7 +7,8 @@
 
 import Foundation
 
-struct UserData: Decodable, Encodable {
+struct UserData: Decodable, Encodable, Identifiable {
+    var id = UUID()
     var _id: String? = nil
     var __v: Int64? = nil
     var creationTimestamp: Int64? = nil
@@ -25,4 +26,24 @@ struct UserData: Decodable, Encodable {
     var totalReplies: Int64? = nil
     var username: String? = nil
     var verified: Bool? = nil
+    
+    private enum CodingKeys: String, CodingKey {
+        case _id
+        case __v
+        case creationTimestamp
+        case description
+        case displayName
+        case followerCount
+        case followingCount
+        case lastEditDisplayname
+        case lastEditUsername
+        case likeCount
+        case likedCount
+        case pronouns
+        case statusTitle
+        case totalPosts
+        case totalReplies
+        case username
+        case verified
+    }
 }

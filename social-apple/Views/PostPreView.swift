@@ -32,7 +32,6 @@ struct PostPreView: View {
         }
             VStack {
                 if showData {
-                   
                     VStack {
                         if (feedData?.postData.isReply == true) {
                             Button(action: {
@@ -55,32 +54,7 @@ struct PostPreView: View {
                         VStack {
                             Spacer()
                             VStack {
-                                Button(action: {
-                                    isActive=true
-                                    self.isSpecificPageActive.toggle()
-                                    print("showing usuer?")
-                                }) {
-                                    NavigationLink {
-                                        ProfileView(userData: feedData!.userData ?? nil)
-                                    } label: {
-                                        VStack {
-                                            HStack {
-                                                Text(feedData!.userData?.displayName ?? "")
-                                                Text("@\(feedData!.userData?.username ?? "")")
-                                                if (feedData!.userData?.verified != nil) {
-                                                    Image(systemName: "checkmark.seal.fill")
-                                                }
-                                                Spacer()
-                                            }
-                                            HStack {
-                                                Text(stringTimeFormatter(timestamp: feedData?.postData.timePosted ?? ""))
-                                                Spacer()
-                                            }
-                                        }
-                                    }
-                                    .buttonStyle(PlainButtonStyle())
-                                }
-                                .buttonStyle(PlainButtonStyle())
+                                ProfilePostView(feedData: $feedData, isActive: $isActive, isSpecificPageActive: $isSpecificPageActive)
                             }
                             Spacer()
                             HStack {
@@ -154,22 +128,7 @@ struct PostPreView: View {
                         }
                         Spacer()
                         if (client.devMode?.isEnabled == true) {
-                            VStack {
-                                Text("PostID: \(feedData?.postData._id ?? "xx")")
-                                Text("UserID: \(feedData?.userData?._id ?? "xx")")
-                                
-                                if (feedData?.quoteData?.quoteUser != nil) {
-                                    Text("Quoted UserID: \(feedData?.quoteData?.quoteUser?._id ?? "xx")")
-                                    Text("Quoted PostID: \(feedData?.quoteData?.quotePost?._id ?? "xx")")
-                                }
-                                
-                                if (feedData?.pollData != nil) {
-                                    Text("PollID: \(feedData?.pollData?._id ?? "xx")")
-                                    if (feedData?.voteData != nil) {
-                                        Text("VoteID: \(feedData?.voteData?._id ?? "xx")")
-                                    }
-                                }
-                            }
+                            DevModePostView(feedData: $feedData)
                             Spacer()
                         }
                     }
@@ -186,8 +145,8 @@ struct PostPreView: View {
                 if (feedData != nil) {
                     showData = true;
                     print ("showing")
+                    postIsLiked = feedData?.extraData.liked ?? false
                 }
-                
             }
             .padding(15)
             .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
@@ -201,6 +160,7 @@ struct PostPreView: View {
             }
     }
 }
+
 struct ReplyParentPostView : View {
     @ObservedObject var client: ApiClient
     @Binding var feedData: AllPosts?
@@ -232,9 +192,104 @@ struct ReplyParentPostView : View {
             RoundedRectangle(cornerRadius: 20)
                 .stroke(Color.accentColor, lineWidth: 3)
         )
-
     }
 }
+
+struct ProfilePostView: View {
+    @Binding var feedData: AllPosts?
+    @Binding var isActive: Bool
+    @Binding var isSpecificPageActive: Bool
+    
+    var body: some View {
+        VStack {
+            Button(action: {
+                isActive=true
+                self.isSpecificPageActive.toggle()
+                print("showing usuer?")
+            }) {
+                NavigationLink {
+                    ProfileView(userData: feedData!.userData ?? nil)
+                } label: {
+                    VStack {
+                        HStack {
+                            Text(feedData!.userData?.displayName ?? "")
+                            Text("@\(feedData!.userData?.username ?? "")")
+                            if (feedData!.userData?.verified == true) {
+                                Image(systemName: "checkmark.seal.fill")
+                            }
+                            Spacer()
+                        }
+                       
+                        if (self.feedData?.coposterData != nil) {
+                            ForEach(self.feedData!.coposterData ?? []) { coposter in
+                                HStack {
+                                    Text(coposter.displayName ?? "")
+                                    Text("@\(coposter.username ?? "")")
+                                    if (coposter.verified != nil) {
+                                        Image(systemName: "checkmark.seal.fill")
+                                    }
+                                    Spacer()
+                                }
+                            }
+                        }
+                        
+                        HStack {
+                            Text(int64TimeFormatter(timestamp: feedData?.postData.timestamp ?? 0))
+                            Spacer()
+                        }
+                    }
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+            .buttonStyle(PlainButtonStyle())
+            .onAppear {
+                print(self.feedData?.coposterData ?? "none")
+            }
+        }
+    }
+}
+
+struct DevModePostView: View {
+    @Binding var feedData: AllPosts?
+    
+    var body: some View {
+        VStack {
+            HStack {
+                Text("PostID: \(feedData?.postData._id ?? "xx")")
+                Spacer()
+            }
+            HStack {
+                Text("UserID: \(feedData?.userData?._id ?? "xx")")
+                Spacer()
+            }
+            
+            if (feedData?.quoteData?.quoteUser != nil) {
+                HStack {
+                    Text("Quoted UserID: \(feedData?.quoteData?.quoteUser?._id ?? "xx")")
+                    Spacer()
+                }
+                HStack {
+                    Text("Quoted PostID: \(feedData?.quoteData?.quotePost?._id ?? "xx")")
+                    Spacer()
+                }
+            }
+            
+            if (feedData?.pollData != nil) {
+                HStack {
+                    Text("PollID: \(feedData?.pollData?._id ?? "xx")")
+                    Spacer()
+                }
+                if (feedData?.voteData != nil) {
+                    HStack {
+                        Text("VoteID: \(feedData?.voteData?._id ?? "xx")")
+                        Spacer()
+                    }
+                }
+            }
+        }
+    }
+}
+
 struct ExpandedPostView: View {
     @ObservedObject var client: ApiClient
 
@@ -251,7 +306,6 @@ struct ExpandedPostView: View {
                 RoundedRectangle(cornerRadius: 20)
                     .stroke(Color.accentColor, lineWidth: 3)
             )
-            
         }
     }
 }
@@ -266,16 +320,16 @@ struct PostActionButtons: View {
 
     var body : some View {
         HStack {
+//            Text(String(self.postIsLiked))
             VStack {
                 Button(action: {
-                    print("like button")
-                    if (feedData!.extraData.liked == true) {
+                    if (self.postIsLiked == true) {
                         client.posts.unlikePost(postID: feedData!.postData._id) { result in
                             switch result {
                             case .success(let newPostData):
-                                self.postIsLiked = false
+                                self.postIsLiked.toggle()
                                 self.feedData?.postData = newPostData
-                                self.feedData?.extraData.liked = false // temp code
+                                self.feedData?.extraData.liked?.toggle()
                             case .failure(let error):
                                 print("Error: \(error.localizedDescription)")
                             }
@@ -284,9 +338,9 @@ struct PostActionButtons: View {
                         client.posts.likePost(postID: feedData!.postData._id) { result in
                             switch result {
                             case .success(let newPostData):
-                                self.postIsLiked = true
+                                self.postIsLiked.toggle()
                                 self.feedData?.postData = newPostData
-                                self.feedData?.extraData.liked = true // temp code
+                                self.feedData?.extraData.liked?.toggle() 
                             case .failure(let error):
                                 print("Error: \(error.localizedDescription)")
                             }
@@ -297,14 +351,14 @@ struct PostActionButtons: View {
                         if (self.feedData?.postData.totalLikes ?? 0 != 0) {
                             Text("\(self.feedData?.postData.totalLikes ?? 0)")
                         }
-                        if (feedData!.extraData.liked == true) {
+                        if (self.postIsLiked == true) {
                             Image(systemName: "heart.slash")
                         } else {
                             Image(systemName: "heart")
                         }
                     }
                     .padding(5)
-                    .foregroundColor(feedData!.extraData.liked == true ? .accentColor : .secondary)
+                    .foregroundColor(postIsLiked == true ? .accentColor : .secondary)
                     .background(client.devMode?.isEnabled == true ? Color.blue : Color.clear)
                     .cornerRadius(10)
                 }
@@ -371,7 +425,6 @@ struct PostActionButtons: View {
                     .cornerRadius(10)
                 }
                 .buttonStyle(PlainButtonStyle())
-
             }
             Spacer()
         }

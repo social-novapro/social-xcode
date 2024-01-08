@@ -22,6 +22,36 @@ class PostsApi: API_Helper {
         }
     }
     
+    func getUserFeed(userTokens: UserTokenData, completion: @escaping (Result<FeedV2Data, Error>) -> Void) {
+        print("Getting all posts")
+        let APIUrl = baseAPIurl + "/feeds/userFeed/v2"
+        self.requestData(urlString: APIUrl) { (result: Result<FeedV2Data, Error>) in
+            switch result {
+            case .success(var allPosts):
+                let reversed:[AllPosts] = allPosts.posts.reversed()
+                allPosts.posts = reversed
+                completion(.success(allPosts))
+            case .failure(let error):
+                print("Error: \(error)")
+            }
+        }
+    }
+    func getUserFeedIndex(userTokens: UserTokenData, index: String, completion: @escaping (Result<FeedV2Data, Error>) -> Void) {
+        print("Getting all posts")
+        let APIUrl = baseAPIurl + "/feeds/userFeed/v2/" + index
+        self.requestData(urlString: APIUrl) { (result: Result<FeedV2Data, Error>) in
+            switch result {
+            case .success(var allPosts):
+                let reversed:[AllPosts] = allPosts.posts.reversed()
+                allPosts.posts = reversed
+                completion(.success(allPosts))
+            case .failure(let error):
+                print("Error: \(error)")
+            }
+        }
+    }
+
+    
     func getAllPosts(userTokens: UserTokenData, completion: @escaping (Result<[AllPosts], Error>) -> Void) {
         print("Getting all posts")
         let APIUrl = baseAPIurl + "/feeds/userFeed"

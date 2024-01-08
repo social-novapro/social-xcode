@@ -12,25 +12,26 @@ struct FeedPage: View {
     @State var userData: UserData?
     @State var isLoading:Bool = true
     
-    @State var allPosts: [AllPosts]? = []
-    @State var originalPosts = [AllPosts]();
+    @State var feed: FeedV2Data?
+//    @State var allPosts: [AllPosts]? = []
+//    @State var originalPosts = [AllPosts]();
     
     var body: some View {
         VStack {
             if (!isLoading) {
-                childFeed(client: client, allPostsIn: $allPosts)
+                childFeed(client: client, feedIn: $feed)
             }
             else {
                 Text("loading feed")
             }
         }
         .onAppear {
-            client.posts.getAllPosts(userTokens: client.userTokens) { result in
+            client.posts.getUserFeed(userTokens: client.userTokens) { result in
                 print("allpost request")
                 
                 switch result {
-                case .success(let allPosts):
-                    self.allPosts = allPosts
+                case .success(let feed):
+                    self.feed = feed
                     print("Done")
                     self.isLoading = false
                 case .failure(let error):
@@ -44,11 +45,15 @@ struct FeedPage: View {
 
 struct childFeed: View {
     @ObservedObject var client: ApiClient
-    @Binding var allPostsIn: [AllPosts]?
+    
+    @Binding var feedIn: FeedV2Data?
+    @State var feed: FeedV2Data?
     @State var allPosts: [AllPosts]?
     @State var showData: Bool = false
     @State var activePost: AllPosts?
     @State var activeAction: Int32 = 0
+    @State var loadingScroll: Bool = false
+    
     /*
      0=none
      1=reply
@@ -66,21 +71,29 @@ struct childFeed: View {
                             .listRowInsets(EdgeInsets())
                             .padding(10)
                             .onAppear(){
-                                if (self.allPosts?.last == post){
-                                    print("hit bottom")
-    //                                newsfeed.loadData(pageNum: page + 1)
-    //                                self.page =+ 1
+                                if (self.feed!.posts.last == post && self.loadingScroll == false){
+                                    self.loadingScroll = true
+                                    client.posts.getUserFeedIndex(userTokens: client.userTokens, index: self.feed?.prevIndexID ?? "") { result in
+                                        
+                                        switch result {
+                                        case .success(let feed):
+                                            self.feed = feed
+                                            self.allPosts! += feed.posts
+                                            self.loadingScroll = false
+                                        case .failure(let error):
+                                            print("Error: \(error.localizedDescription)")
+                                        }
+                                    }
                                 }
                             }
-
                     }
                 }
                 .refreshable {
-                    client.posts.getAllPosts(userTokens: client.userTokens) { result in
+                    client.posts.getUserFeed(userTokens: client.userTokens) { result in
                         switch result {
-                        case .success(let allPosts):
-                            self.allPosts = allPosts
-                            print("Done")
+                        case .success(let feedData):
+                            self.feed = feedData
+                            self.allPosts = feed!.posts
                         case .failure(let error):
                             print("Error: \(error.localizedDescription)")
                         }
@@ -94,8 +107,9 @@ struct childFeed: View {
             }
         }
         .onAppear {
-            allPosts = self.allPostsIn
-            if (allPosts != nil) {
+            self.feed = self.feedIn
+            self.allPosts = feed!.posts
+            if (feed != nil) {
                 showData = true;
                 print ("showing? why is it so many times")
             }

@@ -323,7 +323,7 @@ struct AppTabNavigation: View {
                         Button(action: {
                             client.navigation = client.navigationManager.switchTab(newTab: 4)
                         }) {
-                            Image(systemName: "bubble")
+                            Image(systemName: "bubble.left")
                                 .font(.system(size: 22))
                                 .foregroundColor(client.navigation?.selectedTab == 4 ? .accentColor: .secondary)
                                 .padding(.horizontal)
