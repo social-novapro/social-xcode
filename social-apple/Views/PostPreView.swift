@@ -199,44 +199,42 @@ struct ProfilePostView: View {
     @Binding var feedData: AllPosts?
     @Binding var isActive: Bool
     @Binding var isSpecificPageActive: Bool
+    @State var profileShowing: Bool = false;
     
     var body: some View {
         VStack {
             Button(action: {
                 isActive=true
+                profileShowing = true
                 self.isSpecificPageActive.toggle()
                 print("showing usuer?")
             }) {
-                NavigationLink {
-                    ProfileView(userData: feedData!.userData ?? nil)
-                } label: {
-                    VStack {
-                        HStack {
-                            Text(feedData!.userData?.displayName ?? "")
-                            Text("@\(feedData!.userData?.username ?? "")")
-                            if (feedData!.userData?.verified == true) {
-                                Image(systemName: "checkmark.seal.fill")
-                            }
-                            Spacer()
+                VStack {
+                    HStack {
+                        Text(feedData!.userData?.displayName ?? "")
+                        Text("@\(feedData!.userData?.username ?? "")")
+                        if (feedData!.userData?.verified == true) {
+                            Image(systemName: "checkmark.seal.fill")
                         }
-                       
-                        if (self.feedData?.coposterData != nil) {
-                            ForEach(self.feedData!.coposterData ?? []) { coposter in
-                                HStack {
-                                    Text(coposter.displayName ?? "")
-                                    Text("@\(coposter.username ?? "")")
-                                    if (coposter.verified != nil) {
-                                        Image(systemName: "checkmark.seal.fill")
-                                    }
-                                    Spacer()
+                        Spacer()
+                    }
+                   
+                    if (self.feedData?.coposterData != nil) {
+                        ForEach(self.feedData!.coposterData ?? []) { coposter in
+                            HStack {
+                                Text(coposter.displayName ?? "")
+                                Text("@\(coposter.username ?? "")")
+                                if (coposter.verified != nil) {
+                                    Image(systemName: "checkmark.seal.fill")
                                 }
+                                Spacer()
                             }
                         }
+                    }
                         
-                        HStack {
-                            Text(int64TimeFormatter(timestamp: feedData?.postData.timestamp ?? 0))
-                            Spacer()
-                        }
+                    HStack {
+                        Text(int64TimeFormatter(timestamp: feedData?.postData.timestamp ?? 0))
+                        Spacer()
                     }
                 }
                 .buttonStyle(PlainButtonStyle())
@@ -244,6 +242,9 @@ struct ProfilePostView: View {
             .buttonStyle(PlainButtonStyle())
             .onAppear {
                 print(self.feedData?.coposterData ?? "none")
+            }
+            .navigationDestination(isPresented: $profileShowing) {
+                ProfileView(userData: feedData!.userData ?? nil)
             }
         }
     }

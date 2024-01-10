@@ -36,6 +36,7 @@ class PostsApi: API_Helper {
             }
         }
     }
+    
     func getUserFeedIndex(userTokens: UserTokenData, index: String, completion: @escaping (Result<FeedV2Data, Error>) -> Void) {
         print("Getting all posts")
         let APIUrl = baseAPIurl + "/feeds/userFeed/v2/" + index
@@ -50,7 +51,6 @@ class PostsApi: API_Helper {
             }
         }
     }
-
     
     func getAllPosts(userTokens: UserTokenData, completion: @escaping (Result<[AllPosts], Error>) -> Void) {
         print("Getting all posts")

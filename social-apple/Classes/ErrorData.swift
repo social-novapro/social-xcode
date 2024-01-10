@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ErrorData : Decodable {
+struct ErrorData : Decodable, Error {
     let code: String
     let msg: String
     let error: Bool
@@ -19,7 +19,7 @@ struct ErrorData : Decodable {
     }
 }
 
-struct ErrorDataWithAuth: Decodable {
+struct ErrorDataWithAuth: Decodable, Error {
     let authorized: Bool
     let error: ErrorData
     

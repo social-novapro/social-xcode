@@ -10,7 +10,7 @@ import Foundation
 struct UserConectionData: Decodable {
     var id = UUID()
     var _id: String? = nil
-    var timestamp: String? = nil
+    var timestamp: Int64? = nil
     var api_urlbase: String? = nil
     var api_url: String? = nil
     

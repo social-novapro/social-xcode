@@ -24,6 +24,7 @@ struct UserData: Decodable, Encodable, Identifiable {
     var statusTitle: String? = nil
     var totalPosts: Int64? = nil
     var totalReplies: Int64? = nil
+    var totalQuotes: Int64? = nil
     var username: String? = nil
     var verified: Bool? = nil
     
@@ -43,6 +44,7 @@ struct UserData: Decodable, Encodable, Identifiable {
         case statusTitle
         case totalPosts
         case totalReplies
+        case totalQuotes
         case username
         case verified
     }

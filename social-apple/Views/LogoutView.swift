@@ -20,8 +20,7 @@ struct LogoutView: View {
                 Text("Are you sure you want to logout?")
                 Button(action: {
                     print("deleting pressed")
-                    client.userTokenManager.deleteUserToken()
-                    client.loggedIn = false
+                    client.logout()
                     isLoggingOut = true
                 }) {
                     Text("Log out")

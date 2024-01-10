@@ -33,25 +33,27 @@ struct ContentView: View {
 #if os(iOS)
 
                 if horizontalSizeClass == .compact {
-                    if (client.loggedIn) {
-                        if (client.navigation?.selectedTab==0) {
-                            FeedPage(client: client)
+                    NavigationStack {
+                        if (client.loggedIn) {
+                            if (client.navigation?.selectedTab==0) {
+                                FeedPage(client: client)
+                            }
+                            if (client.navigation?.selectedTab==1) {
+                                CreatePost(client: client)
+                            }
+                            if (client.navigation?.selectedTab==2) {
+                                SideBarNavigation(client: client)
+                            }
+                            if (client.navigation?.selectedTab==3) {
+                                DevModeView(client: client)
+                            }
+                            if (client.navigation?.selectedTab==4) {
+                                LiveChatView(client: client)
+                            }
+                            
+                        } else {
+                            BeginPage(client: client)
                         }
-                        if (client.navigation?.selectedTab==1) {
-                            CreatePost(client: client)
-                        }
-                        if (client.navigation?.selectedTab==2) {
-                            SideBarNavigation(client: client)
-                        }
-                        if (client.navigation?.selectedTab==3) {
-                            DevModeView(client: client)
-                        }
-                        if (client.navigation?.selectedTab==4) {
-                            LiveChatView(client: client)
-                        }
-                        
-                    } else {
-                        BeginPage(client: client)
                     }
                 }
 #endif
@@ -67,10 +69,12 @@ struct ContentView: View {
                 }
             }
             if horizontalSizeClass != .compact {
-                if (client.loggedIn) {
-                    FeedPage(client: client)
-                } else {
-                    BeginPage(client: client)
+                NavigationStack {
+                    if (client.loggedIn) {
+                        FeedPage(client: client)
+                    } else {
+                        BeginPage(client: client)
+                    }
                 }
             }
         }
@@ -123,9 +127,38 @@ struct NotificationView: View {
     #endif
 
     var body: some View {
-    #if os(iOS)
-
         VStack {
+            if self.client.errorShow==true {
+                HStack (alignment: .center) {
+                    VStack {
+                        Text("\(client.errorFound?.code ?? "Unknown Error Code")")
+                        Text("\(client.errorFound?.msg ?? "An error occured")")
+                    }
+                    
+                    Button(action: {
+                        self.newNotification = false
+                        self.notificationBody = ""
+                    }, label: {
+                        Image(systemName: "x.circle")
+                            .font(.system(size: 22))
+                    })
+                }
+
+                .padding(.vertical, self.expand ? 10 : 10)
+                .padding(.horizontal, self.expand ? 10 : 8)
+                .background(.regularMaterial)
+                .clipShape(Capsule())
+                .overlay(
+                    RoundedRectangle(cornerRadius: 35)
+                        .stroke(Color.accentColor, lineWidth: 2)
+                )
+                .padding(22)
+                .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+                .onLongPressGesture {
+                    self.newNotification.toggle()
+                }
+            }
+#if os(iOS)
             if self.newNotification==true {
                 HStack (alignment: .center) {
                     VStack {
@@ -152,11 +185,13 @@ struct NotificationView: View {
                 .padding(22)
                 .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
                 .onLongPressGesture {
-                    self.expand.toggle()
+                    self.newNotification.toggle()
                 }
             }
+    #endif
         }
         .onAppear {
+            #if os(iOS)
             // Subscribe to changes in the MyAppDelegate
             NotificationCenter.default.addObserver(forName: NSNotification.Name("NotificationReceived"), object: nil, queue: nil) { notification in
                 print("Received new message: \(notification)")
@@ -165,12 +200,8 @@ struct NotificationView: View {
                 self.newNotification = true
                 print("App is in the foreground")
             }
+            #endif
         }
-        #else
-        VStack {
-            Text("Can't show notifications")
-        }
-        #endif
     }
 }
 

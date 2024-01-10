@@ -21,9 +21,39 @@ struct LoginPage: View {
     
     var body: some View {
         VStack {
-            Form {
-                TextField("Username", text: $username)
-                SecureField("Password", text: $password)
+            ScrollView {
+                VStack {
+                    HStack {
+                        Spacer()
+                        Image(systemName: "person.circle")
+                        TextField("Username", text: $username)
+                            .padding(15)
+                            .cornerRadius(20)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(Color.accentColor, lineWidth: 3)
+                            )
+                        Spacer()
+                    }
+                }
+                .padding(5)
+                
+                VStack {
+                    HStack {
+                        Spacer()
+                        Image(systemName: "lock.circle")
+                        
+                        SecureField("Password", text: $password)
+                            .padding(15)
+                            .cornerRadius(20)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(Color.accentColor, lineWidth: 3)
+                            )
+                        Spacer()
+                    }
+                }
+                .padding(5)
                 
                 Button(action: {
                     print("button pressed")
@@ -43,7 +73,14 @@ struct LoginPage: View {
                     }
                 }) {
                     Text("Login")
+                        .padding(15)
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.accentColor, lineWidth: 3)
+                        )
                 }
+                Spacer()
             }
         }
         .navigationTitle("Login")

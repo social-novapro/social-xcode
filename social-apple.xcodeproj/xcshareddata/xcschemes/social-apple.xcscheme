@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "655AB60429F0720500C61F3A"
-               BuildableName = "social-apple.app"
+               BuildableName = "Interact.app"
                BlueprintName = "social-apple"
                ReferencedContainer = "container:social-apple.xcodeproj">
             </BuildableReference>
@@ -44,7 +44,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "655AB60429F0720500C61F3A"
-            BuildableName = "social-apple.app"
+            BuildableName = "Interact.app"
             BlueprintName = "social-apple"
             ReferencedContainer = "container:social-apple.xcodeproj">
          </BuildableReference>
@@ -61,7 +61,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "655AB60429F0720500C61F3A"
-            BuildableName = "social-apple.app"
+            BuildableName = "Interact.app"
             BlueprintName = "social-apple"
             ReferencedContainer = "container:social-apple.xcodeproj">
          </BuildableReference>

@@ -23,6 +23,9 @@ class ApiClient: ObservableObject {
 
     var userTokens: UserTokenData
     
+    var errorShow:Bool = false
+    var errorFound:ErrorData?
+    
     init() {
         let tokensFound = userTokenManager.getUserTokens()
         if (tokensFound != nil) {
@@ -45,6 +48,14 @@ class ApiClient: ObservableObject {
         
     }
     
+    func logout() {
+        self.userTokenManager.deleteUserToken()
+        self.loggedIn = false
+        DispatchQueue.main.async {
+            self.loggedIn = false
+        }
+    }
+    
     func provideTokens(userLoginResponse: UserLoginResponse) {
         /* sets up tokens */
         print("Providing tokens")
@@ -54,10 +65,12 @@ class ApiClient: ObservableObject {
             userID: userLoginResponse.userID
         )
         
-        userTokenManager.saveUserTokens(userTokenData: userTokens)
+        self.userTokenManager.saveUserTokens(userTokenData: userTokens)
         self.auth = AuthApi(userTokensProv: self.userTokens)
         self.posts = PostsApi(userTokensProv: self.userTokens)
         self.users = UsersApi(userTokensProv: self.userTokens)
-        self.loggedIn = true
+        DispatchQueue.main.async {
+            self.loggedIn = true
+        }
     }
 }

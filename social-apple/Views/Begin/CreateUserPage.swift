@@ -27,14 +27,104 @@ struct CreateUserPage: View {
     
     var body: some View {
         VStack {
-            Form {
-                TextField("Email (optional)", text: $email)
-                TextField("Username", text: $username)
-                TextField("Display Name", text: $displayName)
-                SecureField("Password", text: $password)
-                TextField("Description", text: $description)
-                TextField("Pronouns", text: $pronouns)
-                TextField("Status", text: $status)
+            ScrollView {
+                HStack {
+                    Spacer()
+                    Image(systemName: "envelope.circle")
+                    TextField("Email (optional)", text: $email)
+                        .padding(15)
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.accentColor, lineWidth: 3)
+                        )
+                    Spacer()
+                }
+                .padding(5)
+                
+                HStack {
+                    Spacer()
+                    Image(systemName: "person.circle")
+                    TextField("Username", text: $username)
+                        .padding(15)
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.accentColor, lineWidth: 3)
+                        )
+                    Spacer()
+                }
+                .padding(5)
+                
+                HStack {
+                    Spacer()
+                    Image(systemName: "magnifyingglass.circle")
+                    TextField("Display Name", text: $displayName)
+                        .padding(15)
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.accentColor, lineWidth: 3)
+                        )
+                    Spacer()
+                }
+                .padding(5)
+                
+                HStack {
+                    Spacer()
+                    Image(systemName: "lock.circle")
+                    SecureField("Password", text: $password)
+                        .padding(15)
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.accentColor, lineWidth: 3)
+                        )
+                    Spacer()
+                }
+                .padding(5)
+                
+                HStack {
+                    Spacer()
+                    Image(systemName: "line.3.horizontal.decrease.circle")
+                    TextField("Description", text: $description)
+                        .padding(15)
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.accentColor, lineWidth: 3)
+                        )
+                    Spacer()
+                }
+                .padding(5)
+                
+                HStack {
+                    Spacer()
+                    Image(systemName: "pencil.tip.crop.circle")
+                    TextField("Pronouns", text: $pronouns)
+                        .padding(15)
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.accentColor, lineWidth: 3)
+                        )
+                    Spacer()
+                }
+                .padding(5)
+                
+                HStack {
+                    Spacer()
+                    Image(systemName: "info.circle")
+                    TextField("Status", text: $status)
+                        .padding(15)
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.accentColor, lineWidth: 3)
+                        )
+                    Spacer()
+                }
+                .padding(5)
                 
                 Button(action: {
                     print("button pressed")
@@ -53,10 +143,17 @@ struct CreateUserPage: View {
                         }
                     }
                 }) {
-                    Text("Log in")
+                    Text("Sign up")
+                        .padding(15)
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.accentColor, lineWidth: 3)
+                        )
                 }
+                Spacer()
             }
         }
-        .navigationTitle("Log in")
+        .navigationTitle("Sign up")
     }
 }

@@ -62,11 +62,8 @@ struct DevModeView: View {
                 Button("Are you sure?") {
                     client.devModeManager.deleteDevMode()
                     client.navigationManager.deleteCurrentNavigation()
-                    client.userTokenManager.deleteUserToken()
-                    
-                    client.userTokens = UserTokenData(accessToken: "", userToken: "", userID: "")
                     client.devMode = client.devModeManager.getDevMode()
-                    client.loggedIn = false
+                    client.logout()
                 }
                 .padding(15)
                 .background(Color.red)
@@ -82,7 +79,6 @@ struct DevModeView: View {
         #if os(iOS)
         .navigationBarHidden(fullScreen)
         #endif
-
     }
 }
 

@@ -139,8 +139,8 @@ class API_Rquests {
         // error here
         if (self.userTokens == nil) {
             print ("no tokens stored, getUserData")
-            
         }
+        
         request.addValue(self.userTokens!.accessToken, forHTTPHeaderField: "accesstoken")
         request.addValue(self.userTokens!.userToken, forHTTPHeaderField: "usertoken")
         request.addValue(self.userTokens!.userID, forHTTPHeaderField: "userid")

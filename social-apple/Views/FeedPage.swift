@@ -74,7 +74,6 @@ struct childFeed: View {
                                 if (self.feed!.posts.last == post && self.loadingScroll == false){
                                     self.loadingScroll = true
                                     client.posts.getUserFeedIndex(userTokens: client.userTokens, index: self.feed?.prevIndexID ?? "") { result in
-                                        
                                         switch result {
                                         case .success(let feed):
                                             self.feed = feed

@@ -8,6 +8,7 @@
 import SwiftUI
 import Charts
 
+@available(macOS 14.0, *)
 struct Graph: View {
     @State var graphType:Int64? = nil
     @State var analytics: [AnalyticTrendDataPoint]?
@@ -15,19 +16,22 @@ struct Graph: View {
     @State var dataLoaded: Bool = false
     
     let api_requests = API_Rquests()
-
+    
+    
     var body: some View {
         VStack {
             if (dataLoaded == true) {
                 Text("\(functionData?.title ?? "Unknown Title")")
-
-                Chart {
-                    ForEach((functionData?.points!)!) { point in
-                        BarMark(
-                            x: .value("Amounts", point.y ?? 0),
-                            y: .value("Days", point.x ?? "Unknown")
-                        )
+                if #available(iOS 17, *) {
+                    Chart {
+                        ForEach((functionData?.points!)!) { point in
+                            BarMark(
+                                x: .value("Amounts", point.y ?? 0),
+                                y: .value("Days", point.x ?? "Unknown")
+                            )
+                        }
                     }
+                    .chartScrollableAxes(.vertical)
                 }
             }
             else {

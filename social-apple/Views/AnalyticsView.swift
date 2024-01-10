@@ -63,10 +63,14 @@ struct AnalyticsView: View {
                 Spacer()
                 VStack {
                     Spacer()
-                    HStack {
+                    VStack {
                         Spacer()
                         if ((graphNumber ?? 0 ) > 0 && (graphNumber ?? 0) < 5) {
-                            Graph(graphType: graphNumber, analytics: self.analytics)
+                            if #available(macOS 14.0, *) {
+                                Graph(graphType: graphNumber, analytics: self.analytics)
+                            } else {
+                                Text("requires newer macOS")
+                            }
 
                         } else {
                             Text("Something went wrong with the graph number. \(graphNumber ?? 0)")
