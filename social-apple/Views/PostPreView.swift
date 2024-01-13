@@ -18,12 +18,17 @@ struct PostPreView: View {
     @State private var isSpecificPageActive = false
     @State var activeAction: Int32 = 0
     @State var showingPopover: Bool = false
+    @State var isOwner: Bool = false;
+    @State var deleted: Bool = false
+
     
     /*
      0=none
      1=reply
      2=quote
      3=showing reply parent
+     4=delete post
+     5=edit post
      */
     
     var body: some View {
@@ -31,7 +36,13 @@ struct PostPreView: View {
             ReplyParentPostView(client: client, feedData: $feedData)
         }
             VStack {
-                if showData {
+                if (self.deleted) {
+                    HStack {
+                        Text("This post was deleted.")
+                        Spacer()
+                    }
+                }
+                else if showData {
                     VStack {
                         if (feedData?.postData.isReply == true) {
                             Button(action: {
@@ -43,18 +54,21 @@ struct PostPreView: View {
                                     }
                                 }
                             }) {
-                                if (self.activeAction == 3) {
-                                    Text("Click here to hide reply.")
-                                } else {
-                                    Text("This is a reply, click here to view.")
+                                HStack {
+                                    if (self.activeAction == 3) {
+                                        Text("Click here to hide reply.")
+                                    } else {
+                                        Text("This is a reply, click here to view.")
+                                    }
                                 }
+                                .foregroundColor(.secondary)
                             }
                             .buttonStyle(PlainButtonStyle())
                         }
                         VStack {
                             Spacer()
                             VStack {
-                                ProfilePostView(feedData: $feedData, isActive: $isActive, isSpecificPageActive: $isSpecificPageActive)
+                                ProfilePostView(client: client, feedData: $feedData, isActive: $isActive, isSpecificPageActive: $isSpecificPageActive, isOwner: $isOwner)
                             }
                             Spacer()
                             HStack {
@@ -123,7 +137,7 @@ struct PostPreView: View {
                         
                         HStack {
                             Spacer()
-                            PostActionButtons(client: client, feedData: $feedData, activeAction: $activeAction, showingPopover: $showingPopover, actionExpanded: $actionExpanded, postIsLiked: $postIsLiked)
+                            PostActionButtons(client: client, feedData: $feedData, activeAction: $activeAction, showingPopover: $showingPopover, actionExpanded: $actionExpanded, postIsLiked: $postIsLiked, isOwner: $isOwner, deleted: $deleted)
                             Spacer()
                         }
                         Spacer()
@@ -133,12 +147,18 @@ struct PostPreView: View {
                         }
                     }
                 }
+                
                 else {
-                    EmptyView()
+                    HStack {
+                        Text("Unknown Error with Post Apperance. Try again later.")
+                        Spacer()
+                    }
                 }
             }
             .popover(isPresented: $showingPopover) {
-                PopoverPostAction(client: client, feedData: $feedData, activeAction: $activeAction, showingPopover: $showingPopover)
+                NavigationView {
+                    PopoverPostAction(client: client, feedData: $feedData, activeAction: $activeAction, showingPopover: $showingPopover)
+                }
             }
             .onAppear {
                 feedData = self.feedDataIn
@@ -146,6 +166,10 @@ struct PostPreView: View {
                     showData = true;
                     print ("showing")
                     postIsLiked = feedData?.extraData.liked ?? false
+                    
+                    if (feedData?.postData.userID == client.userTokens.userID) {
+                        self.isOwner = true;
+                    }
                 }
             }
             .padding(15)
@@ -156,7 +180,7 @@ struct PostPreView: View {
                     .stroke(Color.accentColor, lineWidth: 3)
             )
             if (self.actionExpanded == true) {
-                ExpandedPostView(client: client)
+                ExpandedPostView(client: client, feedData: $feedData)
             }
     }
 }
@@ -196,9 +220,11 @@ struct ReplyParentPostView : View {
 }
 
 struct ProfilePostView: View {
+    @ObservedObject var client: ApiClient
     @Binding var feedData: AllPosts?
     @Binding var isActive: Bool
     @Binding var isSpecificPageActive: Bool
+    @Binding var isOwner: Bool
     @State var profileShowing: Bool = false;
     
     var body: some View {
@@ -218,6 +244,7 @@ struct ProfilePostView: View {
                         }
                         Spacer()
                     }
+                    .foregroundColor(isOwner==true ? .accentColor : .primary)
                    
                     if (self.feedData?.coposterData != nil) {
                         ForEach(self.feedData!.coposterData ?? []) { coposter in
@@ -229,6 +256,7 @@ struct ProfilePostView: View {
                                 }
                                 Spacer()
                             }
+                            .foregroundColor(coposter._id == client.userTokens.userID ? .accentColor : .primary)
                         }
                     }
                         
@@ -236,6 +264,7 @@ struct ProfilePostView: View {
                         Text(int64TimeFormatter(timestamp: feedData?.postData.timestamp ?? 0))
                         Spacer()
                     }
+                    .foregroundColor(isOwner==true ? .accentColor : .primary)
                 }
                 .buttonStyle(PlainButtonStyle())
             }
@@ -244,7 +273,7 @@ struct ProfilePostView: View {
                 print(self.feedData?.coposterData ?? "none")
             }
             .navigationDestination(isPresented: $profileShowing) {
-                ProfileView(userData: feedData!.userData ?? nil)
+                ProfileView(client: client, userData: feedData!.userData ?? nil)
             }
         }
     }
@@ -262,6 +291,13 @@ struct DevModePostView: View {
             HStack {
                 Text("UserID: \(feedData?.userData?._id ?? "xx")")
                 Spacer()
+            }
+
+            if (feedData?.postData.indexID != nil) {
+                HStack {
+                    Text("Index: \(feedData?.postData.indexID ?? "xx")")
+                    Spacer()
+                }
             }
             
             if (feedData?.quoteData?.quoteUser != nil) {
@@ -293,12 +329,52 @@ struct DevModePostView: View {
 
 struct ExpandedPostView: View {
     @ObservedObject var client: ApiClient
+    @Binding var feedData: AllPosts?
+    @State var subAction: Int32 = 0 // inactive
+//    @Binding
+//    @State var editingPost: Bool = false
+//    @State var confirmDelete: Bool = false
 
     var body : some View {
         VStack {
-            HStack {
-                Text("Expanded action area")
-                Spacer()
+            VStack {
+                HStack {
+                    Text("NONE OF THIS IS WORKING")
+                }
+                HStack {
+                    Text("Expanded action area")
+                        .underline()
+                        .bold()
+                    Spacer()
+                }
+                HStack {
+                    Text("Pin to Profile")
+                    Spacer()
+                }
+                HStack {
+                    Text("Save to Bookmarks")
+                    Spacer()
+                }
+                HStack {
+                    Text("Copy Post Link")
+                    Spacer()
+                }
+                HStack {
+                    Text("Check Edit History")
+                    Spacer()
+                }
+                HStack {
+                    Text("Check Who Liked")
+                    Spacer()
+                }
+                HStack {
+                    Text("Check Replies")
+                    Spacer()
+                }
+                HStack {
+                    Text("Check Quotes")
+                    Spacer()
+                }
             }
             .padding(15)
             .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
@@ -307,6 +383,10 @@ struct ExpandedPostView: View {
                 RoundedRectangle(cornerRadius: 20)
                     .stroke(Color.accentColor, lineWidth: 3)
             )
+            
+            if (subAction==1) {
+                Text("activate")
+            }
         }
     }
 }
@@ -318,10 +398,12 @@ struct PostActionButtons: View {
     @Binding var showingPopover: Bool
     @Binding var actionExpanded: Bool
     @Binding var postIsLiked: Bool
+    @Binding var isOwner: Bool
+    @Binding var deleted: Bool
+    @State var deletePostConfirm: Bool = false;
 
     var body : some View {
         HStack {
-//            Text(String(self.postIsLiked))
             VStack {
                 Button(action: {
                     if (self.postIsLiked == true) {
@@ -427,7 +509,53 @@ struct PostActionButtons: View {
                 }
                 .buttonStyle(PlainButtonStyle())
             }
+            
             Spacer()
+
+            if (isOwner==true) {
+                VStack {
+                    Button(action: {
+                        self.activeAction = 4
+                        self.deletePostConfirm = true
+                    }) {
+                        HStack {
+                            Image(systemName: "trash")
+                        }
+                        .padding(5)
+                        .foregroundColor(.secondary)
+                        .background(client.devMode?.isEnabled == true ? Color.blue : Color.clear)
+                        .cornerRadius(10)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .confirmationDialog("Delete Post", isPresented: $deletePostConfirm) {
+                        Button("Delete") {
+                            print("pretend delete")
+                            self.deletePostConfirm = false
+                            
+                            client.posts.deletePost(postID: feedData?.postData._id ?? "") { result in
+                                print("api rquest login:")
+                                switch result {
+                                case .success(let res):
+                                    if (res.deleted) {
+                                        self.deleted = true
+                                    }
+                                case .failure(let error):
+                                    self.deleted = false
+                                    print("Error: \(error.localizedDescription)")
+                                }
+                            }
+
+                            self.deleted = true;
+                        }
+                        .foregroundColor(.red)
+                        Button("Cancel", role: .cancel) {
+                            self.deleted = false
+                        }
+                    } message: {
+                        Text("Confirm Post Deletion")
+                    }
+                }
+            }
         }
     }
 }
@@ -450,7 +578,6 @@ struct PopoverPostAction: View {
             } else if (self.activeAction==2) {
                 Text("Quoting Post")
             }
-            Spacer()
             if sending==true {
                 HStack {
                     Text("Status: ")
@@ -486,9 +613,9 @@ struct PopoverPostAction: View {
                     .stroke(Color.accentColor, lineWidth: 3)
             )
 
-            Spacer()
+//            Spacer()
             
-            Form {
+            VStack {
                 TextField("Content", text: $content)
                 Button(action: {
                     print("button pressed")
@@ -521,7 +648,17 @@ struct PopoverPostAction: View {
                     Text("Publish Post")
                 }
             }
+            .padding(15)
+            .cornerRadius(20)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.accentColor, lineWidth: 3)
+            )
+            Spacer()
+
         }
+        .padding(10)
+        .navigationTitle(self.activeAction==1 ? "Reply" : self.activeAction==2 ? "Quote" : "Unknown Action")
     }
 }
 

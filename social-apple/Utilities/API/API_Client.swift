@@ -12,7 +12,8 @@ class ApiClient: ObservableObject {
     var notifications: NotificationsApi
     var posts: PostsApi
     var users: UsersApi
-    
+    var get: GetApi
+
     @Published var loggedIn:Bool = false
     @Published var devMode: DevModeData? = DevModeData(isEnabled: false)
     @Published var navigation: CurrentNavigationData? = CurrentNavigationData(selectedTab: 0)
@@ -25,6 +26,7 @@ class ApiClient: ObservableObject {
     
     var errorShow:Bool = false
     var errorFound:ErrorData?
+    var userData: UserData?
     
     init() {
         let tokensFound = userTokenManager.getUserTokens()
@@ -42,6 +44,19 @@ class ApiClient: ObservableObject {
         self.notifications = NotificationsApi(userTokensProv: userTokens)
         self.posts = PostsApi(userTokensProv: userTokens)
         self.users = UsersApi(userTokensProv: userTokens)
+        self.get = GetApi(userTokensProv: userTokens)
+        
+        if (self.loggedIn == true) {
+            self.users.getByID(userID: userTokens.userID) { result in
+                print("Done")
+                switch result {
+                    case .success(let results):
+                        self.userData = results;
+                    case .failure(let error):
+                        print("Error: \(error.localizedDescription)")
+                }
+            }
+        }
     }
     
     func hasTokens() {

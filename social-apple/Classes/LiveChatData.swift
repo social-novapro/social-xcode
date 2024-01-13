@@ -98,7 +98,7 @@ struct LiveChatMessageData: Decodable, Encodable {
     var user: String?
 //    var currentUsers: Int32?
     var content: String?
-//    var timeStamp: String?
+    var timeStamp: Int64?
     var replyTo: String?
     var edited: Bool?
 //    var editedTimeStamp: String?

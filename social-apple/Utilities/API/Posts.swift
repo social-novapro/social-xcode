@@ -107,4 +107,18 @@ class PostsApi: API_Helper {
             }
         }
     }
+    
+    func deletePost(postID: String, completion: @escaping (Result<PostDeleteRes, Error>) -> Void) {
+        print("unliking post")
+        let APIUrl = baseAPIurl + "/posts/remove/\(postID)"
+        self.requestData(urlString: APIUrl, httpMethod: "DELETE") { (result: Result<PostDeleteRes, Error>) in
+            switch result {
+            case .success(let postData):
+                print("Unliked Post")
+                completion(.success(postData))
+            case .failure(let error):
+                print("Error: \(error)")
+            }
+        }
+    }
 }

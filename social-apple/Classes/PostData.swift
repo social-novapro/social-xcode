@@ -23,6 +23,7 @@ struct PostData: Decodable, Encodable {
     var isReply: Bool? = nil
     var isQuote: Bool? = nil
     var hasPoll: Bool? = nil
+    var indexID: String? = nil
     
     var quoteReplyID: String? = nil
     var replyingPostID: String? = nil
@@ -171,4 +172,9 @@ struct PostInput: Decodable, Encodable {
     var replyID: String?
     var isQuote: Bool?
     var quoteID: String?
+}
+
+struct PostDeleteRes: Decodable {
+    var deleted: Bool
+    var post: PostData
 }

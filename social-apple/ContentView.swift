@@ -50,7 +50,9 @@ struct ContentView: View {
                             if (client.navigation?.selectedTab==4) {
                                 LiveChatView(client: client)
                             }
-                            
+                            if (client.navigation?.selectedTab==5) {
+                                SearchView(client: client)
+                            }
                         } else {
                             BeginPage(client: client)
                         }
@@ -228,7 +230,7 @@ struct SideBarNavigation: View {
                 }
                 VStack {
                     NavigationLink {
-                        UserView(client: client)
+                        ProfileView(client: client, userData: client.userData)
                     } label: {
                         Text("Profile")
                     }
@@ -238,6 +240,13 @@ struct SideBarNavigation: View {
                         PushNotifications(client: client)
                     } label: {
                         Text("Notifications")
+                    }
+                }
+                VStack {
+                    NavigationLink {
+                        SearchView(client: client)
+                    } label: {
+                        Text("Search Interact")
                     }
                 }
                 VStack {
@@ -300,101 +309,166 @@ struct AppTabNavigation: View {
     @State var expand = false
 
     var body: some View {
-        HStack (alignment: .center) {
-            if (client.loggedIn == false) {
-                EmptyView()
-            }
-            else {
-                Spacer(minLength: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/)
-                HStack {
-                    if !self.expand {
-                        Button(action: {
-                            withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
-                                self.expand.toggle()
+        VStack {
+            /*if self.expand && (client.navigation?.selectedTab==0 || client.navigation?.selectedTab==1){
+                HStack (alignment: .center) {
+                    HStack {
+                        if client.navigation?.selectedTab == 0 {
+                            Button(action: {
+                                client.navigation = client.navigationManager.switchTab(newTab: 1)
+                            }) {
+                                Image(systemName: "pencil.line")
+                                    .font(.system(size: 22))
+                                    .foregroundColor(client.navigation?.selectedTab == 1 ? .accentColor: .secondary)
+                                    .padding()
+
                             }
-                        }) {
-                            Image(systemName: "arrow.left")
-                                .font(.system(size: 22))
-                                .foregroundColor(.accentColor).padding()
+                        }
+                        
+                        if client.navigation?.selectedTab == 1 {
+                            Button(action: {
+                                client.navigation = client.navigationManager.switchTab(newTab: 0)
+                            }) {
+                                Image(systemName: "tray.2")
+                                    .font(.system(size: 22))
+                                    .foregroundColor(client.navigation?.selectedTab == 1 ? .accentColor: .secondary)
+                                    .padding()
+                            }
                         }
                     }
-                    else {
-                        Spacer(minLength: 5)
-                        Button(action: {
-                            client.navigation = client.navigationManager.switchTab(newTab: 0)
-                        }) {
-                            Image(systemName: "tray.2")
-                                .font(.system(size: 22))
-                                .foregroundColor(client.navigation?.selectedTab == 0 ? .accentColor: .secondary)
-                                .padding(.horizontal)
-                        }
-                        Spacer(minLength: 5)
-                        Button(action: {
-                            client.navigation = client.navigationManager.switchTab(newTab: 1)
-                        }) {
-                            Image(systemName: "pencil.circle")
-                                .font(.system(size: 22))
-                                .foregroundColor(client.navigation?.selectedTab == 1 ? .accentColor: .secondary)
-                                .padding(.horizontal)
-                        }
-                        Spacer(minLength: 5)
-                        Button(action: {
-                            client.navigation = client.navigationManager.switchTab(newTab: 2)
-                        }) {
-                            Image(systemName: "gear")
-                                .font(.system(size: 22))
-                                .foregroundColor(client.navigation?.selectedTab == 2 ? .accentColor: .secondary)
-                                .padding(.horizontal)
-                        }
-                        Spacer(minLength: 5)
-                        if (client.devMode?.isEnabled == true) {
+                    .padding(.vertical, 10)
+                    .padding(.horizontal, 8)
+                    .background(.regularMaterial)
+                    .clipShape(Capsule())
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 35)
+                            .stroke(Color.accentColor, lineWidth: 2)
+                    )
+                    .padding(.horizontal, 22)
+                    .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+                }
+                Spacer()
+            }*/
+            HStack (alignment: .center) {
+                
+                if (client.loggedIn == false) {
+                    EmptyView()
+                }
+                else {
+                    Spacer(minLength: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/)
+                    HStack {
+                        if !self.expand {
                             Button(action: {
-                                client.navigation = client.navigationManager.switchTab(newTab: 3)
+                                withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
+                                    self.expand.toggle()
+                                }
                             }) {
-                                Image(systemName: "hammer")
+                                Image(systemName: "arrow.left")
                                     .font(.system(size: 22))
-                                    .foregroundColor(client.navigation?.selectedTab == 3 ? .accentColor: .secondary)
+                                    .foregroundColor(.accentColor).padding()
+                            }
+                            /*
+                             if client.navigation?.selectedTab == 0 {
+                                 Button(action: {
+                                     client.navigation = client.navigationManager.switchTab(newTab: 1)
+                                 }) {
+                                     Image(systemName: "pencil.line")
+                                         .font(.system(size: 22))
+                                         .foregroundColor(client.navigation?.selectedTab == 1 ? .accentColor: .secondary)
+                                         .padding(.horizontal)
+
+                                 }
+                             }
+                             if client.navigation?.selectedTab == 1 {
+                                 Button(action: {
+                                     client.navigation = client.navigationManager.switchTab(newTab: 0)
+                                 }) {
+                                     Image(systemName: "tray.2")
+                                         .font(.system(size: 22))
+                                         .foregroundColor(client.navigation?.selectedTab == 1 ? .accentColor: .secondary)
+                                         .padding(.horizontal)
+
+                                 }
+                             }
+                             */
+
+                        }
+                        else {
+                            Spacer(minLength: 5)
+                            Button(action: {
+                                client.navigation = client.navigationManager.switchTab(newTab: 0)
+                            }) {
+                                Image(systemName: "tray.2")
+                                    .font(.system(size: 22))
+                                    .foregroundColor(client.navigation?.selectedTab == 0 ? .accentColor: .secondary)
                                     .padding(.horizontal)
                             }
                             Spacer(minLength: 5)
-                        }
-                        Spacer(minLength: 5)
-                        Button(action: {
-                            client.navigation = client.navigationManager.switchTab(newTab: 4)
-                        }) {
-                            Image(systemName: "bubble.left")
-                                .font(.system(size: 22))
-                                .foregroundColor(client.navigation?.selectedTab == 4 ? .accentColor: .secondary)
-                                .padding(.horizontal)
-                        }
-                        Button(action: {
-                            withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
-                                self.expand.toggle()
+                            Button(action: {
+                                client.navigation = client.navigationManager.switchTab(newTab: 5)
+                            }) {
+                                Image(systemName: "magnifyingglass")
+                                    .font(.system(size: 22))
+                                    .foregroundColor(client.navigation?.selectedTab == 5 ? .accentColor: .secondary)
+                                    .padding(.horizontal)
                             }
-                            
-                        }) {
-                            Image(systemName: "arrow.right")
-                                .font(.system(size: 22))
-                                .foregroundColor(.secondary).padding()
+                            Spacer(minLength: 5)
+                            Button(action: {
+                                client.navigation = client.navigationManager.switchTab(newTab: 2)
+                            }) {
+                                Image(systemName: "gear")
+                                    .font(.system(size: 22))
+                                    .foregroundColor(client.navigation?.selectedTab == 2 ? .accentColor: .secondary)
+                                    .padding(.horizontal)
+                            }
+                            Spacer(minLength: 5)
+                            if (client.devMode?.isEnabled == true) {
+                                Button(action: {
+                                    client.navigation = client.navigationManager.switchTab(newTab: 3)
+                                }) {
+                                    Image(systemName: "hammer")
+                                        .font(.system(size: 22))
+                                        .foregroundColor(client.navigation?.selectedTab == 3 ? .accentColor: .secondary)
+                                        .padding(.horizontal)
+                                }
+                                Spacer(minLength: 5)
+                            }
+                            Spacer(minLength: 5)
+                            Button(action: {
+                                client.navigation = client.navigationManager.switchTab(newTab: 4)
+                            }) {
+                                Image(systemName: "bubble.left")
+                                    .font(.system(size: 22))
+                                    .foregroundColor(client.navigation?.selectedTab == 4 ? .accentColor: .secondary)
+                                    .padding(.horizontal)
+                            }
+                            Button(action: {
+                                withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
+                                    self.expand.toggle()
+                                }
+                                
+                            }) {
+                                Image(systemName: "arrow.right")
+                                    .font(.system(size: 22))
+                                    .foregroundColor(.secondary).padding()
+                            }
+                            Spacer(minLength: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/)
                         }
-                        Spacer(minLength: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/)
                     }
-                }
-                .padding(.vertical, self.expand ? 10 : 10)
-                .padding(.horizontal, self.expand ? 10 : 8)
-                .background(.regularMaterial)
-                .clipShape(Capsule())
-                .overlay(
-                    RoundedRectangle(cornerRadius: 35)
-                        .stroke(Color.accentColor, lineWidth: 2)
-                )
-                .padding(22)
-                .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
-                .onLongPressGesture {
-                    self.expand.toggle()
+                    .padding(.vertical, self.expand ? 10 : 10)
+                    .padding(.horizontal, self.expand ? 10 : 8)
+                    .background(.regularMaterial)
+                    .clipShape(Capsule())
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 35)
+                            .stroke(Color.accentColor, lineWidth: 2)
+                    )
+                    .padding(22)
+                    .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
                 }
             }
         }
+        Spacer()
     }
 }
 

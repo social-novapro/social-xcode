@@ -13,6 +13,8 @@ struct FeedPage: View {
     @State var isLoading:Bool = true
     
     @State var feed: FeedV2Data?
+    @State var writingPost: Bool = false
+    @State var showProfile: Bool = false
 //    @State var allPosts: [AllPosts]? = []
 //    @State var originalPosts = [AllPosts]();
     
@@ -40,6 +42,40 @@ struct FeedPage: View {
             }
         }
         .navigationTitle("Feed")
+        .toolbar {
+            HStack {
+                Button(action: {
+                    self.writingPost = true;
+                }, label: {
+                    HStack {
+                        Image(systemName: "pencil.circle")
+                            .foregroundColor(.accentColor)
+                            .font(.system(size: 22))
+                    }
+                })
+                .buttonStyle(.plain)
+                Button(action: {
+                    self.showProfile = true;
+                }, label: {
+                    HStack {
+                        Image(systemName: "person.circle")
+                            .foregroundColor(.accentColor)
+                            .font(.system(size: 22))
+                    }
+                })
+                .buttonStyle(.plain)
+            }
+        }
+        .popover(isPresented: $writingPost) {
+            NavigationView {
+                CreatePost(client: client)
+            }
+        }
+        .popover(isPresented: $showProfile) {
+            NavigationView {
+                ProfileView(client: client, userData: client.userData)
+            }
+        }
     }
 }
 

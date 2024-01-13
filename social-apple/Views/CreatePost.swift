@@ -17,7 +17,7 @@ struct CreatePost: View {
     
     var body: some View {
         VStack {
-            Spacer()
+//            Spacer()
             if sending==true {
                 HStack {
                     Text("Status: ")
@@ -33,7 +33,7 @@ struct CreatePost: View {
                 }
             }
             
-            Form {
+            VStack {
                 TextField("Content", text: $content)
                 
                 Button(action: {
@@ -58,8 +58,16 @@ struct CreatePost: View {
                     Text("Publish Post")
                 }
             }
+            .padding(15)
+            .cornerRadius(20)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.accentColor, lineWidth: 3)
+            )
             Spacer()
         }
+        .padding(10)
         .navigationTitle("Create")
+//        .navigationBarTitleDisplayMode(.large)
     }
 }

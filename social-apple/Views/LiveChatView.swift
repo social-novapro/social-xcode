@@ -16,7 +16,7 @@ struct SendLiveChatView: View {
 
     var body: some View {
         VStack {
-            Form {
+//            Form {
                 TextField("Content", text: $content)
                 Button("Send Message") {
                     print(webSocketManager.tokens)
@@ -24,7 +24,7 @@ struct SendLiveChatView: View {
                     webSocketManager.sendMessage(liveChatSendData: liveChatSend)
                     self.writingPopover = false
                 }
-            }
+//            }
         }
         .onAppear {
             print("YourView: webSocketManager initialized")
@@ -57,30 +57,48 @@ struct LiveChatView: View {
                     }
                 }
             }
-            HStack {
-                VStack {
-                    ScrollView {
+            VStack {
+                ScrollView {
+//                    ScrollViewReader { proxy in
                         ForEach(messages) { message in
-                            ChatMessageView(chatMessage: message)
+                            ChatMessageView(client: client, chatMessage: message)
                         }
+                        Spacer()
+                        /*
+                         
+                         .onChange(of: messages.count) { _ in
+                             
+                             DispatchQueue.main.async {
+                                 withAnimation {
+                                     proxy.scrollTo(messages.count - 1, anchor: .bottom)
+                                 }
+                             }
+                         }
+                    }
+                     */
+                }
+
+            }
+            VStack {
+                TextField("Content", text: $content)
+                if (content != "") {
+                    Button("Send Message") {
+                        print(webSocketManager.tokens)
+                        let liveChatSend = createLiveSendData(type: 2, mesType: 2, content: self.content, replyTo: nil, userTokenData: client.userTokens)
+                        webSocketManager.sendMessage(liveChatSendData: liveChatSend)
+                        self.content = ""
                     }
                 }
             }
-            HStack {
-                Spacer()
-                Form {
-                    TextField("Content", text: $content)
-                    if (content != "") {
-                        Button("Send Message") {
-                            print(webSocketManager.tokens)
-                            let liveChatSend = createLiveSendData(type: 2, mesType: 2, content: self.content, replyTo: nil, userTokenData: client.userTokens)
-                            webSocketManager.sendMessage(liveChatSendData: liveChatSend)
-                            self.content = ""
-                        }
-                    }
-                }
-            }
+            .padding(15)
+            .cornerRadius(20)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.accentColor, lineWidth: 3)
+            )
         }
+        .padding(.bottom, 120)
+        .padding(10)
         .navigationTitle("Live Chat")
         .onAppear {
             if self.isInitialized == true {
@@ -160,29 +178,44 @@ struct LiveChatView: View {
 }
 
 struct ChatMessageView: View {
+    @ObservedObject var client: ApiClient
     @State var chatMessage: LiveChatData
     
     var body: some View {
         VStack {
-            HStack {
-                Text(chatMessage.user?.displayName ?? "unknown displayname")
-                Text("@"+(chatMessage.user?.username ?? "unknown username"))
-            }
-            HStack {
-                if (chatMessage.type == 6) {
-                    Text(chatMessage.userJoin?.content ?? "userjoin")
+            VStack {
+                HStack {
+                    Text(chatMessage.user?.displayName ?? "unknown displayname")
+                    Text("@"+(chatMessage.user?.username ?? "unknown username"))
+                    Spacer()
                 }
-                if (chatMessage.type == 7) {
-                    Text(chatMessage.userJoin?.content ?? "userleft")
+                HStack {
+                    if ((chatMessage.message?.timeStamp) != nil) {
+                        Text(int64TimeFormatter(timestamp: chatMessage.message?.timeStamp ?? 0))
+                        Spacer()
+                    }
                 }
-                if (chatMessage.type == 2) {
+                HStack {
+                    if (chatMessage.type == 6) {
+                        Text(chatMessage.userJoin?.content ?? "userjoin")
+                    }
+                    if (chatMessage.type == 7) {
+                        Text(chatMessage.userJoin?.content ?? "userleft")
+                    }
+                    if (chatMessage.type == 2) {
+                        Text(chatMessage.message?.content ?? "no content")
+                    }
+                    Spacer()
+                }
+                if (client.devMode?.isEnabled == true) {
                     Button("debug") {
                         print(chatMessage)
                     }
-                    Text(chatMessage.message?.content ?? "no content")
+
+                    Text(chatMessage._id ?? "no id")
                 }
             }
-            Text(chatMessage._id ?? "no id")
+            .padding(10)
         }
         .cornerRadius(20)
         .overlay(
