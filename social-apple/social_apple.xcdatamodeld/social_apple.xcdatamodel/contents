@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22225" systemVersion="23B74" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22522" systemVersion="23C71" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
     <entity name="CurrentNavigation" representedClassName="CurrentNavigation" syncable="YES" codeGenerationType="class">
+        <attribute name="expanded" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="selectedTab" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
     </entity>
     <entity name="DevMode" representedClassName="DevMode" syncable="YES" codeGenerationType="class">
+        <attribute name="isEnabled" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+    </entity>
+    <entity name="HapticMode" representedClassName="HapticMode" syncable="YES" codeGenerationType="class">
         <attribute name="isEnabled" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
     </entity>
     <entity name="LocalLogs" representedClassName="LocalLogs" syncable="YES" codeGenerationType="class">

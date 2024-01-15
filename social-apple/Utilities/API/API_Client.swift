@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import CoreHaptics
+import SwiftUI
 
 class ApiClient: ObservableObject {
     var auth: AuthApi
@@ -16,11 +18,13 @@ class ApiClient: ObservableObject {
 
     @Published var loggedIn:Bool = false
     @Published var devMode: DevModeData? = DevModeData(isEnabled: false)
-    @Published var navigation: CurrentNavigationData? = CurrentNavigationData(selectedTab: 0)
-    
+    @Published var navigation: CurrentNavigationData? = CurrentNavigationData(selectedTab: 0, expanded: false)
+    @Published var haptic: HapticModeData? = HapticModeData(isEnabled: true)
+
     var userTokenManager = UserTokenHandler()
     var devModeManager = DevModeHandler()
     var navigationManager = CurrentNavigationHandler()
+    var hapticModeManager = HapticModeHandler()
 
     var userTokens: UserTokenData
     
@@ -38,8 +42,12 @@ class ApiClient: ObservableObject {
             self.loggedIn = false
         }
         
+        // other navigation
         self.devMode = self.devModeManager.getDevMode()
         self.navigation = self.navigationManager.getCurrentNavigation()
+        self.haptic = self.hapticModeManager.getHapticMode()
+        
+        // routes
         self.auth = AuthApi(userTokensProv: userTokens)
         self.notifications = NotificationsApi(userTokensProv: userTokens)
         self.posts = PostsApi(userTokensProv: userTokens)
@@ -86,6 +94,14 @@ class ApiClient: ObservableObject {
         self.users = UsersApi(userTokensProv: self.userTokens)
         DispatchQueue.main.async {
             self.loggedIn = true
+        }
+    }
+    
+    func hapticPress() {
+        if (self.haptic?.isEnabled == true) {
+            #if os(iOS)
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            #endif
         }
     }
 }

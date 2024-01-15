@@ -12,6 +12,7 @@
 		6503515A29F2F663005C4253 /* LogoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6503515929F2F663005C4253 /* LogoutView.swift */; };
 		6503515C29F370CA005C4253 /* FeedPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6503515B29F370CA005C4253 /* FeedPage.swift */; };
 		6503515E29F474A9005C4253 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6503515D29F474A9005C4253 /* AboutView.swift */; };
+		650B89A42B5362B1007BE000 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650B89A32B5362B1007BE000 /* ProfileView.swift */; };
 		6516E59D2B0AE8B9008A84E4 /* API_Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6516E59C2B0AE8B9008A84E4 /* API_Helper.swift */; };
 		6516E59F2B0AE8CC008A84E4 /* Auth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6516E59E2B0AE8CC008A84E4 /* Auth.swift */; };
 		6516E5A12B0AE935008A84E4 /* Users.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6516E5A02B0AE935008A84E4 /* Users.swift */; };
@@ -25,6 +26,8 @@
 		651757E82A006D3E00E90FBA /* AnalyticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651757E72A006D3E00E90FBA /* AnalyticsView.swift */; };
 		651757EA2A006D4600E90FBA /* Graph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651757E92A006D4600E90FBA /* Graph.swift */; };
 		651757EC2A006D6900E90FBA /* AnalyticData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651757EB2A006D6900E90FBA /* AnalyticData.swift */; };
+		6526E87A2B54E2B80072E33E /* HapticModeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6526E8792B54E2B80072E33E /* HapticModeHandler.swift */; };
+		6526E87C2B54E4570072E33E /* BasicSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6526E87B2B54E4570072E33E /* BasicSettings.swift */; };
 		65502EA62B51CCD4005D4201 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65502EA52B51CCD4005D4201 /* SearchView.swift */; };
 		65502EA82B51E35B005D4201 /* Get.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65502EA72B51E35B005D4201 /* Get.swift */; };
 		65502EAA2B51E379005D4201 /* BasicData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65502EA92B51E379005D4201 /* BasicData.swift */; };
@@ -47,7 +50,7 @@
 		655BC0C62B07569E00949356 /* LiveChatWebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655BC0C52B07569E00949356 /* LiveChatWebSocket.swift */; };
 		655BC0C82B0756D100949356 /* PollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655BC0C72B0756D000949356 /* PollView.swift */; };
 		655BC0CA2B07575100949356 /* CurrentNavigationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655BC0C92B07575100949356 /* CurrentNavigationHandler.swift */; };
-		65996A282B15BFE7005A60E3 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65996A272B15BFE7005A60E3 /* ProfileView.swift */; };
+		657519132B54DA6400C3EC5E /* HapticPress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657519122B54DA6400C3EC5E /* HapticPress.swift */; };
 		659B62EA2B2BBE4800CF2FA4 /* LocalLogsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659B62E92B2BBE4800CF2FA4 /* LocalLogsHandler.swift */; };
 		659B62EC2B2BBE5600CF2FA4 /* LocalLogData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659B62EB2B2BBE5600CF2FA4 /* LocalLogData.swift */; };
 		65DA82BB2B1D2041008509E2 /* CreateUserPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DA82BA2B1D2041008509E2 /* CreateUserPage.swift */; };
@@ -64,6 +67,7 @@
 		6503515929F2F663005C4253 /* LogoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogoutView.swift; sourceTree = "<group>"; };
 		6503515B29F370CA005C4253 /* FeedPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedPage.swift; sourceTree = "<group>"; };
 		6503515D29F474A9005C4253 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
+		650B89A32B5362B1007BE000 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		6516E59C2B0AE8B9008A84E4 /* API_Helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API_Helper.swift; sourceTree = "<group>"; };
 		6516E59E2B0AE8CC008A84E4 /* Auth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Auth.swift; sourceTree = "<group>"; };
 		6516E5A02B0AE935008A84E4 /* Users.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Users.swift; sourceTree = "<group>"; };
@@ -77,6 +81,8 @@
 		651757E72A006D3E00E90FBA /* AnalyticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsView.swift; sourceTree = "<group>"; };
 		651757E92A006D4600E90FBA /* Graph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Graph.swift; sourceTree = "<group>"; };
 		651757EB2A006D6900E90FBA /* AnalyticData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticData.swift; sourceTree = "<group>"; };
+		6526E8792B54E2B80072E33E /* HapticModeHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticModeHandler.swift; sourceTree = "<group>"; };
+		6526E87B2B54E4570072E33E /* BasicSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicSettings.swift; sourceTree = "<group>"; };
 		65502EA52B51CCD4005D4201 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		65502EA72B51E35B005D4201 /* Get.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Get.swift; sourceTree = "<group>"; };
 		65502EA92B51E379005D4201 /* BasicData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicData.swift; sourceTree = "<group>"; };
@@ -101,7 +107,7 @@
 		655BC0C52B07569E00949356 /* LiveChatWebSocket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveChatWebSocket.swift; sourceTree = "<group>"; };
 		655BC0C72B0756D000949356 /* PollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollView.swift; sourceTree = "<group>"; };
 		655BC0C92B07575100949356 /* CurrentNavigationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentNavigationHandler.swift; sourceTree = "<group>"; };
-		65996A272B15BFE7005A60E3 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ProfileView.swift; path = ../../../../ProfileView.swift; sourceTree = "<group>"; };
+		657519122B54DA6400C3EC5E /* HapticPress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticPress.swift; sourceTree = "<group>"; };
 		659B62E92B2BBE4800CF2FA4 /* LocalLogsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLogsHandler.swift; sourceTree = "<group>"; };
 		659B62EB2B2BBE5600CF2FA4 /* LocalLogData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLogData.swift; sourceTree = "<group>"; };
 		65DA82BA2B1D2041008509E2 /* CreateUserPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserPage.swift; sourceTree = "<group>"; };
@@ -191,11 +197,13 @@
 		655AB61E29F0724600C61F3A /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				657519122B54DA6400C3EC5E /* HapticPress.swift */,
 				6516E5902B0ADF78008A84E4 /* API */,
 				655AB61C29F0724000C61F3A /* API_Requests.swift */,
 				6503515029F1FBF6005C4253 /* UserTokenHandler.swift */,
 				651757DD29FB811300E90FBA /* DevModeHandler.swift */,
 				655BC0C92B07575100949356 /* CurrentNavigationHandler.swift */,
+				6526E8792B54E2B80072E33E /* HapticModeHandler.swift */,
 				655BC0C52B07569E00949356 /* LiveChatWebSocket.swift */,
 				65DA82BC2B1D236F008509E2 /* TimeFormater.swift */,
 				659B62E92B2BBE4800CF2FA4 /* LocalLogsHandler.swift */,
@@ -236,9 +244,10 @@
 				655BC0C72B0756D000949356 /* PollView.swift */,
 				651757E72A006D3E00E90FBA /* AnalyticsView.swift */,
 				655BC0C32B07565D00949356 /* LiveChatView.swift */,
-				65996A272B15BFE7005A60E3 /* ProfileView.swift */,
+				650B89A32B5362B1007BE000 /* ProfileView.swift */,
 				65DC094A2B301477004B5865 /* PushNotifications.swift */,
 				65502EA52B51CCD4005D4201 /* SearchView.swift */,
+				6526E87B2B54E4570072E33E /* BasicSettings.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -332,11 +341,14 @@
 			files = (
 				651757DC29FA254500E90FBA /* CreatePost.swift in Sources */,
 				65502EAA2B51E379005D4201 /* BasicData.swift in Sources */,
+				657519132B54DA6400C3EC5E /* HapticPress.swift in Sources */,
 				651757E329FB889900E90FBA /* DevModeView.swift in Sources */,
 				6503515A29F2F663005C4253 /* LogoutView.swift in Sources */,
 				65DA82BB2B1D2041008509E2 /* CreateUserPage.swift in Sources */,
 				655BC0CA2B07575100949356 /* CurrentNavigationHandler.swift in Sources */,
+				6526E87C2B54E4570072E33E /* BasicSettings.swift in Sources */,
 				651757DE29FB811300E90FBA /* DevModeHandler.swift in Sources */,
+				6526E87A2B54E2B80072E33E /* HapticModeHandler.swift in Sources */,
 				6503514D29F1F84C005C4253 /* PostPreView.swift in Sources */,
 				6516E59D2B0AE8B9008A84E4 /* API_Helper.swift in Sources */,
 				6516E5AD2B0AF2D3008A84E4 /* Posts.swift in Sources */,
@@ -367,9 +379,9 @@
 				651757EA2A006D4600E90FBA /* Graph.swift in Sources */,
 				655AB63029F19B0A00C61F3A /* ErrorData.swift in Sources */,
 				6516E5A12B0AE935008A84E4 /* Users.swift in Sources */,
-				65996A282B15BFE7005A60E3 /* ProfileView.swift in Sources */,
 				655AB62A29F080CB00C61F3A /* UserView.swift in Sources */,
 				651757E129FB816F00E90FBA /* social_apple.xcdatamodeld in Sources */,
+				650B89A42B5362B1007BE000 /* ProfileView.swift in Sources */,
 				659B62EA2B2BBE4800CF2FA4 /* LocalLogsHandler.swift in Sources */,
 				655BC0C22B07565200949356 /* LiveChatData.swift in Sources */,
 				651757EC2A006D6900E90FBA /* AnalyticData.swift in Sources */,
@@ -505,7 +517,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "social-apple/social_apple.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 35;
+				CURRENT_PROJECT_VERSION = 38;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"social-apple/Preview Content\"";
 				DEVELOPMENT_TEAM = VHCWBN8GY3;
@@ -547,7 +559,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "social-apple/social_apple.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 35;
+				CURRENT_PROJECT_VERSION = 38;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"social-apple/Preview Content\"";
 				DEVELOPMENT_TEAM = VHCWBN8GY3;

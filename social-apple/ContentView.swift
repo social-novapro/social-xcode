@@ -23,7 +23,7 @@ struct ContentView: View {
     @State var pageLoading:Bool = true;
     
     @State var devMode:DevModeData? = DevModeData(isEnabled: false);
-    @State var currentNavigation:CurrentNavigationData? = CurrentNavigationData(selectedTab: 0)
+    @State var currentNavigation:CurrentNavigationData? = CurrentNavigationData(selectedTab: 0, expanded: false)
 
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
@@ -31,32 +31,45 @@ struct ContentView: View {
         NavigationView {
             ZStack {
 #if os(iOS)
-
                 if horizontalSizeClass == .compact {
-                    NavigationStack {
+//                    NavigationStack {
                         if (client.loggedIn) {
                             if (client.navigation?.selectedTab==0) {
-                                FeedPage(client: client)
+                                NavigationStack {
+                                    FeedPage(client: client)
+                                }
                             }
                             if (client.navigation?.selectedTab==1) {
-                                CreatePost(client: client)
+                                NavigationStack {
+                                    CreatePost(client: client)
+                                }
                             }
                             if (client.navigation?.selectedTab==2) {
-                                SideBarNavigation(client: client)
+                                NavigationStack {
+                                    SideBarNavigation(client: client)
+                                }
                             }
                             if (client.navigation?.selectedTab==3) {
-                                DevModeView(client: client)
+                                NavigationStack {
+                                    DevModeView(client: client)
+                                }
                             }
                             if (client.navigation?.selectedTab==4) {
-                                LiveChatView(client: client)
+                                NavigationStack {
+                                    LiveChatView(client: client)
+                                }
                             }
                             if (client.navigation?.selectedTab==5) {
-                                SearchView(client: client)
+                                NavigationStack {
+                                    SearchView(client: client)
+                                }
                             }
                         } else {
-                            BeginPage(client: client)
+                            NavigationStack {
+                                BeginPage(client: client)
+                            }
                         }
-                    }
+//                    }
                 }
 #endif
                 VStack {
@@ -71,13 +84,16 @@ struct ContentView: View {
                 }
             }
             if horizontalSizeClass != .compact {
-                NavigationStack {
                     if (client.loggedIn) {
-                        FeedPage(client: client)
+                        NavigationStack {
+                            FeedPage(client: client)
+                        }
                     } else {
-                        BeginPage(client: client)
+                        NavigationStack {
+                            BeginPage(client: client)
+                        }
                     }
-                }
+//                }
             }
         }
 #if os(iOS)
@@ -223,9 +239,16 @@ struct SideBarNavigation: View {
                 }
                 VStack {
                     NavigationLink {
-                        CreatePost(client: client)
+                        LiveChatView(client: client)
                     } label: {
-                        Text("Create Post")
+                        Text("Chat")
+                    }
+                }
+                VStack {
+                    NavigationLink {
+                        SearchView(client: client)
+                    } label: {
+                        Text("Search Interact")
                     }
                 }
                 VStack {
@@ -237,6 +260,13 @@ struct SideBarNavigation: View {
                 }
                 VStack {
                     NavigationLink {
+                        CreatePost(client: client)
+                    } label: {
+                        Text("Create Post")
+                    }
+                }
+                VStack {
+                    NavigationLink {
                         PushNotifications(client: client)
                     } label: {
                         Text("Notifications")
@@ -244,9 +274,9 @@ struct SideBarNavigation: View {
                 }
                 VStack {
                     NavigationLink {
-                        SearchView(client: client)
+                        BasicSettings(client: client)
                     } label: {
-                        Text("Search Interact")
+                        Text("Basic Settings")
                     }
                 }
                 VStack {
@@ -306,49 +336,10 @@ struct SideBarNavigation: View {
 
 struct AppTabNavigation: View {
     @ObservedObject var client: ApiClient
-    @State var expand = false
+//    @State var expand = false
 
     var body: some View {
         VStack {
-            /*if self.expand && (client.navigation?.selectedTab==0 || client.navigation?.selectedTab==1){
-                HStack (alignment: .center) {
-                    HStack {
-                        if client.navigation?.selectedTab == 0 {
-                            Button(action: {
-                                client.navigation = client.navigationManager.switchTab(newTab: 1)
-                            }) {
-                                Image(systemName: "pencil.line")
-                                    .font(.system(size: 22))
-                                    .foregroundColor(client.navigation?.selectedTab == 1 ? .accentColor: .secondary)
-                                    .padding()
-
-                            }
-                        }
-                        
-                        if client.navigation?.selectedTab == 1 {
-                            Button(action: {
-                                client.navigation = client.navigationManager.switchTab(newTab: 0)
-                            }) {
-                                Image(systemName: "tray.2")
-                                    .font(.system(size: 22))
-                                    .foregroundColor(client.navigation?.selectedTab == 1 ? .accentColor: .secondary)
-                                    .padding()
-                            }
-                        }
-                    }
-                    .padding(.vertical, 10)
-                    .padding(.horizontal, 8)
-                    .background(.regularMaterial)
-                    .clipShape(Capsule())
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 35)
-                            .stroke(Color.accentColor, lineWidth: 2)
-                    )
-                    .padding(.horizontal, 22)
-                    .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
-                }
-                Spacer()
-            }*/
             HStack (alignment: .center) {
                 
                 if (client.loggedIn == false) {
@@ -357,45 +348,22 @@ struct AppTabNavigation: View {
                 else {
                     Spacer(minLength: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/)
                     HStack {
-                        if !self.expand {
+                        if !(client.navigation?.expanded ?? false) {
                             Button(action: {
+                                client.hapticPress()
                                 withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
-                                    self.expand.toggle()
+                                    client.navigation = client.navigationManager.swapExpanded()
                                 }
                             }) {
                                 Image(systemName: "arrow.left")
                                     .font(.system(size: 22))
                                     .foregroundColor(.accentColor).padding()
                             }
-                            /*
-                             if client.navigation?.selectedTab == 0 {
-                                 Button(action: {
-                                     client.navigation = client.navigationManager.switchTab(newTab: 1)
-                                 }) {
-                                     Image(systemName: "pencil.line")
-                                         .font(.system(size: 22))
-                                         .foregroundColor(client.navigation?.selectedTab == 1 ? .accentColor: .secondary)
-                                         .padding(.horizontal)
-
-                                 }
-                             }
-                             if client.navigation?.selectedTab == 1 {
-                                 Button(action: {
-                                     client.navigation = client.navigationManager.switchTab(newTab: 0)
-                                 }) {
-                                     Image(systemName: "tray.2")
-                                         .font(.system(size: 22))
-                                         .foregroundColor(client.navigation?.selectedTab == 1 ? .accentColor: .secondary)
-                                         .padding(.horizontal)
-
-                                 }
-                             }
-                             */
-
                         }
                         else {
                             Spacer(minLength: 5)
                             Button(action: {
+                                client.hapticPress()
                                 client.navigation = client.navigationManager.switchTab(newTab: 0)
                             }) {
                                 Image(systemName: "tray.2")
@@ -405,6 +373,7 @@ struct AppTabNavigation: View {
                             }
                             Spacer(minLength: 5)
                             Button(action: {
+                                client.hapticPress()
                                 client.navigation = client.navigationManager.switchTab(newTab: 5)
                             }) {
                                 Image(systemName: "magnifyingglass")
@@ -414,6 +383,7 @@ struct AppTabNavigation: View {
                             }
                             Spacer(minLength: 5)
                             Button(action: {
+                                client.hapticPress()
                                 client.navigation = client.navigationManager.switchTab(newTab: 2)
                             }) {
                                 Image(systemName: "gear")
@@ -424,6 +394,7 @@ struct AppTabNavigation: View {
                             Spacer(minLength: 5)
                             if (client.devMode?.isEnabled == true) {
                                 Button(action: {
+                                    client.hapticPress()
                                     client.navigation = client.navigationManager.switchTab(newTab: 3)
                                 }) {
                                     Image(systemName: "hammer")
@@ -435,6 +406,7 @@ struct AppTabNavigation: View {
                             }
                             Spacer(minLength: 5)
                             Button(action: {
+                                client.hapticPress()
                                 client.navigation = client.navigationManager.switchTab(newTab: 4)
                             }) {
                                 Image(systemName: "bubble.left")
@@ -443,10 +415,10 @@ struct AppTabNavigation: View {
                                     .padding(.horizontal)
                             }
                             Button(action: {
+                                client.hapticPress()
                                 withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
-                                    self.expand.toggle()
+                                    client.navigation = client.navigationManager.swapExpanded()
                                 }
-                                
                             }) {
                                 Image(systemName: "arrow.right")
                                     .font(.system(size: 22))
@@ -455,8 +427,8 @@ struct AppTabNavigation: View {
                             Spacer(minLength: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/)
                         }
                     }
-                    .padding(.vertical, self.expand ? 10 : 10)
-                    .padding(.horizontal, self.expand ? 10 : 8)
+                    .padding(.vertical, client.navigation?.expanded ?? false ? 10 : 10)
+                    .padding(.horizontal, client.navigation?.expanded ?? false ? 10 : 8)
                     .background(.regularMaterial)
                     .clipShape(Capsule())
                     .overlay(

@@ -46,6 +46,7 @@ struct PostPreView: View {
                     VStack {
                         if (feedData?.postData.isReply == true) {
                             Button(action: {
+                                client.hapticPress()
                                 withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
                                     if (self.activeAction == 3) {
                                         self.activeAction = 0
@@ -91,6 +92,7 @@ struct PostPreView: View {
                                     if (feedData?.quoteData?.quotePost != nil) {
                                         Spacer()
                                         Button(action: {
+                                            client.hapticPress()
                                             isActive=true
                                             print ("showing usuer?")
                                             // go to user
@@ -230,6 +232,7 @@ struct ProfilePostView: View {
     var body: some View {
         VStack {
             Button(action: {
+                client.hapticPress()
                 isActive=true
                 profileShowing = true
                 self.isSpecificPageActive.toggle()
@@ -406,6 +409,7 @@ struct PostActionButtons: View {
         HStack {
             VStack {
                 Button(action: {
+                    client.hapticPress()
                     if (self.postIsLiked == true) {
                         client.posts.unlikePost(postID: feedData!.postData._id) { result in
                             switch result {
@@ -450,6 +454,7 @@ struct PostActionButtons: View {
             
             VStack {
                 Button(action: {
+                    client.hapticPress()
                     print("reply button")
                     self.activeAction = 1
                     self.showingPopover = true
@@ -470,6 +475,7 @@ struct PostActionButtons: View {
             
             VStack {
                 Button(action: {
+                    client.hapticPress()
                     print("quote button")
                     self.activeAction = 2
                     self.showingPopover = true
@@ -490,6 +496,7 @@ struct PostActionButtons: View {
             
             VStack {
                 Button(action: {
+                    client.hapticPress()
                     print("action")
                     withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
                         self.actionExpanded.toggle()
@@ -515,6 +522,7 @@ struct PostActionButtons: View {
             if (isOwner==true) {
                 VStack {
                     Button(action: {
+                        client.hapticPress()
                         self.activeAction = 4
                         self.deletePostConfirm = true
                     }) {
@@ -529,6 +537,7 @@ struct PostActionButtons: View {
                     .buttonStyle(PlainButtonStyle())
                     .confirmationDialog("Delete Post", isPresented: $deletePostConfirm) {
                         Button("Delete") {
+                            client.hapticPress()
                             print("pretend delete")
                             self.deletePostConfirm = false
                             
@@ -549,6 +558,7 @@ struct PostActionButtons: View {
                         }
                         .foregroundColor(.red)
                         Button("Cancel", role: .cancel) {
+                            client.hapticPress()
                             self.deleted = false
                         }
                     } message: {
@@ -618,6 +628,7 @@ struct PopoverPostAction: View {
             VStack {
                 TextField("Content", text: $content)
                 Button(action: {
+                    client.hapticPress()
                     print("button pressed")
                     print("createPost")
                     var postCreateContent = PostCreateContent(userID: client.userTokens.userID, content: self.content)
@@ -639,6 +650,7 @@ struct PopoverPostAction: View {
                         case .success(let newPost):
                             self.newPost = newPost
                             self.sent = true
+                            client.hapticPress()
                         case .failure(let error):
                             self.failed = true
                             print("Error: \(error.localizedDescription)")

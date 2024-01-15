@@ -19,12 +19,20 @@ struct LogoutView: View {
             else {
                 Text("Are you sure you want to logout?")
                 Button(action: {
+                    client.hapticPress()
                     print("deleting pressed")
                     client.logout()
                     isLoggingOut = true
                 }) {
                     Text("Log out")
+                        .padding(15)
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.accentColor, lineWidth: 3)
+                        )
                 }
+                Spacer()
             }
         }
     }

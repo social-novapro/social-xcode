@@ -127,6 +127,7 @@ struct CreateUserPage: View {
                 .padding(5)
                 
                 Button(action: {
+                    client.hapticPress()
                     print("button pressed")
                     let userLogin = UserCreateData(email: email, username: username, password: password, displayName: displayName, description: description, pronouns: pronouns, status: status)
                     print("userlogin, LoginPage")

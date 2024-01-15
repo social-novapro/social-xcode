@@ -20,3 +20,7 @@ struct SearchFoundData: Decodable {
 //    usersFound,
 //    postsFound
 //};
+
+struct HapticModeData: Decodable, Encodable {
+    var isEnabled: Bool
+}

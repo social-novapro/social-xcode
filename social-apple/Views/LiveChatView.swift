@@ -83,6 +83,7 @@ struct LiveChatView: View {
                 TextField("Content", text: $content)
                 if (content != "") {
                     Button("Send Message") {
+                        client.hapticPress()
                         print(webSocketManager.tokens)
                         let liveChatSend = createLiveSendData(type: 2, mesType: 2, content: self.content, replyTo: nil, userTokenData: client.userTokens)
                         webSocketManager.sendMessage(liveChatSendData: liveChatSend)

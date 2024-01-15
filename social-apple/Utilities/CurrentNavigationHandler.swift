@@ -30,12 +30,15 @@ class CurrentNavigationHandler {
             let results = try context.fetch(fetchRequest)
             if let currentNavigation = results.first {
                 currentNavigation.selectedTab = currentNavigationData.selectedTab;
+                currentNavigation.expanded = currentNavigationData.expanded ?? false;
+
 
                 print("Within if let")
             } else {
                 let currentNavigation = CurrentNavigation(context: context)
                 currentNavigation.selectedTab = currentNavigationData.selectedTab;
-                
+                currentNavigation.expanded = currentNavigationData.expanded ?? false;
+
                 print("within else in if let")
             }
             
@@ -51,16 +54,22 @@ class CurrentNavigationHandler {
         let fetchRequest: NSFetchRequest<CurrentNavigation> = CurrentNavigation.fetchRequest()
         fetchRequest.fetchLimit = 1
         
+        print("getting nav")
         do {
             let results = try context.fetch(fetchRequest)
             if let currentNavigation = results.first {
-                return CurrentNavigationData(selectedTab: currentNavigation.selectedTab)
+                if (currentNavigation.expanded) {
+                    return CurrentNavigationData(selectedTab: currentNavigation.selectedTab, expanded: currentNavigation.expanded)
+
+                } else {
+                    return CurrentNavigationData(selectedTab: currentNavigation.selectedTab, expanded: false)
+                }
             } else {
-                return CurrentNavigationData(selectedTab: 0)
+                return CurrentNavigationData(selectedTab: 0, expanded: false)
             }
         } catch {
             print("Error fetching current navigation, defaulting 0: \(error.localizedDescription)")
-            return CurrentNavigationData(selectedTab: 0)
+            return CurrentNavigationData(selectedTab: 0, expanded: false)
         }
     }
     func deleteCurrentNavigation() {
@@ -84,13 +93,24 @@ class CurrentNavigationHandler {
     }
     
     func switchTab(newTab: Int16) -> CurrentNavigationData {
-//        let current:CurrentNavigationData = self.getCurrentNavigation()
+        let current:CurrentNavigationData = self.getCurrentNavigation()
         if (newTab>5) {
             print("higher than expected switchTab()")
             return self.getCurrentNavigation()
         }
         print("switching to page \(newTab)")
-        self.saveCurrentNavigation(currentNavigationData: CurrentNavigationData(selectedTab: newTab))
+        self.saveCurrentNavigation(currentNavigationData: CurrentNavigationData(selectedTab: newTab, expanded: current.expanded))
+        
+        return self.getCurrentNavigation()
+    }
+    func swapExpanded() -> CurrentNavigationData {
+        let current:CurrentNavigationData = self.getCurrentNavigation()
+
+        var newExpand:Bool = current.expanded ?? false;
+        newExpand.toggle()
+        
+        print("swapping expanded")
+        self.saveCurrentNavigation(currentNavigationData: CurrentNavigationData(selectedTab: current.selectedTab, expanded: newExpand))
         
         return self.getCurrentNavigation()
     }

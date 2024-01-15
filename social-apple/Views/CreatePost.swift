@@ -37,6 +37,7 @@ struct CreatePost: View {
                 TextField("Content", text: $content)
                 
                 Button(action: {
+                    client.hapticPress()
                     let postCreateContent = PostCreateContent(userID: client.userTokens.userID, content: self.content)
                     
                     self.content = ""
@@ -48,6 +49,7 @@ struct CreatePost: View {
                         case .success(let newPost):
                             self.newPost = newPost
                             self.sent = true
+                            client.hapticPress()
                             
                         case .failure(let error):
                             self.failed = true

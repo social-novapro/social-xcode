@@ -74,5 +74,6 @@ struct DevModeData: Decodable, Encodable {
 
 struct CurrentNavigationData: Decodable, Encodable {
     let selectedTab: Int16
+    let expanded: Bool?
 }
 

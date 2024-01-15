@@ -45,6 +45,7 @@ struct FeedPage: View {
         .toolbar {
             HStack {
                 Button(action: {
+                    client.hapticPress()
                     self.writingPost = true;
                 }, label: {
                     HStack {
@@ -55,6 +56,7 @@ struct FeedPage: View {
                 })
                 .buttonStyle(.plain)
                 Button(action: {
+                    client.hapticPress()
                     self.showProfile = true;
                 }, label: {
                     HStack {
@@ -108,8 +110,10 @@ struct childFeed: View {
                             .padding(10)
                             .onAppear(){
                                 if (self.feed!.posts.last == post && self.loadingScroll == false){
+                                    client.hapticPress()
                                     self.loadingScroll = true
                                     client.posts.getUserFeedIndex(userTokens: client.userTokens, index: self.feed?.prevIndexID ?? "") { result in
+                                        client.hapticPress()
                                         switch result {
                                         case .success(let feed):
                                             self.feed = feed
@@ -124,7 +128,9 @@ struct childFeed: View {
                     }
                 }
                 .refreshable {
+                    client.hapticPress()
                     client.posts.getUserFeed(userTokens: client.userTokens) { result in
+                        client.hapticPress()
                         switch result {
                         case .success(let feedData):
                             self.feed = feedData

@@ -87,9 +87,11 @@ class LiveChatWebSocket: ObservableObject {
     func isTyping(userTokenData: UserTokenData) {
         
     }
+    
     func stoppedTyping(userTokenData: UserTokenData) {
         
     }
+    
     func sendMessage(liveChatSendData: LiveChatSendData) {
         do {
             self.tokens = true
@@ -118,7 +120,9 @@ class LiveChatWebSocket: ObservableObject {
     
     // Handle cleanup on deinit if needed
     deinit {
-        webSocketTask.cancel(with: .goingAway, reason: nil)
+        if (webSocketTask != nil) {
+            webSocketTask.cancel(with: .goingAway, reason: nil)
+        }
     }
     func killConnection() {
         webSocketTask?.cancel(with: .normalClosure, reason: nil)

@@ -21,6 +21,7 @@ struct BeginPage: View {
                 Text("You can login, or create a new account.")
 
                 Button(action: {
+                    client.hapticPress()
                     self.login = true
                 }, label: {
                     Text("Login")
@@ -38,6 +39,7 @@ struct BeginPage: View {
                 }
                 
                 Button(action: {
+                    client.hapticPress()
                     self.signup = true
                 }, label: {
                     Text("Sign up")

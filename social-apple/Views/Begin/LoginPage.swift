@@ -56,6 +56,7 @@ struct LoginPage: View {
                 .padding(5)
                 
                 Button(action: {
+                    client.hapticPress()
                     print("button pressed")
                     let userLogin = UserLoginData(username: username, password: password)
                     print("userlogin, LoginPage")

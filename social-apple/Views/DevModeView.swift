@@ -35,6 +35,7 @@ struct DevModeView: View {
                 }
 
                 Button(action: {
+                    client.hapticPress()
                     withAnimation {
                         hideTokens.toggle() 
                     }
@@ -53,6 +54,7 @@ struct DevModeView: View {
            
             if verifyDelete == false {
                 Button("Delete All Data") {
+                    client.hapticPress()
                     self.verifyDelete.toggle()
                 }
             } else {
@@ -60,6 +62,7 @@ struct DevModeView: View {
                 Text("Delete Data, you will need to resign into the application")
                 Text("You will need to relaunch the app to resign in")
                 Button("Are you sure?") {
+                    HapticPress.shared.play()
                     client.devModeManager.deleteDevMode()
                     client.navigationManager.deleteCurrentNavigation()
                     client.devMode = client.devModeManager.getDevMode()
@@ -70,6 +73,7 @@ struct DevModeView: View {
             }
             Spacer()
             Button("Toggle Full Screen") {
+                client.hapticPress()
                 self.fullScreen.toggle()
             }
             Spacer()
