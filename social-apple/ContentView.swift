@@ -83,17 +83,23 @@ struct ContentView: View {
 #endif
                 }
             }
+#if os(iOS)
+            .fullScreenCover(isPresented: $client.serverOffline, content: {
+                ServerStatusOffline(client: client)
+            })
+#endif
             if horizontalSizeClass != .compact {
-                    if (client.loggedIn) {
-                        NavigationStack {
-                            FeedPage(client: client)
-                        }
-                    } else {
-                        NavigationStack {
-                            BeginPage(client: client)
-                        }
+                if (client.serverOffline == true) {
+                    ServerStatusOffline(client: client)
+                } else if (client.loggedIn) {
+                    NavigationStack {
+                        FeedPage(client: client)
                     }
-//                }
+                } else {
+                    NavigationStack {
+                        BeginPage(client: client)
+                    }
+                }
             }
         }
 #if os(iOS)
@@ -107,6 +113,7 @@ struct ContentView: View {
           
             .navigationViewStyle(StackNavigationViewStyle())
         }
+        
         .if(horizontalSizeClass == .compact) { view in
             view.overlay(
                 NotificationView(client: client)
@@ -119,6 +126,7 @@ struct ContentView: View {
         }
 #endif
         .onAppear {
+            print("serveroffline \(client.serverOffline)")
             print ("devMode: \(devMode!)")
             print ("page: \(currentNavigation?.selectedTab ?? -1)")
         }

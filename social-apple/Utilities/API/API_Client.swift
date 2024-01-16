@@ -17,6 +17,8 @@ class ApiClient: ObservableObject {
     var get: GetApi
 
     @Published var loggedIn:Bool = false
+    @Published var serverOffline: Bool = false
+    
     @Published var devMode: DevModeData? = DevModeData(isEnabled: false)
     @Published var navigation: CurrentNavigationData? = CurrentNavigationData(selectedTab: 0, expanded: false)
     @Published var haptic: HapticModeData? = HapticModeData(isEnabled: true)
@@ -65,6 +67,7 @@ class ApiClient: ObservableObject {
                 }
             }
         }
+        self.checkServerStatus()
     }
     
     func hasTokens() {
@@ -103,5 +106,38 @@ class ApiClient: ObservableObject {
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
             #endif
         }
+    }
+    
+    func checkServerStatus() {
+        var isServerOffline = false;
+        guard let url = URL(string: "https://interact-api.novapro.net/v1/serverStatus") else {
+            print("Invalid URL")
+            DispatchQueue.main.async {
+                self.serverOffline = true
+            }
+            return;
+        }
+        
+        var request = URLRequest(url: url)
+        request.timeoutInterval = 2 // Set your desired timeout value in seconds
+
+        let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("Error: \(error)")
+                    isServerOffline = true
+                } else if let httpResponse = response as? HTTPURLResponse {
+                    // Check if the server responded with a success status code
+                    print(httpResponse.statusCode)
+                    isServerOffline = !(200...299).contains(httpResponse.statusCode)
+                }
+                
+                self.serverOffline = isServerOffline
+                print("server is \(isServerOffline) : \(self.serverOffline)")
+
+            }
+        }
+
+        task.resume()
     }
 }

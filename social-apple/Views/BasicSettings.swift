@@ -42,7 +42,7 @@ struct BasicSettings: View {
 
                 }
                 .padding(10)
-
+                #if os(iOS)
                 VStack {
                     Toggle("Haptics", isOn: $enabledHaptic)
                     HStack {
@@ -51,14 +51,17 @@ struct BasicSettings: View {
                     }
                 }
                 .padding(10)
+                #endif
             }
         }
         .onChange(of: enabledDevMode) { newValue in
             client.devMode = client.devModeManager.swapMode()
         }
+        #if os(iOS)
         .onChange(of: enabledHaptic) { newValue in
             client.haptic = client.hapticModeManager.swapMode()
         }
+        #endif
         .padding(10)
         .navigationTitle("Basic Settings")
     }
