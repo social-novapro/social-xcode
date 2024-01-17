@@ -15,6 +15,11 @@ class ApiClient: ObservableObject {
     var posts: PostsApi
     var users: UsersApi
     var get: GetApi
+    var developer: DeveloperApi
+
+    var livechatWS: LiveChatWebSocket
+    
+    var apiHelper: API_Helper
 
     @Published var loggedIn:Bool = false
     @Published var serverOffline: Bool = false
@@ -50,11 +55,16 @@ class ApiClient: ObservableObject {
         self.haptic = self.hapticModeManager.getHapticMode()
         
         // routes
+        
         self.auth = AuthApi(userTokensProv: userTokens)
         self.notifications = NotificationsApi(userTokensProv: userTokens)
         self.posts = PostsApi(userTokensProv: userTokens)
         self.users = UsersApi(userTokensProv: userTokens)
         self.get = GetApi(userTokensProv: userTokens)
+        self.developer = DeveloperApi(userTokensProv: userTokens)
+        
+        self.apiHelper = API_Helper(userTokensProv: userTokens)
+        self.livechatWS = LiveChatWebSocket(baseURL: self.apiHelper.baseAPIurl, userTokensProv: userTokens)
         
         if (self.loggedIn == true) {
             self.users.getByID(userID: userTokens.userID) { result in
@@ -68,6 +78,7 @@ class ApiClient: ObservableObject {
             }
         }
         self.checkServerStatus()
+        
     }
     
     func hasTokens() {
@@ -92,9 +103,17 @@ class ApiClient: ObservableObject {
         )
         
         self.userTokenManager.saveUserTokens(userTokenData: userTokens)
+        
         self.auth = AuthApi(userTokensProv: self.userTokens)
+        self.notifications = NotificationsApi(userTokensProv: self.userTokens)
         self.posts = PostsApi(userTokensProv: self.userTokens)
         self.users = UsersApi(userTokensProv: self.userTokens)
+        self.get = GetApi(userTokensProv: self.userTokens)
+        self.developer = DeveloperApi(userTokensProv: self.userTokens)
+
+        self.apiHelper = API_Helper(userTokensProv: self.userTokens)
+        self.livechatWS = LiveChatWebSocket(baseURL: apiHelper.baseAPIurl, userTokensProv: self.userTokens)
+
         DispatchQueue.main.async {
             self.loggedIn = true
         }
@@ -110,7 +129,7 @@ class ApiClient: ObservableObject {
     
     func checkServerStatus() {
         var isServerOffline = false;
-        guard let url = URL(string: "https://interact-api.novapro.net/v1/serverStatus") else {
+        guard let url = URL(string: apiHelper.baseAPIurl + "/serverStatus") else {
             print("Invalid URL")
             DispatchQueue.main.async {
                 self.serverOffline = true
@@ -119,7 +138,7 @@ class ApiClient: ObservableObject {
         }
         
         var request = URLRequest(url: url)
-        request.timeoutInterval = 2 // Set your desired timeout value in seconds
+        request.timeoutInterval = 10 // Set your desired timeout value in seconds
 
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             DispatchQueue.main.async {

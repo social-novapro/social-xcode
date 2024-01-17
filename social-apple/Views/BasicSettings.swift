@@ -18,6 +18,7 @@ struct BasicSettings: View {
         self.enabledDevMode = client.devMode?.isEnabled ?? false;
         self.enabledHaptic = client.haptic?.isEnabled ?? true;
     }
+    
     var body: some View {
         VStack {
             VStack {

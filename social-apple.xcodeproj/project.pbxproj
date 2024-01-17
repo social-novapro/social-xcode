@@ -13,6 +13,9 @@
 		6503515C29F370CA005C4253 /* FeedPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6503515B29F370CA005C4253 /* FeedPage.swift */; };
 		6503515E29F474A9005C4253 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6503515D29F474A9005C4253 /* AboutView.swift */; };
 		650B89A42B5362B1007BE000 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650B89A32B5362B1007BE000 /* ProfileView.swift */; };
+		651553D52B5785F100DF3353 /* DeveloperSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651553D42B5785F100DF3353 /* DeveloperSettingsView.swift */; };
+		651553D72B57877E00DF3353 /* DeveloperData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651553D62B57877D00DF3353 /* DeveloperData.swift */; };
+		651553D92B578A6A00DF3353 /* Developer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651553D82B578A6A00DF3353 /* Developer.swift */; };
 		6516E59D2B0AE8B9008A84E4 /* API_Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6516E59C2B0AE8B9008A84E4 /* API_Helper.swift */; };
 		6516E59F2B0AE8CC008A84E4 /* Auth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6516E59E2B0AE8CC008A84E4 /* Auth.swift */; };
 		6516E5A12B0AE935008A84E4 /* Users.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6516E5A02B0AE935008A84E4 /* Users.swift */; };
@@ -69,6 +72,9 @@
 		6503515B29F370CA005C4253 /* FeedPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedPage.swift; sourceTree = "<group>"; };
 		6503515D29F474A9005C4253 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		650B89A32B5362B1007BE000 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		651553D42B5785F100DF3353 /* DeveloperSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperSettingsView.swift; sourceTree = "<group>"; };
+		651553D62B57877D00DF3353 /* DeveloperData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperData.swift; sourceTree = "<group>"; };
+		651553D82B578A6A00DF3353 /* Developer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Developer.swift; sourceTree = "<group>"; };
 		6516E59C2B0AE8B9008A84E4 /* API_Helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API_Helper.swift; sourceTree = "<group>"; };
 		6516E59E2B0AE8CC008A84E4 /* Auth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Auth.swift; sourceTree = "<group>"; };
 		6516E5A02B0AE935008A84E4 /* Users.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Users.swift; sourceTree = "<group>"; };
@@ -142,6 +148,7 @@
 				6516E5AC2B0AF2D3008A84E4 /* Posts.swift */,
 				6516E59E2B0AE8CC008A84E4 /* Auth.swift */,
 				65502EA72B51E35B005D4201 /* Get.swift */,
+				651553D82B578A6A00DF3353 /* Developer.swift */,
 			);
 			path = API;
 			sourceTree = "<group>";
@@ -225,6 +232,7 @@
 				651757EB2A006D6900E90FBA /* AnalyticData.swift */,
 				65DC09522B30165C004B5865 /* NotificationData.swift */,
 				659B62EB2B2BBE5600CF2FA4 /* LocalLogData.swift */,
+				651553D62B57877D00DF3353 /* DeveloperData.swift */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -251,6 +259,7 @@
 				65502EA52B51CCD4005D4201 /* SearchView.swift */,
 				6526E87B2B54E4570072E33E /* BasicSettings.swift */,
 				65EB34042B564703000C3BED /* ServerStatusOffline.swift */,
+				651553D42B5785F100DF3353 /* DeveloperSettingsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -378,6 +387,7 @@
 				655AB62C29F0E25600C61F3A /* HomeView.swift in Sources */,
 				655BC0C82B0756D100949356 /* PollView.swift in Sources */,
 				655BC0C62B07569E00949356 /* LiveChatWebSocket.swift in Sources */,
+				651553D92B578A6A00DF3353 /* Developer.swift in Sources */,
 				655AB61029F0720500C61F3A /* ContentView.swift in Sources */,
 				65502EA82B51E35B005D4201 /* Get.swift in Sources */,
 				651757EA2A006D4600E90FBA /* Graph.swift in Sources */,
@@ -385,11 +395,13 @@
 				6516E5A12B0AE935008A84E4 /* Users.swift in Sources */,
 				655AB62A29F080CB00C61F3A /* UserView.swift in Sources */,
 				651757E129FB816F00E90FBA /* social_apple.xcdatamodeld in Sources */,
+				651553D72B57877E00DF3353 /* DeveloperData.swift in Sources */,
 				650B89A42B5362B1007BE000 /* ProfileView.swift in Sources */,
 				659B62EA2B2BBE4800CF2FA4 /* LocalLogsHandler.swift in Sources */,
 				655BC0C22B07565200949356 /* LiveChatData.swift in Sources */,
 				651757EC2A006D6900E90FBA /* AnalyticData.swift in Sources */,
 				655AB60B29F0720500C61F3A /* Persistence.swift in Sources */,
+				651553D52B5785F100DF3353 /* DeveloperSettingsView.swift in Sources */,
 				655AB62529F0741200C61F3A /* LoginPage.swift in Sources */,
 				6516E59F2B0AE8CC008A84E4 /* Auth.swift in Sources */,
 				65DC09472B300EE1004B5865 /* MyAppDelegate.swift in Sources */,

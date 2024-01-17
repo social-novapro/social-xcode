@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SendLiveChatView: View {
-    @ObservedObject var webSocketManager: LiveChatWebSocket
+    @ObservedObject var client: ApiClient
 
     @Binding var userTokenData: UserTokenData?
     @Binding var writingPopover: Bool
@@ -19,9 +19,9 @@ struct SendLiveChatView: View {
 //            Form {
                 TextField("Content", text: $content)
                 Button("Send Message") {
-                    print(webSocketManager.tokens)
+                    print(client.livechatWS.tokens)
                     let liveChatSend = createLiveSendData(type: 2, mesType: 2, content: self.content, replyTo: nil, userTokenData: userTokenData)
-                    webSocketManager.sendMessage(liveChatSendData: liveChatSend)
+                    client.livechatWS.sendMessage(liveChatSendData: liveChatSend)
                     self.writingPopover = false
                 }
 //            }
@@ -43,7 +43,7 @@ struct LiveChatView: View {
     @State private var isInitialized = false
     @State private var content: String = ""
 
-    @StateObject private var webSocketManager = LiveChatWebSocket()
+//    @StateObject private var webSocketManager = LiveChatWebSocket()
 
     var body: some View {
         VStack {
@@ -84,9 +84,9 @@ struct LiveChatView: View {
                 if (content != "") {
                     Button("Send Message") {
                         client.hapticPress()
-                        print(webSocketManager.tokens)
+                        print(client.livechatWS.tokens)
                         let liveChatSend = createLiveSendData(type: 2, mesType: 2, content: self.content, replyTo: nil, userTokenData: client.userTokens)
-                        webSocketManager.sendMessage(liveChatSendData: liveChatSend)
+                        client.livechatWS.sendMessage(liveChatSendData: liveChatSend)
                         self.content = ""
                     }
                 }
@@ -106,10 +106,10 @@ struct LiveChatView: View {
                 return
             }
             
-            webSocketManager.connectWS(userID: client.userTokens.userID)
+            client.livechatWS.connectWS()
             self.isInitialized = true
         }
-        .onReceive(webSocketManager.$receivedDataQueue) { newQueue in
+        .onReceive(client.livechatWS.$receivedDataQueue) { newQueue in
             DispatchQueue.main.async {
                 print("Received data queue count: \(newQueue.count)")
                 print("--- 1")
@@ -123,8 +123,8 @@ struct LiveChatView: View {
                         print("incoming auth request")
                         if (newReceivedData.mesType==1) {
                             let authSend:LiveChatSendData = createLiveSendData(type: 10, mesType: 2, content: "tokens", replyTo: nil, userTokenData: client.userTokens)
-                            webSocketManager.sendMessage(liveChatSendData: authSend)
-                            print(webSocketManager.tokens)
+                            client.livechatWS.sendMessage(liveChatSendData: authSend)
+                            print(client.livechatWS.tokens)
                         }
                         break;
                     case 2:

@@ -14,13 +14,20 @@ class LiveChatWebSocket: ObservableObject {
 
     private var webSocketTask: URLSessionWebSocketTask!
     var tokens:Bool = false
+    var wsURL: String
     
-    init() {
-
+    var userTokens: UserTokenData
+    
+    init(baseURL: String, userTokensProv: UserTokenData) {
+        self.userTokens = userTokensProv
+        
+        self.wsURL = baseURL
+        self.wsURL.replace("http", with: "ws")
+        self.wsURL.replace("/v1", with: "/?userID=\(self.userTokens.userID)")
     }
     
-    func connectWS(userID: String) {
-        let url = URL(string: "wss://interact-api.novapro.net/?userID=\(userID)")!
+    func connectWS() {
+        let url = URL(string: wsURL)!
         let session = URLSession(configuration: .default)
 
         webSocketTask = session.webSocketTask(with: url)

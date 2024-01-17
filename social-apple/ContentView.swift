@@ -81,6 +81,9 @@ struct ContentView: View {
 #if os(macOS)
                     SideBarNavigation(client: client)
 #endif
+#if os(visionOS)
+                    SideBarNavigation(client: client)
+#endif
                 }
             }
 #if os(iOS)
@@ -285,6 +288,13 @@ struct SideBarNavigation: View {
                         BasicSettings(client: client)
                     } label: {
                         Text("Basic Settings")
+                    }
+                }
+                VStack {
+                    NavigationLink {
+                        DeveloperSettingsView(client: client)
+                    } label: {
+                        Text("Developer Settings")
                     }
                 }
                 VStack {
