@@ -60,3 +60,8 @@ struct AppAccessesData: Decodable, Identifiable {
         case userToken
     }
 }
+
+struct NewAppTokenReq: Encodable {
+    var userdevtoken: String
+    var appname: String
+}

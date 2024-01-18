@@ -299,6 +299,13 @@ struct SideBarNavigation: View {
                 }
                 VStack {
                     NavigationLink {
+                        AccountsView(client: client)
+                    } label: {
+                        Text("Account Settings")
+                    }
+                }
+                VStack {
+                    NavigationLink {
                         LogoutView(client: client)
                     } label: {
                         Text("Logout")

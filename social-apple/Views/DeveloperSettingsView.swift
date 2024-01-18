@@ -11,34 +11,49 @@ struct DeveloperSettingsView: View {
     @ObservedObject var client: ApiClient
     @State var developerData: DeveloperResponseData?
     @State var loading: Bool = true
-    @State var newApplicationName: String = ""
+    @State var newApplications: [AppTokenData] = []
+    @State var createdNewDev: Bool = false
     
     var body: some View {
         VStack {
-            if (developerData != nil && loading==false) {
+            if (loading == false) {
                 ScrollView {
                     VStack {
                         AccountStatusView(client: client, developerData: $developerData)
-                        if (developerData?.DeveloperToken != nil) {
-                            DeveloperTokenView(client: client, developerToken: (developerData?.DeveloperToken!)!)
-                        }
                         
-                        if (developerData?.AppTokens.isEmpty != true) {
-                            Text("Your Approved Developer Applications:")
-                            ForEach(developerData?.AppTokens ?? []) { appToken in
-                                AppTokenView(client: client, appToken: appToken)
-                                    .padding(10)
+                        if (developerData != nil && loading==false ) {
+                            if (developerData?.DeveloperToken != nil) {
+                                DeveloperTokenView(client: client, developerToken: (developerData?.DeveloperToken!)!)
                             }
-                        }
-                        // make an array if new applications, and foreach
-                        GenerateAppView(client: client, newApplicationName: newApplicationName)
-                
-                        if (developerData?.AppAccesses.isEmpty != true) {
-                            Text("Connected Applications:")
-
-                            ForEach(developerData?.AppAccesses ?? []) { accessToken in
-                                AccessTokenView(client: client, accessToken: accessToken)
-                                    .padding(10)
+                            
+                            if (developerData?.AppTokens.isEmpty != true) {
+                                Text("Your Approved Developer Applications:")
+                                ForEach(developerData?.AppTokens ?? []) { appToken in
+                                    AppTokenView(client: client, appToken: appToken)
+                                        .padding(10)
+                                }
+                            }
+                            GenerateAppView(
+                                client: client,
+                                newApplications: $newApplications,
+                                developerToken: developerData?.DeveloperToken?._id ?? ""
+                            )
+                            
+                            if (newApplications.isEmpty != true) {
+                                Text("Your new Developer Applications:")
+                                ForEach(newApplications) { appToken in
+                                    AppTokenView(client: client, appToken: appToken)
+                                        .padding(10)
+                                }
+                            }
+                            
+                            if (developerData?.AppAccesses.isEmpty != true) {
+                                Text("Connected Applications:")
+                                
+                                ForEach(developerData?.AppAccesses ?? []) { accessToken in
+                                    AccessTokenView(client: client, accessToken: accessToken)
+                                        .padding(10)
+                                }
                             }
                         }
                     }
@@ -64,10 +79,22 @@ struct DeveloperSettingsView: View {
 
 struct GenerateAppView: View {
     @ObservedObject var client: ApiClient
+    @Binding var newApplications: [AppTokenData]
     @State var newApplicationName: String = ""
+    @State var developerToken: String
+    @State var created: Bool = false
+    @State var failed: Bool = false
     
     var body: some View {
         VStack {
+            HStack {
+                if (failed==true) {
+                    Text("Could not create new application.")
+                } else if (created==true) {
+                    Text("Created new application!")
+                }
+                Spacer()
+            }
             HStack {
                 Text("Generate New App Token")
                 Spacer()
@@ -88,18 +115,36 @@ struct GenerateAppView: View {
             }
             
             HStack{
-                Button(action: {
-                    client.hapticPress()
-                }, label: {
-                    Text("Generate Token")
-                        .padding(15)
-                        .cornerRadius(20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.accentColor, lineWidth: 3)
-                        )
-                        .padding(10)
-                })
+                if (newApplicationName != "") {
+                    Button(action: {
+                        client.hapticPress()
+                        let newTokenReq = NewAppTokenReq(userdevtoken: developerToken, appname: newApplicationName)
+                        
+                        newApplicationName=""
+                        
+                        client.developer.newAppToken(newAppToken: newTokenReq) { result in
+                            switch result {
+                            case .success(let appData):
+                                print("Generated Token")
+                                newApplications.append(appData)
+                                created=true
+                                
+                            case .failure(let error):
+                                print("Error: \(error)")
+                                failed=true
+                            }
+                        }
+                    }, label: {
+                        Text("Generate Token")
+                            .padding(15)
+                            .cornerRadius(20)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(Color.accentColor, lineWidth: 3)
+                            )
+                            .padding(10)
+                    })
+                }
             }
         }
         .padding(15)
@@ -175,7 +220,7 @@ struct AccountStatusView: View {
         VStack {
             Text("Account Status")
             VStack {
-                if (developerData?.developer == false) {
+                if (developerData?.developer != true) {
                     Text("You are not a developer.")
                     Text("Click below to sign up as a developer.")
                     Button(action: {
@@ -280,7 +325,7 @@ struct AccessTokenView: View {
                 Spacer()
             }
             HStack {
-                Text("UUID: ")
+                Text("accessToken: ")
                 HiddenText(text: self.accessToken._id ?? "Unknown")
                 Spacer()
             }

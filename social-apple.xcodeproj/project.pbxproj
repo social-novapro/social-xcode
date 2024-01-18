@@ -53,6 +53,7 @@
 		655BC0C62B07569E00949356 /* LiveChatWebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655BC0C52B07569E00949356 /* LiveChatWebSocket.swift */; };
 		655BC0C82B0756D100949356 /* PollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655BC0C72B0756D000949356 /* PollView.swift */; };
 		655BC0CA2B07575100949356 /* CurrentNavigationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655BC0C92B07575100949356 /* CurrentNavigationHandler.swift */; };
+		656362FD2B5892F700AF42F1 /* AccountsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656362FC2B5892F700AF42F1 /* AccountsView.swift */; };
 		657519132B54DA6400C3EC5E /* HapticPress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657519122B54DA6400C3EC5E /* HapticPress.swift */; };
 		659B62EA2B2BBE4800CF2FA4 /* LocalLogsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659B62E92B2BBE4800CF2FA4 /* LocalLogsHandler.swift */; };
 		659B62EC2B2BBE5600CF2FA4 /* LocalLogData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659B62EB2B2BBE5600CF2FA4 /* LocalLogData.swift */; };
@@ -114,6 +115,7 @@
 		655BC0C52B07569E00949356 /* LiveChatWebSocket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveChatWebSocket.swift; sourceTree = "<group>"; };
 		655BC0C72B0756D000949356 /* PollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollView.swift; sourceTree = "<group>"; };
 		655BC0C92B07575100949356 /* CurrentNavigationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentNavigationHandler.swift; sourceTree = "<group>"; };
+		656362FC2B5892F700AF42F1 /* AccountsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsView.swift; sourceTree = "<group>"; };
 		657519122B54DA6400C3EC5E /* HapticPress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticPress.swift; sourceTree = "<group>"; };
 		659B62E92B2BBE4800CF2FA4 /* LocalLogsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLogsHandler.swift; sourceTree = "<group>"; };
 		659B62EB2B2BBE5600CF2FA4 /* LocalLogData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLogData.swift; sourceTree = "<group>"; };
@@ -260,6 +262,7 @@
 				6526E87B2B54E4570072E33E /* BasicSettings.swift */,
 				65EB34042B564703000C3BED /* ServerStatusOffline.swift */,
 				651553D42B5785F100DF3353 /* DeveloperSettingsView.swift */,
+				656362FC2B5892F700AF42F1 /* AccountsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -391,6 +394,7 @@
 				655AB61029F0720500C61F3A /* ContentView.swift in Sources */,
 				65502EA82B51E35B005D4201 /* Get.swift in Sources */,
 				651757EA2A006D4600E90FBA /* Graph.swift in Sources */,
+				656362FD2B5892F700AF42F1 /* AccountsView.swift in Sources */,
 				655AB63029F19B0A00C61F3A /* ErrorData.swift in Sources */,
 				6516E5A12B0AE935008A84E4 /* Users.swift in Sources */,
 				655AB62A29F080CB00C61F3A /* UserView.swift in Sources */,
@@ -533,7 +537,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "social-apple/social_apple.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 39;
+				CURRENT_PROJECT_VERSION = 40;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"social-apple/Preview Content\"";
 				DEVELOPMENT_TEAM = VHCWBN8GY3;
@@ -575,7 +579,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "social-apple/social_apple.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 39;
+				CURRENT_PROJECT_VERSION = 40;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"social-apple/Preview Content\"";
 				DEVELOPMENT_TEAM = VHCWBN8GY3;
