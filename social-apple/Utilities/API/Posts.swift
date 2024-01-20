@@ -79,6 +79,7 @@ class PostsApi: API_Helper {
         }
     }
     
+    // like post
     func likePost(postID: String, completion: @escaping (Result<PostData, Error>) -> Void) {
         print("liking post")
 
@@ -94,6 +95,7 @@ class PostsApi: API_Helper {
         }
     }
     
+    // unlike post
     func unlikePost(postID: String, completion: @escaping (Result<PostData, Error>) -> Void) {
         print("unliking post")
         let APIUrl = baseAPIurl + "/posts/unlike/\(postID)"
@@ -108,10 +110,104 @@ class PostsApi: API_Helper {
         }
     }
     
+    // get post likes
+    func getLikes(postID: String, completion: @escaping (Result<PostLikesRes, Error>) -> Void) {
+        print("likes of post")
+        let APIUrl = baseAPIurl + "/posts/likes/\(postID)"
+        self.requestData(urlString: APIUrl, httpMethod: "GET") { (result: Result<PostLikesRes, Error>) in
+            switch result {
+            case .success(let postData):
+                print("Unliked Post")
+                completion(.success(postData))
+            case .failure(let error):
+                completion(.failure(error))
+                print("Error: \(error)")
+            }
+        }
+    }
+    
+    
+    // get post replies
+    func getReplies(postID: String, completion: @escaping (Result<PostReplyRes, Error>) -> Void) {
+        print("replies of post")
+        let APIUrl = baseAPIurl + "/posts/replies/\(postID)"
+        self.requestData(urlString: APIUrl, httpMethod: "GET") { (result: Result<PostReplyRes, Error>) in
+            switch result {
+            case .success(let postData):
+                print("replies Post")
+                completion(.success(postData))
+            case .failure(let error):
+                completion(.failure(error))
+                print("Error: \(error)")
+            }
+        }
+    }
+    
+    // get post replies
+    func getQuotes(postID: String, completion: @escaping (Result<PostQuoteRes, Error>) -> Void) {
+        print("quotes of post")
+        let APIUrl = baseAPIurl + "/posts/quotes/\(postID)"
+        self.requestData(urlString: APIUrl, httpMethod: "GET") { (result: Result<PostQuoteRes, Error>) in
+            switch result {
+            case .success(let postData):
+                print("quotes Post")
+                completion(.success(postData))
+            case .failure(let error):
+                completion(.failure(error))
+                print("Error: \(error)")
+            }
+        }
+    }
+    
+    // get post edits
+    func getEdits(postID: String, completion: @escaping (Result<PostEditSchema, Error>) -> Void) {
+        print("edits of post")
+        let APIUrl = baseAPIurl + "/posts/edits/\(postID)"
+        self.requestData(urlString: APIUrl, httpMethod: "GET") { (result: Result<PostEditSchema, Error>) in
+            switch result {
+            case .success(let postData):
+                print("edits Post")
+                completion(.success(postData))
+            case .failure(let error):
+                completion(.failure(error))
+                print("Error: \(error)")
+            }
+        }
+    }
+    
+    // delete post
     func deletePost(postID: String, completion: @escaping (Result<PostDeleteRes, Error>) -> Void) {
         print("unliking post")
         let APIUrl = baseAPIurl + "/posts/remove/\(postID)"
         self.requestData(urlString: APIUrl, httpMethod: "DELETE") { (result: Result<PostDeleteRes, Error>) in
+            switch result {
+            case .success(let postData):
+                print("Unliked Post")
+                completion(.success(postData))
+            case .failure(let error):
+                print("Error: \(error)")
+            }
+        }
+    }
+    
+    // add to bookmarks
+    func savePost(bookmarkData: PostBookmarkReq, completion: @escaping (Result<PostBookmarkRes, Error>) -> Void) {
+        let APIUrl = baseAPIurl + "/posts/save/"
+        self.requestDataWithBody(urlString: APIUrl, httpMethod: "POST", httpBody: bookmarkData) { (result: Result<PostBookmarkRes, Error>) in
+            switch result {
+            case .success(let postData):
+                print("Unliked Post")
+                completion(.success(postData))
+            case .failure(let error):
+                print("Error: \(error)")
+            }
+        }
+    }
+    
+    // remove from bookmark
+    func unsavePost(bookmarkData: PostBookmarkReq, completion: @escaping (Result<PostUnbookmarkRes, Error>) -> Void) {
+        let APIUrl = baseAPIurl + "/posts/unsave/"
+        self.requestDataWithBody(urlString: APIUrl, httpMethod: "DELETE", httpBody: bookmarkData) { (result: Result<PostUnbookmarkRes, Error>) in
             switch result {
             case .success(let postData):
                 print("Unliked Post")

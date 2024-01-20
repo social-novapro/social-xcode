@@ -65,6 +65,14 @@ struct PostPreView: View {
                                 .foregroundColor(.secondary)
                             }
                             .buttonStyle(PlainButtonStyle())
+                            .foregroundColor(.secondary)
+                        }
+                        if (self.feedData?.postData.edited==true) {
+                            HStack {
+                                Text("This post was edited...")
+                                        .italic()
+                            }
+                            .foregroundColor(.secondary)
                         }
                         VStack {
                             Spacer()
@@ -182,7 +190,7 @@ struct PostPreView: View {
                     .stroke(Color.accentColor, lineWidth: 3)
             )
             if (self.actionExpanded == true) {
-                ExpandedPostView(client: client, feedData: $feedData)
+                ExpandedPostView(client: client, feedData: $feedData, actionExpanded: $actionExpanded)
             }
     }
 }
@@ -334,6 +342,18 @@ struct ExpandedPostView: View {
     @ObservedObject var client: ApiClient
     @Binding var feedData: AllPosts?
     @State var subAction: Int32 = 0 // inactive
+    @Binding var actionExpanded: Bool
+    @State var savedPost: Bool?
+    @State var pinnedPost: Bool?
+    
+    /*
+     * 0 = inactive
+     * 1 = edit history
+     * 2 = who liked
+     * 3 = replies
+     * 4 = quotes
+     */
+//    @State
 //    @Binding
 //    @State var editingPost: Bool = false
 //    @State var confirmDelete: Bool = false
@@ -342,20 +362,94 @@ struct ExpandedPostView: View {
         VStack {
             VStack {
                 HStack {
-                    Text("NONE OF THIS IS WORKING")
+                    Button(action: {
+                        client.hapticPress()
+                        withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
+                            actionExpanded=false;
+                        }
+                    }) {
+                        Text("Close Expanded Area")
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    Spacer()
+                    
                 }
+                Divider()
                 HStack {
                     Text("Expanded action area")
                         .underline()
-                        .bold()
                     Spacer()
                 }
                 HStack {
-                    Text("Pin to Profile")
+                    
+                    Button(action: {
+                        client.hapticPress()
+
+                        if (pinnedPost == true) {
+                            client.users.edit_pinsRemove(postID: self.feedData?.postData._id ?? "XX" ) { result in
+                                switch result {
+                                case .success(_):
+                                    self.pinnedPost = false
+                                    print("Done")
+                                case .failure(let error):
+                                    print("Error: \(error.localizedDescription)")
+                                }
+                            }
+                        } else {
+                            client.users.edit_pinsAdd(postID: self.feedData?.postData._id ?? "XX" ) { result in
+                                switch result {
+                                case .success(_):
+                                    self.pinnedPost = true
+                                    print("Done")
+                                case .failure(let error):
+                                    print("Error: \(error.localizedDescription)")
+                                }
+                            }
+                        }
+                    }) {
+                        if (pinnedPost == true) {
+                            Text("Remove Pin from Profile.")
+                        } else {
+                            Text("Pin to Profile")
+                        }
+                    }
+                    .buttonStyle(PlainButtonStyle())
                     Spacer()
                 }
                 HStack {
-                    Text("Save to Bookmarks")
+                    Button(action: {
+                        client.hapticPress()
+                        let bookmarkData = PostBookmarkReq(postID: self.feedData?.postData._id ?? "XX")
+                        if (savedPost == true) {
+                            client.posts.unsavePost(bookmarkData: bookmarkData) { result in
+                                switch result {
+                                case .success(_):
+                                    self.savedPost = false
+                                    print("Done")
+                                case .failure(let error):
+                                    print("Error: \(error.localizedDescription)")
+                                }
+                            }
+                        } else {
+                            client.posts.savePost(bookmarkData: bookmarkData) { result in
+                                switch result {
+                                case .success(_):
+                                    self.savedPost = true
+                                    print("Done")
+                                case .failure(let error):
+                                    print("Error: \(error.localizedDescription)")
+                                }
+                            }
+                        }
+                    }) {
+                        if (savedPost == true) {
+                            Text("Remove from Bookmarks")
+                        } else {
+                            Text("Save to Bookmarks")
+                        }
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
                     Spacer()
                 }
                 HStack {
@@ -363,19 +457,50 @@ struct ExpandedPostView: View {
                     Spacer()
                 }
                 HStack {
-                    Text("Check Edit History")
+                    Button(action: {
+                        client.hapticPress()
+                        subAction=1;
+                    }) {
+                        Text("Check Edit History")
+                    }
+                    .buttonStyle(PlainButtonStyle())
                     Spacer()
                 }
                 HStack {
-                    Text("Check Who Liked")
+                    Button(action: {
+                        client.hapticPress()
+//                        withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
+                            subAction=2;
+//                        }
+                    }) {
+                        Text("Check Who Liked")
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    Spacer()
+                    
+                }
+                HStack {
+                    Button(action: {
+                        client.hapticPress()
+//                        withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
+                            subAction=3;
+//                        }
+                    }) {
+                        Text("Check Replies")
+                    }
+                    .buttonStyle(PlainButtonStyle())
                     Spacer()
                 }
                 HStack {
-                    Text("Check Replies")
-                    Spacer()
-                }
-                HStack {
-                    Text("Check Quotes")
+                    Button(action: {
+                        client.hapticPress()
+//                        withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
+                            subAction=4;
+//                        }
+                    }) {
+                        Text("Check Quotes")
+                    }
+                    .buttonStyle(PlainButtonStyle())
                     Spacer()
                 }
             }
@@ -387,8 +512,271 @@ struct ExpandedPostView: View {
                     .stroke(Color.accentColor, lineWidth: 3)
             )
             
-            if (subAction==1) {
-                Text("activate")
+            if (subAction != 0) {
+                SubExpandedPostView(client: client, feedData: $feedData, subAction: $subAction, actionExpanded: $actionExpanded)
+            }
+        }
+        .onAppear {
+            savedPost = self.feedData?.extraData.saved ?? false
+            pinnedPost = self.feedData?.extraData.pinned ?? false
+        }
+    }
+}
+
+struct SubExpandedPostView: View {
+    @ObservedObject var client: ApiClient
+    @Binding var feedData: AllPosts?
+    @Binding var subAction: Int32 // inactive
+    @Binding var actionExpanded: Bool
+
+    var body: some View {
+        VStack {
+            HStack {
+                Button(action: {
+                    client.hapticPress()
+//                    withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
+                        subAction=0;
+//                    }
+                }) {
+                    Text("Close Section")
+                }
+                .buttonStyle(PlainButtonStyle())
+                Spacer()
+                
+            }
+            Divider()
+            if (subAction == 1) {
+                PostViewEditHistory(client: client, postID: feedData?.postData._id ?? "xx")
+            } else if (subAction == 2) {
+                Text("Likes")
+                PostViewLiked(client: client, postID: feedData?.postData._id ?? "xx")
+            } else if (subAction == 3) {
+                Text("Replies")
+                PostViewReplies(client: client, postID: feedData?.postData._id ?? "xx")
+            } else if (subAction == 4) {
+                Text("Quotes")
+                PostViewQuotes(client: client, postID: feedData?.postData._id ?? "xx")
+            }
+        }
+        .padding(15)
+        .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+        .cornerRadius(20)
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color.accentColor, lineWidth: 3)
+        )
+    }
+}
+
+struct CrapPostView: View {
+    @State var postData: PostData
+    
+    var body: some View {
+        VStack {
+            HStack {
+                Text("User: \(postData.userID ?? "XX")")
+                Spacer()
+            }
+            HStack {
+                Text(int64TimeFormatter(timestamp:postData.timestamp ?? 0))
+                Spacer()
+            }
+            HStack {
+                Text(postData.content ?? "unknown")
+                Spacer()
+            }
+        }
+        .padding(15)
+        .cornerRadius(20)
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color.accentColor, lineWidth: 3)
+        )
+
+    }
+}
+
+struct PostViewEditHistory: View {
+    @ObservedObject var client: ApiClient
+    @State var postID: String
+    @State var isLoading: Bool = true
+    @State var failed: Bool = false
+
+    @State var edits: PostEditSchema?
+
+    var body : some View {
+        VStack {
+            if (isLoading != true) {
+                ForEach(self.edits?.edits ?? []) { edit in
+                    HStack {
+                        Text(edit.content)
+                        Spacer()
+                    }
+                }
+            } else  if (failed==true){
+                HStack {
+                    Text("Could not find any likes.")
+                    Spacer()
+                }
+            } else {
+                HStack {
+                    Text("Loading edits... Or might not have any...")
+                    Spacer()
+                }
+            }
+        }
+        .onAppear {
+            client.posts.getEdits(postID: postID) { result in
+                switch result {
+                case .success(let edits):
+                    self.edits = edits
+                    print("Done")
+                    self.isLoading = false
+                case .failure(let error):
+//                    failed=true
+                    print("Error: \(error.localizedDescription)")
+                }
+            }
+        }
+
+    }
+}
+
+struct PostViewLiked: View {
+    @ObservedObject var client: ApiClient
+    @State var postID: String
+    @State var isLoading: Bool = true
+    @State var failed: Bool = false
+
+    @State var likes: PostLikesRes?
+    
+    var body : some View {
+        VStack {
+            if (isLoading != true) {
+                ForEach(self.likes?.peopleLiked ?? []) { like in
+                    HStack {
+                        Text("@\(like.username)")
+                        Spacer()
+                    }
+                }
+            } else  if (failed==true){
+                HStack {
+                    Text("Could not find any likes.")
+                    Spacer()
+                }
+            } else {
+                HStack {
+                    Text("Loading likes... Or might not have any...")
+                    Spacer()
+                }
+            }
+        }
+        .onAppear {
+            client.posts.getLikes(postID: postID) { result in
+                switch result {
+                case .success(let likes):
+                    self.likes = likes
+                    print("Done")
+                    self.isLoading = false
+                case .failure(let error):
+                    failed=true
+                    print("Error: \(error.localizedDescription)")
+                }
+                
+                if (isLoading == false) {
+                    failed = true
+                }
+            }
+        }
+    }
+}
+
+struct PostViewReplies: View {
+    @ObservedObject var client: ApiClient
+    @State var postID: String
+    @State var isLoading: Bool = true
+    @State var failed: Bool = false
+
+    @State var replies: PostReplyRes?
+
+    var body : some View {
+        VStack {
+            if (isLoading != true) {
+                ForEach(self.replies?.replies ?? []) { reply in
+                    CrapPostView(postData: reply)
+                }
+            } else if (failed==true) {
+                HStack {
+                    Text("Post has no replies.")
+                    Spacer()
+                }
+            } else {
+                HStack {
+                    Text("Loading replies... Or might not have any...")
+                    Spacer()
+                }
+            }
+        }
+        .onAppear {
+            client.posts.getReplies(postID: postID) { result in
+                switch result {
+                case .success(let replies):
+                    self.replies = replies
+                    print("Done")
+                    self.isLoading = false
+                case .failure(let error):
+                    failed=true
+                    print("Error: \(error.localizedDescription)")
+                }
+            }
+            
+            if (isLoading == false) {
+                failed = true
+            }
+        }
+    }
+}
+
+struct PostViewQuotes: View {
+    @ObservedObject var client: ApiClient
+    @State var postID: String
+    @State var isLoading: Bool = true
+    @State var failed: Bool = false
+
+    @State var quotes: PostQuoteRes?
+
+    var body : some View {
+        VStack {
+            if (isLoading != true) {
+                ForEach(self.quotes?.quotes ?? []) { quote in
+                    CrapPostView(postData: quote)
+                }
+            } else if (failed==true) {
+                HStack {
+                    Text("Post has no quotes.")
+                    Spacer()
+                }
+            } else {
+                HStack {
+                    Text("Loading quotes... Or might not have any...")
+                    Spacer()
+                }
+            }
+        }
+        .onAppear {
+            client.posts.getQuotes(postID: postID) { result in
+                switch result {
+                case .success(let quotes):
+                    self.quotes = quotes
+                    print("Done")
+                    self.isLoading = false
+                case .failure(let error):
+                    failed=true
+                    print("Error: \(error.localizedDescription)")
+                }
+                if (isLoading == false) {
+                    failed = true
+                }
             }
         }
     }

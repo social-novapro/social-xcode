@@ -112,15 +112,17 @@ struct childFeed: View {
                                 if (self.feed!.posts.last == post && self.loadingScroll == false){
                                     client.hapticPress()
                                     self.loadingScroll = true
-                                    client.posts.getUserFeedIndex(userTokens: client.userTokens, index: self.feed?.prevIndexID ?? "") { result in
-                                        client.hapticPress()
-                                        switch result {
-                                        case .success(let feed):
-                                            self.feed = feed
-                                            self.allPosts! += feed.posts
-                                            self.loadingScroll = false
-                                        case .failure(let error):
-                                            print("Error: \(error.localizedDescription)")
+                                    if (self.feed?.prevIndexID != nil) {
+                                        client.posts.getUserFeedIndex(userTokens: client.userTokens, index: self.feed?.prevIndexID ?? "") { result in
+                                            client.hapticPress()
+                                            switch result {
+                                            case .success(let feed):
+                                                self.feed = feed
+                                                self.allPosts! += feed.posts
+                                                self.loadingScroll = false
+                                            case .failure(let error):
+                                                print("Error: \(error.localizedDescription)")
+                                            }
                                         }
                                     }
                                 }

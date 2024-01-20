@@ -21,4 +21,28 @@ class UsersApi: API_Helper {
             }
         }
     }
+    
+    func edit_pinsAdd(postID: String, completion: @escaping (Result<AllPosts, Error>) -> Void) {
+        let APIUrl = baseAPIurl + "/users/edit/pins/" + postID
+        self.requestData(urlString: APIUrl, httpMethod: "POST") { (result: Result<AllPosts, Error>) in
+            switch result {
+            case .success(let pinData):
+                completion(.success(pinData))
+            case .failure(let error):
+                print("Error: \(error)")
+            }
+        }
+    }
+    
+    func edit_pinsRemove(postID: String, completion: @escaping (Result<AllPosts, Error>) -> Void) {
+        let APIUrl = baseAPIurl + "/users/edit/pins/" + postID
+        self.requestData(urlString: APIUrl, httpMethod: "DELETE") { (result: Result<AllPosts, Error>) in
+            switch result {
+            case .success(let pinData):
+                completion(.success(pinData))
+            case .failure(let error):
+                print("Error: \(error)")
+            }
+        }
+    }
 }

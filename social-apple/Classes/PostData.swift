@@ -7,7 +7,8 @@
 
 import Foundation
 
-struct PostData: Decodable, Encodable {
+struct PostData: Decodable, Encodable, Identifiable {
+    var id = UUID()
     var _id: String
     var coposters: [String]? = nil
     var userID: String? = nil
@@ -28,7 +29,29 @@ struct PostData: Decodable, Encodable {
     var quoteReplyID: String? = nil
     var replyingPostID: String? = nil
     var quoteReplyPostID: String? = nil
-    var liked:Bool? = nil
+    
+    private enum CodingKeys: String, CodingKey {
+        case _id
+        case coposters
+        case userID
+        case timePosted
+        case timestamp
+        case content
+        case totalLikes
+        case totalReplies
+        case totalQuotes
+        case edited
+        case editedTimestamp
+        case amountEdited
+        case isReply
+        case isQuote
+        case hasPoll
+        case indexID
+
+        case quoteReplyID
+        case replyingPostID
+        case quoteReplyPostID
+    }
 }
 
 struct PostCreateContent: Encodable {
@@ -177,4 +200,94 @@ struct PostInput: Decodable, Encodable {
 struct PostDeleteRes: Decodable {
     var deleted: Bool
     var post: PostData
+}
+
+struct PostLikesRes: Decodable {
+    var postID: String
+    var peopleLiked: [PostPeopleLikedRes]
+}
+
+struct PostPeopleLikedRes: Decodable, Identifiable {
+    var id = UUID()
+    var userID: String
+    var username: String
+    
+    private enum CodingKeys: String, CodingKey {
+        case userID
+        case username
+    }
+}
+
+struct PostQuoteRes: Decodable {
+    var post: PostData
+    var quoteIndex: PostSubIndexesSchema
+    var quotes: [PostData]
+}
+
+struct PostReplyRes: Decodable {
+    var post: PostData
+    var replyIndex: PostSubIndexesSchema
+    var replies: [PostData]
+}
+
+struct PostSubIndexesSchema: Decodable {
+    var _id: String
+    var postID: String
+    var amount: Int64
+    var previousIndex: String?
+    var nextIndex: String?
+    var postIDs: [String]
+    var indexStartTime: Int64?
+    var indexEndTime: Int64?
+}
+
+struct PostEditContent: Decodable, Identifiable {
+    var id = UUID()
+    var publicTimestamp: Int64?
+    var removedTimestamp: Int64?
+    var content: String
+    
+    private enum CodingKeys: String, CodingKey {
+        case publicTimestamp
+        case removedTimestamp
+        case content
+    }
+}
+
+struct PostEditSchema: Decodable {
+    var _id: String
+    var userID: String?
+    var edits: [PostEditContent]
+}
+
+
+struct PostUnbookmarkRes: Decodable {
+    var success: Bool
+    var bookmark: PostBookmarksPostsSchema
+}
+
+struct PostBookmarkReq: Encodable {
+    var postID: String
+    var listname: String?
+}
+
+struct PostBookmarkRes: Decodable {
+    var Bookmarks: PostBookmarksSchema
+}
+
+struct PostBookmarksSchema: Decodable {
+    var _id: String
+    var saves: [PostBookmarksPostsSchema]
+    var lists: [PostBookmarksListsSchema]
+}
+
+struct PostBookmarksListsSchema: Decodable {
+    var name: String
+    var timestamp: Int64
+}
+
+struct PostBookmarksPostsSchema: Decodable {
+    var _id:String
+    var bookmarkList: String?
+    var timestamp: Int64?
 }

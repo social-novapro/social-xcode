@@ -87,10 +87,8 @@ struct AnalyticsView: View {
         .onAppear {
             api_requests.getAnalyticTrend() { result in
                 print("analytic request")
-//                print(result)
                 switch result {
                 case .success(let analytics):
-//                    print (analytics)
                     self.analytics = analytics
                     print("Done")
                     self.doneLoading = true
