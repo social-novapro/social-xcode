@@ -16,11 +16,12 @@ class ApiClient: ObservableObject {
     var users: UsersApi
     var get: GetApi
     var developer: DeveloperApi
+    var polls: PollsApi
 
     var livechatWS: LiveChatWebSocket
-    
     var apiHelper: API_Helper
-    
+//    @Published var feedPosts: FeedPosts
+
     @Published var loggedIn:Bool = false
     @Published var serverOffline: Bool = false
     
@@ -55,17 +56,20 @@ class ApiClient: ObservableObject {
         self.haptic = self.hapticModeManager.getHapticMode()
         
         // routes
-        
         self.auth = AuthApi(userTokensProv: userTokens)
         self.notifications = NotificationsApi(userTokensProv: userTokens)
         self.posts = PostsApi(userTokensProv: userTokens)
         self.users = UsersApi(userTokensProv: userTokens)
         self.get = GetApi(userTokensProv: userTokens)
         self.developer = DeveloperApi(userTokensProv: userTokens)
+        self.polls = PollsApi(userTokensProv: userTokens)
         
+
         self.apiHelper = API_Helper(userTokensProv: userTokens)
         self.livechatWS = LiveChatWebSocket(baseURL: self.apiHelper.baseAPIurl, userTokensProv: userTokens)
-        
+//        self.feedPosts = FeedPosts(client: self)
+
+
         if (self.loggedIn == true) {
             self.users.getByID(userID: userTokens.userID) { result in
                 print("Done")
@@ -110,7 +114,8 @@ class ApiClient: ObservableObject {
             self.users = UsersApi(userTokensProv: self.userTokens)
             self.get = GetApi(userTokensProv: self.userTokens)
             self.developer = DeveloperApi(userTokensProv: self.userTokens)
-            
+            self.polls = PollsApi(userTokensProv: self.userTokens)
+
             self.apiHelper = API_Helper(userTokensProv: self.userTokens)
             self.livechatWS = LiveChatWebSocket(baseURL: self.apiHelper.baseAPIurl, userTokensProv: self.userTokens)
             

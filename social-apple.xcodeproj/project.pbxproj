@@ -58,6 +58,8 @@
 		659B62EA2B2BBE4800CF2FA4 /* LocalLogsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659B62E92B2BBE4800CF2FA4 /* LocalLogsHandler.swift */; };
 		659B62EC2B2BBE5600CF2FA4 /* LocalLogData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659B62EB2B2BBE5600CF2FA4 /* LocalLogData.swift */; };
 		65AAB0482B682E5A00D4AEBB /* PostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AAB0472B682E5A00D4AEBB /* PostView.swift */; };
+		65CC79332B697C44002B5ADA /* Polls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CC79322B697C44002B5ADA /* Polls.swift */; };
+		65CC79352B697CE0002B5ADA /* PollsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CC79342B697CE0002B5ADA /* PollsData.swift */; };
 		65DA82BB2B1D2041008509E2 /* CreateUserPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DA82BA2B1D2041008509E2 /* CreateUserPage.swift */; };
 		65DA82BD2B1D236F008509E2 /* TimeFormater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DA82BC2B1D236F008509E2 /* TimeFormater.swift */; };
 		65DC09472B300EE1004B5865 /* MyAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DC09462B300EE1004B5865 /* MyAppDelegate.swift */; };
@@ -121,6 +123,8 @@
 		659B62E92B2BBE4800CF2FA4 /* LocalLogsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLogsHandler.swift; sourceTree = "<group>"; };
 		659B62EB2B2BBE5600CF2FA4 /* LocalLogData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLogData.swift; sourceTree = "<group>"; };
 		65AAB0472B682E5A00D4AEBB /* PostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostView.swift; sourceTree = "<group>"; };
+		65CC79322B697C44002B5ADA /* Polls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Polls.swift; sourceTree = "<group>"; };
+		65CC79342B697CE0002B5ADA /* PollsData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollsData.swift; sourceTree = "<group>"; };
 		65DA82BA2B1D2041008509E2 /* CreateUserPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserPage.swift; sourceTree = "<group>"; };
 		65DA82BC2B1D236F008509E2 /* TimeFormater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TimeFormater.swift; path = ../../../../TimeFormater.swift; sourceTree = "<group>"; };
 		65DC09462B300EE1004B5865 /* MyAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyAppDelegate.swift; sourceTree = "<group>"; };
@@ -153,6 +157,7 @@
 				6516E59E2B0AE8CC008A84E4 /* Auth.swift */,
 				65502EA72B51E35B005D4201 /* Get.swift */,
 				651553D82B578A6A00DF3353 /* Developer.swift */,
+				65CC79322B697C44002B5ADA /* Polls.swift */,
 			);
 			path = API;
 			sourceTree = "<group>";
@@ -237,6 +242,7 @@
 				65DC09522B30165C004B5865 /* NotificationData.swift */,
 				659B62EB2B2BBE5600CF2FA4 /* LocalLogData.swift */,
 				651553D62B57877D00DF3353 /* DeveloperData.swift */,
+				65CC79342B697CE0002B5ADA /* PollsData.swift */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -374,6 +380,7 @@
 				655BC0CA2B07575100949356 /* CurrentNavigationHandler.swift in Sources */,
 				6526E87C2B54E4570072E33E /* BasicSettings.swift in Sources */,
 				651757DE29FB811300E90FBA /* DevModeHandler.swift in Sources */,
+				65CC79332B697C44002B5ADA /* Polls.swift in Sources */,
 				6526E87A2B54E2B80072E33E /* HapticModeHandler.swift in Sources */,
 				6503514D29F1F84C005C4253 /* PostPreView.swift in Sources */,
 				6516E59D2B0AE8B9008A84E4 /* API_Helper.swift in Sources */,
@@ -416,6 +423,7 @@
 				659B62EA2B2BBE4800CF2FA4 /* LocalLogsHandler.swift in Sources */,
 				655BC0C22B07565200949356 /* LiveChatData.swift in Sources */,
 				651757EC2A006D6900E90FBA /* AnalyticData.swift in Sources */,
+				65CC79352B697CE0002B5ADA /* PollsData.swift in Sources */,
 				655AB60B29F0720500C61F3A /* Persistence.swift in Sources */,
 				651553D52B5785F100DF3353 /* DeveloperSettingsView.swift in Sources */,
 				655AB62529F0741200C61F3A /* LoginPage.swift in Sources */,
@@ -551,7 +559,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "social-apple/social_apple.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 40;
+				CURRENT_PROJECT_VERSION = 41;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"social-apple/Preview Content\"";
 				DEVELOPMENT_TEAM = VHCWBN8GY3;
@@ -593,7 +601,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "social-apple/social_apple.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 40;
+				CURRENT_PROJECT_VERSION = 41;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"social-apple/Preview Content\"";
 				DEVELOPMENT_TEAM = VHCWBN8GY3;

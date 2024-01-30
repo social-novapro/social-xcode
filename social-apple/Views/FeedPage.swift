@@ -15,14 +15,14 @@ struct FeedPage: View {
     @State var writingPost: Bool = false
     @State var showProfile: Bool = false
     
-    init(client: ApiClient) {
+    init(client: ApiClient, feedPosts: FeedPosts) {
         self.client = client
-        self.feedPosts = FeedPosts(client: client)
+        self.feedPosts = feedPosts
     }
     
     var body: some View {
         VStack {
-            if (!feedPosts.isLoading) {
+            if (self.feedPosts.isLoading == false) {
                 List {
                     ForEach(self.feedPosts.posts.indices, id: \.self) { index in
                         PostPreView(client: client, feedData: $feedPosts.posts[index])
@@ -57,9 +57,7 @@ struct FeedPage: View {
             }
         }
         .onAppear {
-            DispatchQueue.main.async {
-                self.feedPosts.getFeed()
-            }
+            self.feedPosts.getFeed()
         }
         .navigationTitle("Feed")
         .toolbar {

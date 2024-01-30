@@ -9,9 +9,9 @@ import SwiftUI
 import CoreData
 
 struct ContentView: View {
-//    @ObservedObject var websocket = LiveChatWebSocket()
-        
     @StateObject var client = ApiClient()
+    @ObservedObject var feedPosts: FeedPosts = FeedPosts(client: ApiClient())
+
     /*
      takes over 
      - userTokenManager
@@ -20,13 +20,13 @@ struct ContentView: View {
      - userTokensLoaded (maybe)
      */
 
-    @State var pageLoading:Bool = true;
-    
-    @State var devMode:DevModeData? = DevModeData(isEnabled: false);
-    @State var currentNavigation:CurrentNavigationData? = CurrentNavigationData(selectedTab: 0, expanded: false)
-
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-
+    
+    init() {
+        // INDEPENDANT CLIENT
+        self.feedPosts.getFeed()
+    }
+    
     @ViewBuilder var body: some View {
         NavigationView {
             ZStack {
@@ -34,34 +34,34 @@ struct ContentView: View {
                 if horizontalSizeClass == .compact {
 //                    NavigationStack {
                         if (client.loggedIn) {
-                            if (client.navigation?.selectedTab==0) {
+                            switch client.navigation?.selectedTab {
+                            case 0:
                                 NavigationStack {
-                                    FeedPage(client: client)
+                                    FeedPage(client: client, feedPosts: feedPosts)
                                 }
-                            }
-                            if (client.navigation?.selectedTab==1) {
+                            case 1:
                                 NavigationStack {
                                     CreatePost(client: client)
                                 }
-                            }
-                            if (client.navigation?.selectedTab==2) {
+                            case 2:
                                 NavigationStack {
-                                    SideBarNavigation(client: client)
+                                    SideBarNavigation(client: client, feedPosts: feedPosts)
                                 }
-                            }
-                            if (client.navigation?.selectedTab==3) {
+                            case 3:
                                 NavigationStack {
                                     DevModeView(client: client)
                                 }
-                            }
-                            if (client.navigation?.selectedTab==4) {
+                            case 4:
                                 NavigationStack {
                                     LiveChatView(client: client)
                                 }
-                            }
-                            if (client.navigation?.selectedTab==5) {
+                            case 5:
                                 NavigationStack {
                                     SearchView(client: client)
+                                }
+                            default:
+                                NavigationStack {
+                                    BeginPage(client: client)
                                 }
                             }
                         } else {
@@ -69,13 +69,12 @@ struct ContentView: View {
                                 BeginPage(client: client)
                             }
                         }
-//                    }
                 }
 #endif
                 VStack {
 #if os(iOS)
                     if horizontalSizeClass != .compact {
-                        SideBarNavigation(client: client)
+                        SideBarNavigation(client: client, feedPosts: feedPosts)
                     }
 #endif
 #if os(macOS)
@@ -83,11 +82,12 @@ struct ContentView: View {
 #endif
 #if os(visionOS)
                     SideBarNavigation(client: client)
+                    
                     if (client.serverOffline == true) {
                         ServerStatusOffline(client: client)
                     } else if (client.loggedIn) {
                         NavigationStack {
-                            FeedPage(client: client)
+                            FeedPage(client: client, feedPosts: feedPosts)
                         }
                     } else {
                         NavigationStack {
@@ -107,7 +107,7 @@ struct ContentView: View {
                     ServerStatusOffline(client: client)
                 } else if (client.loggedIn) {
                     NavigationStack {
-                        FeedPage(client: client)
+                        FeedPage(client: client, feedPosts: feedPosts)
                     }
                 } else {
                     NavigationStack {
@@ -141,8 +141,8 @@ struct ContentView: View {
 #endif
         .onAppear {
             print("serveroffline \(client.serverOffline)")
-            print ("devMode: \(devMode!)")
-            print ("page: \(currentNavigation?.selectedTab ?? -1)")
+            print ("devMode: \(client.devMode!)")
+            print ("page: \(client.navigation?.selectedTab ?? -1)")
         }
     }
 }
@@ -247,14 +247,15 @@ struct NotificationView: View {
 
 struct SideBarNavigation: View {
     @ObservedObject var client: ApiClient
-    
+    @ObservedObject var feedPosts: FeedPosts
+
     var body: some View {
         List {
             // when user is logged in
             if (client.loggedIn) {
                 VStack {
                     NavigationLink {
-                        FeedPage(client: client)
+                        FeedPage(client: client, feedPosts: feedPosts)
                     } label: {
                         Text("Feed")
                     }

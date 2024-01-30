@@ -9,12 +9,13 @@ import Foundation
 import SwiftUI
 
 class FeedPosts: ObservableObject {
-    @ObservedObject var client: ApiClient
+//    @ObservedObject var client: ApiClient
+    let client: ApiClient
 
     @Published var feed: FeedV2Data = FeedV2Data(amount: 0, posts: [])
     @Published var posts: [AllPosts] = []
     @Published var loadingScroll: Bool = false
-    @Published var isLoading: Bool = true
+    @Published @MainActor var isLoading: Bool = true
 
     init(client: ApiClient) {
         self.client = client
@@ -27,14 +28,12 @@ class FeedPosts: ObservableObject {
                 
                 switch result {
                 case .success(let feed):
-                    self.feed = feed
-                    self.posts = self.feed.posts
-                    print("Done")
-                    // Notify SwiftUI about the change
                     DispatchQueue.main.async {
-                        self.isLoading = false
 
-                        self.objectWillChange.send()
+                        self.feed = feed
+                        self.posts = self.feed.posts
+                        print("Done")
+                        self.isLoading = false
                     }
 
                     print("Feed refreshed successfully.")
@@ -48,22 +47,22 @@ class FeedPosts: ObservableObject {
     
     func refreshFeed() -> Void {
         DispatchQueue.main.async {
-            
             self.client.posts.getUserFeed(userTokens: self.client.userTokens) { result in
                 self.client.hapticPress()
                 
                 switch result {
                 case .success(let feedData):
-                    self.feed = feedData
-                    self.posts = self.feed.posts
-                    // Notify SwiftUI about the change
-                    self.objectWillChange.send()
+                    DispatchQueue.main.async {
+                        self.feed = feedData
+                        self.posts = self.feed.posts
+                    }
                 case .failure(let error):
                     print("Error: \(error.localizedDescription)")
                 }
             }
         }
     }
+    
     func nextIndex() -> Void {
         DispatchQueue.main.async {
             self.client.posts.getUserFeedIndex(userTokens: self.client.userTokens, index: self.feed.prevIndexID ?? "") { result in
@@ -71,11 +70,11 @@ class FeedPosts: ObservableObject {
                 
                 switch result {
                 case .success(let feed):
-                    self.feed = feed
-                    self.posts += self.feed.posts
-                    self.loadingScroll = false
-                    // Notify SwiftUI about the change
-                    self.objectWillChange.send()
+                    DispatchQueue.main.async {
+                        self.feed = feed
+                        self.posts += self.feed.posts
+                        self.loadingScroll = false
+                    }
                 case .failure(let error):
                     print("Error: \(error.localizedDescription)")
                 }
@@ -136,8 +135,9 @@ struct PostCreateContent: Encodable {
     var content: String
     var replyingPostID: String? = nil
     var quoteReplyPostID: String? = nil
+    var linkedPollID: String? = nil
+    var coposters: [String]? = nil
 }
-
 
 struct FeedV2Data: Decodable {
     var nextIndexID: String? = nil
@@ -202,28 +202,6 @@ struct PollOptions: Decodable, Encodable, Identifiable {
         case currentIndexID
 //        case amountVoted
     }
-}
-
-struct PollData: Decodable, Encodable {
-    var _id: String
-    var timestamp: Int64?
-    var userID: String?
-    var postID: String?
-    var timestampEnding: Int64?
-    var lastEdited: Int64?
-    var pollName: String?
-    var pollOptions: [PollOptions]?
-}
-
-struct VoteData: Decodable, Encodable {
-    var _id: String
-    var _version: Int16?
-    var pollID: String?
-    var userID: String?
-    var lastEdited: Int64?
-    var timestamp: Int64?
-    var pollIndexID: String?
-    var pollOptionID: String?
 }
 
 struct ExtraData: Decodable, Encodable {
@@ -328,7 +306,6 @@ struct PostEditSchema: Decodable {
     var userID: String?
     var edits: [PostEditContent]
 }
-
 
 struct PostUnbookmarkRes: Decodable {
     var success: Bool

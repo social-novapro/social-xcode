@@ -30,8 +30,6 @@ struct PostPreView: View {
             ReplyParentPostView(client: client, feedData: $feedData)
         }
             VStack {
-                TextField("Content", text: $feedData.postData.content ?? "")
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
                 if (self.postExtraData.deleted) {
                     HStack {
                         Text("This post was deleted.")
@@ -62,7 +60,7 @@ struct PostPreView: View {
                 }
             }
             .navigationDestination(isPresented: $postExtraData.showPostPage) {
-                PostView(client: client, feedData: $feedData)
+                PostView(client: client, feedData: $feedData, postExtraData: $postExtraData)
             }
             .onAppear {
                 postExtraData.showData = true;
@@ -186,8 +184,8 @@ struct PostPreviewView: View {
                 VStack {
                     if (feedData.pollData != nil) {
                         Divider()
-//                        PollView(
-//                            pollData: feedData.pollData ?? PollData(_id: ""), voteOption: feedData.voteData?.pollOptionID ?? "")
+                        PollView(client: client,
+                            pollData: feedData.pollData ?? PollData(_id: ""), voteOption: feedData.voteData?.pollOptionID ?? "")
                     }
                 }
             }

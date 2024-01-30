@@ -58,7 +58,7 @@ struct BeginPage: View {
             } else {
                 UserView(client: client)
                 LogoutView(client: client)
-                FeedPage(client: client)
+//                FeedPage(client: client, feedPosts: feedPosts)
             }
         }
         .navigationTitle("Welcome")
