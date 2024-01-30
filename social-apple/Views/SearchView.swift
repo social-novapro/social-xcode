@@ -11,18 +11,19 @@ struct SearchView: View {
     @ObservedObject var client: ApiClient
     @State var searchText:String = ""
     @State var foundData: Bool = false
-    @State var searchData: SearchFoundData?
+    @State var searchData: SearchFoundData = SearchFoundData(usersFound: [], postsFound: [])
+    @State var foundPosts: [AllPosts] = []
     
     var body: some View {
         VStack {
             if (foundData == true) {
                 ScrollView {
-                    ForEach (searchData?.usersFound ?? []) { user in
+                    ForEach (searchData.usersFound ?? []) { user in
                         userPreview(client: client, userData: user)
                             .padding(10)
                     }
-                    ForEach (searchData?.postsFound ?? []) { post in
-                        PostPreView(client: client, feedDataIn: post)
+                    ForEach ($foundPosts) { $post in
+                        PostPreView(client: client, feedData: $post)
                             .padding(10)
                     }
                 }
@@ -44,20 +45,12 @@ struct SearchView: View {
                 
                 switch result {
                 case .success(let results):
-//                    if (results.postsFound == nil && results.usersFound == nil) {
-//                        return
-//                    }
-//                    if (results.postsFound?[0] == nil && results.usersFound?[0] == nil) {
-//                        return;
-//                    }
                     if (newValue != searchText) {
                         print("canceled " + newValue)
-                        // cancel old results
                         return;
                     } else {
-                        
                         self.searchData = results
-    //                    if (searchData)
+                        self.foundPosts = results.postsFound ?? []
                         print("Done")
                         self.foundData = true
                     }

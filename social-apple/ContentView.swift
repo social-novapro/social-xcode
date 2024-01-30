@@ -83,6 +83,17 @@ struct ContentView: View {
 #endif
 #if os(visionOS)
                     SideBarNavigation(client: client)
+                    if (client.serverOffline == true) {
+                        ServerStatusOffline(client: client)
+                    } else if (client.loggedIn) {
+                        NavigationStack {
+                            FeedPage(client: client)
+                        }
+                    } else {
+                        NavigationStack {
+                            BeginPage(client: client)
+                        }
+                    }
 #endif
                 }
             }

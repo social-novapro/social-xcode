@@ -57,6 +57,7 @@
 		657519132B54DA6400C3EC5E /* HapticPress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657519122B54DA6400C3EC5E /* HapticPress.swift */; };
 		659B62EA2B2BBE4800CF2FA4 /* LocalLogsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659B62E92B2BBE4800CF2FA4 /* LocalLogsHandler.swift */; };
 		659B62EC2B2BBE5600CF2FA4 /* LocalLogData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659B62EB2B2BBE5600CF2FA4 /* LocalLogData.swift */; };
+		65AAB0482B682E5A00D4AEBB /* PostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AAB0472B682E5A00D4AEBB /* PostView.swift */; };
 		65DA82BB2B1D2041008509E2 /* CreateUserPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DA82BA2B1D2041008509E2 /* CreateUserPage.swift */; };
 		65DA82BD2B1D236F008509E2 /* TimeFormater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DA82BC2B1D236F008509E2 /* TimeFormater.swift */; };
 		65DC09472B300EE1004B5865 /* MyAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DC09462B300EE1004B5865 /* MyAppDelegate.swift */; };
@@ -119,6 +120,7 @@
 		657519122B54DA6400C3EC5E /* HapticPress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticPress.swift; sourceTree = "<group>"; };
 		659B62E92B2BBE4800CF2FA4 /* LocalLogsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLogsHandler.swift; sourceTree = "<group>"; };
 		659B62EB2B2BBE5600CF2FA4 /* LocalLogData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLogData.swift; sourceTree = "<group>"; };
+		65AAB0472B682E5A00D4AEBB /* PostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostView.swift; sourceTree = "<group>"; };
 		65DA82BA2B1D2041008509E2 /* CreateUserPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserPage.swift; sourceTree = "<group>"; };
 		65DA82BC2B1D236F008509E2 /* TimeFormater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TimeFormater.swift; path = ../../../../TimeFormater.swift; sourceTree = "<group>"; };
 		65DC09462B300EE1004B5865 /* MyAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyAppDelegate.swift; sourceTree = "<group>"; };
@@ -264,6 +266,7 @@
 				65EB34042B564703000C3BED /* ServerStatusOffline.swift */,
 				651553D42B5785F100DF3353 /* DeveloperSettingsView.swift */,
 				656362FC2B5892F700AF42F1 /* AccountsView.swift */,
+				65AAB0472B682E5A00D4AEBB /* PostView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -404,6 +407,7 @@
 				651757EA2A006D4600E90FBA /* Graph.swift in Sources */,
 				656362FD2B5892F700AF42F1 /* AccountsView.swift in Sources */,
 				655AB63029F19B0A00C61F3A /* ErrorData.swift in Sources */,
+				65AAB0482B682E5A00D4AEBB /* PostView.swift in Sources */,
 				6516E5A12B0AE935008A84E4 /* Users.swift in Sources */,
 				655AB62A29F080CB00C61F3A /* UserView.swift in Sources */,
 				651757E129FB816F00E90FBA /* social_apple.xcdatamodeld in Sources */,

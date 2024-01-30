@@ -9,155 +9,46 @@ import SwiftUI
 
 struct PostPreView: View {
     @ObservedObject var client: ApiClient
-    @State var feedDataIn: AllPosts
-    @State var feedData: AllPosts?
-    @State var showData: Bool = false
-    @State private var isActive:Bool = false
-    @State var postIsLiked:Bool = false
-    @State var actionExpanded:Bool = false
-    @State private var isSpecificPageActive = false
-    @State var activeAction: Int32 = 0
-    @State var showingPopover: Bool = false
-    @State var isOwner: Bool = false;
-    @State var deleted: Bool = false
-
-    
-    /*
-     0=none
-     1=reply
-     2=quote
-     3=showing reply parent
-     4=delete post
-     5=edit post
-     */
+    @Binding var feedData: AllPosts
+        
+    @State var postExtraData: PostExtraData = PostExtraData(
+        showData: false,
+        isActive: false,
+        isOwner: false,
+        deleted: false,
+        postIsLiked: false,
+        actionExpanded: false,
+        isSpecificPageActive: false,
+        activeAction: 0,
+        showingPopover: false,
+        showPostPage: false,
+        subAction: 0
+    )
     
     var body: some View {
-        if (self.activeAction==3) {
+        if (self.postExtraData.activeAction==3) {
             ReplyParentPostView(client: client, feedData: $feedData)
         }
             VStack {
-                if (self.deleted) {
+                TextField("Content", text: $feedData.postData.content ?? "")
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                if (self.postExtraData.deleted) {
                     HStack {
                         Text("This post was deleted.")
                         Spacer()
                     }
                 }
-                else if showData {
-                    VStack {
-                        if (feedData?.postData.isReply == true) {
-                            Button(action: {
-                                client.hapticPress()
-                                withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
-                                    if (self.activeAction == 3) {
-                                        self.activeAction = 0
-                                    } else {
-                                        self.activeAction = 3
-                                    }
-                                }
-                            }) {
-                                HStack {
-                                    if (self.activeAction == 3) {
-                                        Text("Click here to hide reply.")
-                                    } else {
-                                        Text("This is a reply, click here to view.")
-                                    }
-                                }
-                                .foregroundColor(.secondary)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .foregroundColor(.secondary)
-                        }
-                        if (self.feedData?.postData.edited==true) {
-                            HStack {
-                                Text("This post was edited...")
-                                        .italic()
-                            }
-                            .foregroundColor(.secondary)
-                        }
+                else if postExtraData.showData {
+                    Button(action: {
+                        client.hapticPress()
+                        self.postExtraData.showPostPage = true
+                        print("showing usuer?")
+                    }) {
                         VStack {
-                            Spacer()
-                            VStack {
-                                ProfilePostView(client: client, feedData: $feedData, isActive: $isActive, isSpecificPageActive: $isSpecificPageActive, isOwner: $isOwner)
-                            }
-                            Spacer()
-                            HStack {
-                                VStack {
-                                    Text(feedData!.postData.content!)
-                                        .foregroundColor(.secondary)
-                                        .lineLimit(100) // or set a specific number
-                                        .multilineTextAlignment(.leading) // or .center, .trailing
-                                }
-                                Spacer()
-                            }
-                            .background(client.devMode?.isEnabled == true ? Color.green : Color.clear)
-                            Spacer()
-// This is an extra long content that will totally look great on a large display with a small content area.
-                        }
-                        VStack {
-                            if (feedData?.quoteData != nil) {
-                                Divider()
-                                VStack {
-                                    if (feedData?.quoteData?.quotePost != nil) {
-                                        Spacer()
-                                        Button(action: {
-                                            client.hapticPress()
-                                            isActive=true
-                                            print ("showing usuer?")
-                                            // go to user
-                                        }) {
-                                            if (feedData?.quoteData?.quoteUser != nil) {
-                                                HStack {
-                                                    Text(feedData!.quoteData?.quoteUser?.displayName ?? "")
-                                                    Text("@\(feedData!.quoteData?.quoteUser?.username ?? "")")
-                                                    if (feedData!.userData?.verified != nil) {
-                                                        Image(systemName: "checkmark.seal.fill")
-                                                    }
-                                                    Spacer()
-                                                }
-                                            }
-                                        }
-                                        .buttonStyle(PlainButtonStyle())
-                                        Spacer()
-                                        VStack {
-                                            HStack {
-                                                Text(feedData?.quoteData?.quotePost?.content ?? "empty quote")
-                                                    .lineLimit(nil) // or set a specific number
-                                                    .multilineTextAlignment(.leading) // or .center, .trailing
-
-                                                Spacer()
-                                            }
-                                        }
-                                        .foregroundColor(.secondary)
-                                        .background(client.devMode?.isEnabled == true ? Color.green : Color.clear)
-                                        
-                                        Spacer()
-                                    }
-                                }
-                            }
-                            VStack {
-                                if (feedData?.pollData != nil) {
-                                    Divider()
-                                    PollView(
-                                        pollData: feedData?.pollData ?? PollData(_id: ""), voteOption: feedData?.voteData?.pollOptionID ?? "")
-                                }
-                            }
-                        }
-                        
-                        Spacer()
-                        
-                        HStack {
-                            Spacer()
-                            PostActionButtons(client: client, feedData: $feedData, activeAction: $activeAction, showingPopover: $showingPopover, actionExpanded: $actionExpanded, postIsLiked: $postIsLiked, isOwner: $isOwner, deleted: $deleted)
-                            Spacer()
-                        }
-                        Spacer()
-                        if (client.devMode?.isEnabled == true) {
-                            DevModePostView(feedData: $feedData)
-                            Spacer()
+                            PostPreviewView(client: client, feedData: $feedData, postExtraData: $postExtraData)
                         }
                     }
                 }
-                
                 else {
                     HStack {
                         Text("Unknown Error with Post Apperance. Try again later.")
@@ -165,21 +56,21 @@ struct PostPreView: View {
                     }
                 }
             }
-            .popover(isPresented: $showingPopover) {
+            .popover(isPresented: $postExtraData.showingPopover) {
                 NavigationView {
-                    PopoverPostAction(client: client, feedData: $feedData, activeAction: $activeAction, showingPopover: $showingPopover)
+                    PopoverPostAction(client: client, feedData: $feedData, postExtraData: $postExtraData)
                 }
             }
+            .navigationDestination(isPresented: $postExtraData.showPostPage) {
+                PostView(client: client, feedData: $feedData)
+            }
             .onAppear {
-                feedData = self.feedDataIn
-                if (feedData != nil) {
-                    showData = true;
-                    print ("showing")
-                    postIsLiked = feedData?.extraData.liked ?? false
-                    
-                    if (feedData?.postData.userID == client.userTokens.userID) {
-                        self.isOwner = true;
-                    }
+                postExtraData.showData = true;
+                print ("showing")
+                postExtraData.postIsLiked = feedData.extraData.liked ?? false
+                
+                if (feedData.postData.userID == client.userTokens.userID) {
+                    self.postExtraData.isOwner = true;
                 }
             }
             .padding(15)
@@ -189,29 +80,150 @@ struct PostPreView: View {
                 RoundedRectangle(cornerRadius: 20)
                     .stroke(Color.accentColor, lineWidth: 3)
             )
-            if (self.actionExpanded == true) {
-                ExpandedPostView(client: client, feedData: $feedData, actionExpanded: $actionExpanded)
-            }
+        if (self.postExtraData.actionExpanded == true) {
+            ExpandedPostView(client: client, feedData: $feedData, postExtraData: $postExtraData)
+        }
     }
 }
 
+struct PostPreviewView: View {
+    @ObservedObject var client: ApiClient
+    @Binding var feedData: AllPosts
+    @Binding var postExtraData: PostExtraData
+
+    var body: some View {
+        VStack {
+            if (feedData.postData.isReply == true) {
+                Button(action: {
+                    client.hapticPress()
+                    withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
+                        if (self.postExtraData.activeAction == 3) {
+                            self.postExtraData.activeAction = 0
+                        } else {
+                            self.postExtraData.activeAction = 3
+                        }
+                    }
+                }) {
+                    HStack {
+                        if (self.postExtraData.activeAction == 3) {
+                            Text("Click here to hide reply.")
+                        } else {
+                            Text("This is a reply, click here to view.")
+                        }
+                    }
+                    .foregroundColor(.secondary)
+                }
+                .buttonStyle(PlainButtonStyle())
+                .foregroundColor(.secondary)
+            }
+            if (self.feedData.postData.edited==true) {
+                HStack {
+                    Text("This post was edited...")
+                            .italic()
+                }
+                .foregroundColor(.secondary)
+            }
+            VStack {
+                Spacer()
+                VStack {
+                    ProfilePostView(client: client, feedData: $feedData, postExtraData: $postExtraData)
+                }
+                Spacer()
+                HStack {
+                    VStack {
+                        Text(feedData.postData.content!)
+                            .foregroundColor(.secondary)
+                            .lineLimit(100) // or set a specific number
+                            .multilineTextAlignment(.leading) // or .center, .trailing
+                    }
+                    Spacer()
+                }
+                .background(client.devMode?.isEnabled == true ? Color.green : Color.clear)
+                Spacer()
+// This is an extra long content that will totally look great on a large display with a small content area.
+            }
+            VStack {
+                if (feedData.quoteData != nil) {
+                    Divider()
+                    VStack {
+                        if (feedData.quoteData?.quotePost != nil) {
+                            Spacer()
+                            Button(action: {
+                                client.hapticPress()
+                                postExtraData.isActive=true
+                                print ("showing usuer?")
+                                // go to user
+                            }) {
+                                if (feedData.quoteData?.quoteUser != nil) {
+                                    HStack {
+                                        Text(feedData.quoteData?.quoteUser?.displayName ?? "")
+                                        Text("@\(feedData.quoteData?.quoteUser?.username ?? "")")
+                                        if (feedData.userData?.verified != nil) {
+                                            Image(systemName: "checkmark.seal.fill")
+                                        }
+                                        Spacer()
+                                    }
+                                }
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            Spacer()
+                            VStack {
+                                HStack {
+                                    Text(feedData.quoteData?.quotePost?.content ?? "empty quote")
+                                        .lineLimit(nil) // or set a specific number
+                                        .multilineTextAlignment(.leading) // or .center, .trailing
+
+                                    Spacer()
+                                }
+                            }
+                            .foregroundColor(.secondary)
+                            .background(client.devMode?.isEnabled == true ? Color.green : Color.clear)
+                            
+                            Spacer()
+                        }
+                    }
+                }
+                VStack {
+                    if (feedData.pollData != nil) {
+                        Divider()
+//                        PollView(
+//                            pollData: feedData.pollData ?? PollData(_id: ""), voteOption: feedData.voteData?.pollOptionID ?? "")
+                    }
+                }
+            }
+            
+            Spacer()
+            
+            HStack {
+                Spacer()
+                PostActionButtons(client: client, feedData: $feedData, postExtraData: $postExtraData)
+                Spacer()
+            }
+            Spacer()
+            if (client.devMode?.isEnabled == true) {
+                DevModePostView(feedData: $feedData)
+                Spacer()
+            }
+        }
+    }
+}
 struct ReplyParentPostView : View {
     @ObservedObject var client: ApiClient
-    @Binding var feedData: AllPosts?
+    @Binding var feedData: AllPosts
 
     var body : some View {
         VStack {
             HStack {
-                Text(feedData!.replyData?.replyUser?.displayName ?? "")
-                Text("@\(feedData!.replyData?.replyUser?.username ?? "")")
-                if (feedData!.replyData?.replyUser?.verified != nil) {
+                Text(feedData.replyData?.replyUser?.displayName ?? "")
+                Text("@\(feedData.replyData?.replyUser?.username ?? "")")
+                if (feedData.replyData?.replyUser?.verified != nil) {
                     Image(systemName: "checkmark.seal.fill")
                 }
                 Spacer()
             }
             VStack {
                 HStack {
-                    Text(feedData!.replyData?.replyPost?.content ?? "")
+                    Text(feedData.replyData?.replyPost?.content ?? "")
                         .foregroundColor(.secondary)
                         .lineLimit(100) // or set a specific number
                         .multilineTextAlignment(.leading) // or .center, .trailing
@@ -231,34 +243,33 @@ struct ReplyParentPostView : View {
 
 struct ProfilePostView: View {
     @ObservedObject var client: ApiClient
-    @Binding var feedData: AllPosts?
-    @Binding var isActive: Bool
-    @Binding var isSpecificPageActive: Bool
-    @Binding var isOwner: Bool
+    @Binding var feedData: AllPosts
+    @Binding var postExtraData: PostExtraData
+
     @State var profileShowing: Bool = false;
     
     var body: some View {
         VStack {
             Button(action: {
                 client.hapticPress()
-                isActive=true
+                postExtraData.isActive=true
                 profileShowing = true
-                self.isSpecificPageActive.toggle()
+                self.postExtraData.isSpecificPageActive.toggle()
                 print("showing usuer?")
             }) {
                 VStack {
                     HStack {
-                        Text(feedData!.userData?.displayName ?? "")
-                        Text("@\(feedData!.userData?.username ?? "")")
-                        if (feedData!.userData?.verified == true) {
+                        Text(feedData.userData?.displayName ?? "")
+                        Text("@\(feedData.userData?.username ?? "")")
+                        if (feedData.userData?.verified == true) {
                             Image(systemName: "checkmark.seal.fill")
                         }
                         Spacer()
                     }
-                    .foregroundColor(isOwner==true ? .accentColor : .primary)
+                    .foregroundColor(postExtraData.isOwner==true ? .accentColor : .primary)
                    
-                    if (self.feedData?.coposterData != nil) {
-                        ForEach(self.feedData!.coposterData ?? []) { coposter in
+                    if (self.feedData.coposterData != nil) {
+                        ForEach(self.feedData.coposterData ?? []) { coposter in
                             HStack {
                                 Text(coposter.displayName ?? "")
                                 Text("@\(coposter.username ?? "")")
@@ -272,64 +283,64 @@ struct ProfilePostView: View {
                     }
                         
                     HStack {
-                        Text(int64TimeFormatter(timestamp: feedData?.postData.timestamp ?? 0))
+                        Text(int64TimeFormatter(timestamp: feedData.postData.timestamp ?? 0))
                         Spacer()
                     }
-                    .foregroundColor(isOwner==true ? .accentColor : .primary)
+                    .foregroundColor(postExtraData.isOwner==true ? .accentColor : .primary)
                 }
                 .buttonStyle(PlainButtonStyle())
             }
             .buttonStyle(PlainButtonStyle())
             .onAppear {
-                print(self.feedData?.coposterData ?? "none")
+                print(self.feedData.coposterData ?? "none")
             }
             .navigationDestination(isPresented: $profileShowing) {
-                ProfileView(client: client, userData: feedData!.userData ?? nil)
+                ProfileView(client: client, userData: feedData.userData ?? nil)
             }
         }
     }
 }
 
 struct DevModePostView: View {
-    @Binding var feedData: AllPosts?
+    @Binding var feedData: AllPosts
     
     var body: some View {
         VStack {
             HStack {
-                Text("PostID: \(feedData?.postData._id ?? "xx")")
+                Text("PostID: \(feedData.postData._id)")
                 Spacer()
             }
             HStack {
-                Text("UserID: \(feedData?.userData?._id ?? "xx")")
+                Text("UserID: \(feedData.userData?._id ?? "xx")")
                 Spacer()
             }
 
-            if (feedData?.postData.indexID != nil) {
+            if (feedData.postData.indexID != nil) {
                 HStack {
-                    Text("Index: \(feedData?.postData.indexID ?? "xx")")
+                    Text("Index: \(feedData.postData.indexID ?? "xx")")
                     Spacer()
                 }
             }
             
-            if (feedData?.quoteData?.quoteUser != nil) {
+            if (feedData.quoteData?.quoteUser != nil) {
                 HStack {
-                    Text("Quoted UserID: \(feedData?.quoteData?.quoteUser?._id ?? "xx")")
+                    Text("Quoted UserID: \(feedData.quoteData?.quoteUser?._id ?? "xx")")
                     Spacer()
                 }
                 HStack {
-                    Text("Quoted PostID: \(feedData?.quoteData?.quotePost?._id ?? "xx")")
+                    Text("Quoted PostID: \(feedData.quoteData?.quotePost?._id ?? "xx")")
                     Spacer()
                 }
             }
             
-            if (feedData?.pollData != nil) {
+            if (feedData.pollData != nil) {
                 HStack {
-                    Text("PollID: \(feedData?.pollData?._id ?? "xx")")
+                    Text("PollID: \(feedData.pollData?._id ?? "xx")")
                     Spacer()
                 }
-                if (feedData?.voteData != nil) {
+                if (feedData.voteData != nil) {
                     HStack {
-                        Text("VoteID: \(feedData?.voteData?._id ?? "xx")")
+                        Text("VoteID: \(feedData.voteData?._id ?? "xx")")
                         Spacer()
                     }
                 }
@@ -340,24 +351,12 @@ struct DevModePostView: View {
 
 struct ExpandedPostView: View {
     @ObservedObject var client: ApiClient
-    @Binding var feedData: AllPosts?
-    @State var subAction: Int32 = 0 // inactive
-    @Binding var actionExpanded: Bool
+    @Binding var feedData: AllPosts
+    @Binding var postExtraData: PostExtraData
+
     @State var savedPost: Bool?
     @State var pinnedPost: Bool?
     
-    /*
-     * 0 = inactive
-     * 1 = edit history
-     * 2 = who liked
-     * 3 = replies
-     * 4 = quotes
-     */
-//    @State
-//    @Binding
-//    @State var editingPost: Bool = false
-//    @State var confirmDelete: Bool = false
-
     var body : some View {
         VStack {
             VStack {
@@ -365,7 +364,7 @@ struct ExpandedPostView: View {
                     Button(action: {
                         client.hapticPress()
                         withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
-                            actionExpanded=false;
+                            postExtraData.actionExpanded=false;
                         }
                     }) {
                         Text("Close Expanded Area")
@@ -386,7 +385,7 @@ struct ExpandedPostView: View {
                         client.hapticPress()
 
                         if (pinnedPost == true) {
-                            client.users.edit_pinsRemove(postID: self.feedData?.postData._id ?? "XX" ) { result in
+                            client.users.edit_pinsRemove(postID: self.feedData.postData._id) { result in
                                 switch result {
                                 case .success(_):
                                     self.pinnedPost = false
@@ -396,7 +395,7 @@ struct ExpandedPostView: View {
                                 }
                             }
                         } else {
-                            client.users.edit_pinsAdd(postID: self.feedData?.postData._id ?? "XX" ) { result in
+                            client.users.edit_pinsAdd(postID: self.feedData.postData._id) { result in
                                 switch result {
                                 case .success(_):
                                     self.pinnedPost = true
@@ -419,7 +418,7 @@ struct ExpandedPostView: View {
                 HStack {
                     Button(action: {
                         client.hapticPress()
-                        let bookmarkData = PostBookmarkReq(postID: self.feedData?.postData._id ?? "XX")
+                        let bookmarkData = PostBookmarkReq(postID: self.feedData.postData._id)
                         if (savedPost == true) {
                             client.posts.unsavePost(bookmarkData: bookmarkData) { result in
                                 switch result {
@@ -459,7 +458,7 @@ struct ExpandedPostView: View {
                 HStack {
                     Button(action: {
                         client.hapticPress()
-                        subAction=1;
+                        postExtraData.subAction=1;
                     }) {
                         Text("Check Edit History")
                     }
@@ -469,9 +468,7 @@ struct ExpandedPostView: View {
                 HStack {
                     Button(action: {
                         client.hapticPress()
-//                        withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
-                            subAction=2;
-//                        }
+                        postExtraData.subAction=2;
                     }) {
                         Text("Check Who Liked")
                     }
@@ -482,9 +479,7 @@ struct ExpandedPostView: View {
                 HStack {
                     Button(action: {
                         client.hapticPress()
-//                        withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
-                            subAction=3;
-//                        }
+                        postExtraData.subAction=3;
                     }) {
                         Text("Check Replies")
                     }
@@ -494,9 +489,7 @@ struct ExpandedPostView: View {
                 HStack {
                     Button(action: {
                         client.hapticPress()
-//                        withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
-                            subAction=4;
-//                        }
+                        postExtraData.subAction=4;
                     }) {
                         Text("Check Quotes")
                     }
@@ -512,31 +505,28 @@ struct ExpandedPostView: View {
                     .stroke(Color.accentColor, lineWidth: 3)
             )
             
-            if (subAction != 0) {
-                SubExpandedPostView(client: client, feedData: $feedData, subAction: $subAction, actionExpanded: $actionExpanded)
+            if (postExtraData.subAction != 0) {
+                SubExpandedPostView(client: client, feedData: $feedData, postExtraData: $postExtraData)
             }
         }
         .onAppear {
-            savedPost = self.feedData?.extraData.saved ?? false
-            pinnedPost = self.feedData?.extraData.pinned ?? false
+            savedPost = self.feedData.extraData.saved ?? false
+            pinnedPost = self.feedData.extraData.pinned ?? false
         }
     }
 }
 
 struct SubExpandedPostView: View {
     @ObservedObject var client: ApiClient
-    @Binding var feedData: AllPosts?
-    @Binding var subAction: Int32 // inactive
-    @Binding var actionExpanded: Bool
+    @Binding var feedData: AllPosts
+    @Binding var postExtraData: PostExtraData
 
     var body: some View {
         VStack {
             HStack {
                 Button(action: {
                     client.hapticPress()
-//                    withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
-                        subAction=0;
-//                    }
+                    postExtraData.subAction=0;
                 }) {
                     Text("Close Section")
                 }
@@ -545,17 +535,17 @@ struct SubExpandedPostView: View {
                 
             }
             Divider()
-            if (subAction == 1) {
-                PostViewEditHistory(client: client, postID: feedData?.postData._id ?? "xx")
-            } else if (subAction == 2) {
+            if (postExtraData.subAction == 1) {
+                PostViewEditHistory(client: client, postID: feedData.postData._id)
+            } else if (postExtraData.subAction == 2) {
                 Text("Likes")
-                PostViewLiked(client: client, postID: feedData?.postData._id ?? "xx")
-            } else if (subAction == 3) {
+                PostViewLiked(client: client, postID: feedData.postData._id)
+            } else if (postExtraData.subAction == 3) {
                 Text("Replies")
-                PostViewReplies(client: client, postID: feedData?.postData._id ?? "xx")
-            } else if (subAction == 4) {
+                PostViewReplies(client: client, postID: feedData.postData._id)
+            } else if (postExtraData.subAction == 4) {
                 Text("Quotes")
-                PostViewQuotes(client: client, postID: feedData?.postData._id ?? "xx")
+                PostViewQuotes(client: client, postID: feedData.postData._id)
             }
         }
         .padding(15)
@@ -784,13 +774,8 @@ struct PostViewQuotes: View {
 
 struct PostActionButtons: View {
     @ObservedObject var client: ApiClient
-    @Binding var feedData: AllPosts?
-    @Binding var activeAction: Int32
-    @Binding var showingPopover: Bool
-    @Binding var actionExpanded: Bool
-    @Binding var postIsLiked: Bool
-    @Binding var isOwner: Bool
-    @Binding var deleted: Bool
+    @Binding var feedData: AllPosts
+    @Binding var postExtraData: PostExtraData
     @State var deletePostConfirm: Bool = false;
 
     var body : some View {
@@ -798,24 +783,24 @@ struct PostActionButtons: View {
             VStack {
                 Button(action: {
                     client.hapticPress()
-                    if (self.postIsLiked == true) {
-                        client.posts.unlikePost(postID: feedData!.postData._id) { result in
+                    if (self.postExtraData.postIsLiked == true) {
+                        client.posts.unlikePost(postID: feedData.postData._id) { result in
                             switch result {
                             case .success(let newPostData):
-                                self.postIsLiked.toggle()
-                                self.feedData?.postData = newPostData
-                                self.feedData?.extraData.liked?.toggle()
+                                self.postExtraData.postIsLiked.toggle()
+                                self.feedData.postData = newPostData
+                                self.feedData.extraData.liked?.toggle()
                             case .failure(let error):
                                 print("Error: \(error.localizedDescription)")
                             }
                         }
                     } else {
-                        client.posts.likePost(postID: feedData!.postData._id) { result in
+                        client.posts.likePost(postID: feedData.postData._id) { result in
                             switch result {
                             case .success(let newPostData):
-                                self.postIsLiked.toggle()
-                                self.feedData?.postData = newPostData
-                                self.feedData?.extraData.liked?.toggle() 
+                                postExtraData.postIsLiked.toggle()
+                                feedData.postData = newPostData
+                                feedData.extraData.liked?.toggle()
                             case .failure(let error):
                                 print("Error: \(error.localizedDescription)")
                             }
@@ -823,17 +808,17 @@ struct PostActionButtons: View {
                     }
                 }) {
                     HStack {
-                        if (self.feedData?.postData.totalLikes ?? 0 != 0) {
-                            Text("\(self.feedData?.postData.totalLikes ?? 0)")
+                        if (self.feedData.postData.totalLikes ?? 0 != 0) {
+                            Text("\(self.feedData.postData.totalLikes ?? 0)")
                         }
-                        if (self.postIsLiked == true) {
+                        if (self.postExtraData.postIsLiked == true) {
                             Image(systemName: "heart.slash")
                         } else {
                             Image(systemName: "heart")
                         }
                     }
                     .padding(5)
-                    .foregroundColor(postIsLiked == true ? .accentColor : .secondary)
+                    .foregroundColor(postExtraData.postIsLiked == true ? .accentColor : .secondary)
                     .background(client.devMode?.isEnabled == true ? Color.blue : Color.clear)
                     .cornerRadius(10)
                 }
@@ -844,12 +829,12 @@ struct PostActionButtons: View {
                 Button(action: {
                     client.hapticPress()
                     print("reply button")
-                    self.activeAction = 1
-                    self.showingPopover = true
+                    self.postExtraData.activeAction = 1
+                    self.postExtraData.showingPopover = true
                 }) {
                     HStack {
-                        if (self.feedData?.postData.totalReplies ?? 0 != 0) {
-                            Text("\(self.feedData?.postData.totalReplies ?? 0)")
+                        if (self.feedData.postData.totalReplies ?? 0 != 0) {
+                            Text("\(self.feedData.postData.totalReplies ?? 0)")
                         }
                         Image(systemName: "arrowshape.turn.up.left")
                     }
@@ -865,12 +850,12 @@ struct PostActionButtons: View {
                 Button(action: {
                     client.hapticPress()
                     print("quote button")
-                    self.activeAction = 2
-                    self.showingPopover = true
+                    self.postExtraData.activeAction = 2
+                    self.postExtraData.showingPopover = true
                 }) {
                     HStack {
-                        if (self.feedData?.postData.totalQuotes ?? 0 != 0) {
-                            Text("\(self.feedData?.postData.totalQuotes ?? 0)")
+                        if (self.feedData.postData.totalQuotes ?? 0 != 0) {
+                            Text("\(self.feedData.postData.totalQuotes ?? 0)")
                         }
                         Image(systemName: "quote.closing")
                     }
@@ -887,11 +872,11 @@ struct PostActionButtons: View {
                     client.hapticPress()
                     print("action")
                     withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
-                        self.actionExpanded.toggle()
+                        self.postExtraData.actionExpanded.toggle()
                     }
                 }) {
                     HStack {
-                        if (self.actionExpanded == true) {
+                        if (self.postExtraData.actionExpanded == true) {
                             Image(systemName: "chevron.up")
                         } else {
                             Image(systemName: "chevron.down")
@@ -907,11 +892,11 @@ struct PostActionButtons: View {
             
             Spacer()
 
-            if (isOwner==true) {
+            if (postExtraData.isOwner==true) {
                 VStack {
                     Button(action: {
                         client.hapticPress()
-                        self.activeAction = 4
+                        self.postExtraData.activeAction = 4
                         self.deletePostConfirm = true
                     }) {
                         HStack {
@@ -929,25 +914,25 @@ struct PostActionButtons: View {
                             print("pretend delete")
                             self.deletePostConfirm = false
                             
-                            client.posts.deletePost(postID: feedData?.postData._id ?? "") { result in
+                            client.posts.deletePost(postID: feedData.postData._id) { result in
                                 print("api rquest login:")
                                 switch result {
                                 case .success(let res):
                                     if (res.deleted) {
-                                        self.deleted = true
+                                        self.postExtraData.deleted = true
                                     }
                                 case .failure(let error):
-                                    self.deleted = false
+                                    self.postExtraData.deleted = false
                                     print("Error: \(error.localizedDescription)")
                                 }
                             }
 
-                            self.deleted = true;
+                            self.postExtraData.deleted = true;
                         }
                         .foregroundColor(.red)
                         Button("Cancel", role: .cancel) {
                             client.hapticPress()
-                            self.deleted = false
+                            self.postExtraData.deleted = false
                         }
                     } message: {
                         Text("Confirm Post Deletion")
@@ -960,9 +945,9 @@ struct PostActionButtons: View {
 
 struct PopoverPostAction: View {
     @ObservedObject var client: ApiClient
-    @Binding var feedData: AllPosts?
-    @Binding var activeAction: Int32
-    @Binding var showingPopover: Bool
+    @Binding var feedData: AllPosts
+    @Binding var postExtraData: PostExtraData
+
     @State var newPost:PostData?
     @State private var content: String = ""
     @State var sending: Bool = false
@@ -971,9 +956,9 @@ struct PopoverPostAction: View {
 
     var body : some View {
         VStack {
-            if (self.activeAction==1) {
+            if (self.postExtraData.activeAction==1) {
                 Text("Relplying to Post")
-            } else if (self.activeAction==2) {
+            } else if (self.postExtraData.activeAction==2) {
                 Text("Quoting Post")
             }
             if sending==true {
@@ -992,15 +977,15 @@ struct PopoverPostAction: View {
             }
             VStack {
                 HStack {
-                    Text(feedData!.userData?.displayName ?? "")
-                    Text("@\(feedData!.userData?.username ?? "")")
-                    if (feedData!.userData?.verified != nil) {
+                    Text(feedData.userData?.displayName ?? "")
+                    Text("@\(feedData.userData?.username ?? "")")
+                    if (feedData.userData?.verified != nil) {
                         Image(systemName: "checkmark.seal.fill")
                     }
                     Spacer()
                 }
                 VStack {
-                    Text(feedData!.postData.content ?? "")
+                    Text(feedData.postData.content ?? "")
                 }
             }
             .padding(15)
@@ -1010,8 +995,6 @@ struct PopoverPostAction: View {
                 RoundedRectangle(cornerRadius: 20)
                     .stroke(Color.accentColor, lineWidth: 3)
             )
-
-//            Spacer()
             
             VStack {
                 TextField("Content", text: $content)
@@ -1022,10 +1005,10 @@ struct PopoverPostAction: View {
                     var postCreateContent = PostCreateContent(userID: client.userTokens.userID, content: self.content)
                     print(postCreateContent)
                     
-                    if (self.activeAction == 1) {
-                        postCreateContent.replyingPostID = self.feedData!.postData._id
-                    } else if (self.activeAction == 2) {
-                        postCreateContent.quoteReplyPostID = self.feedData!.postData._id
+                    if (self.postExtraData.activeAction == 1) {
+                        postCreateContent.replyingPostID = self.feedData.postData._id
+                    } else if (self.postExtraData.activeAction == 2) {
+                        postCreateContent.quoteReplyPostID = self.feedData.postData._id
                     }
                     
                     print(postCreateContent)
@@ -1058,26 +1041,26 @@ struct PopoverPostAction: View {
 
         }
         .padding(10)
-        .navigationTitle(self.activeAction==1 ? "Reply" : self.activeAction==2 ? "Quote" : "Unknown Action")
+        .navigationTitle(self.postExtraData.activeAction==1 ? "Reply" : self.postExtraData.activeAction==2 ? "Quote" : "Unknown Action")
     }
 }
 
 struct BasicPostView: View {
     @ObservedObject var client: ApiClient
-    @Binding var feedData: AllPosts?
+    @Binding var feedData: AllPosts
 
     var body: some View {
         VStack {
             HStack {
-                Text(feedData!.userData?.displayName ?? "")
-                Text("@\(feedData!.userData?.username ?? "")")
-                if (feedData!.userData?.verified != nil) {
+                Text(feedData.userData?.displayName ?? "")
+                Text("@\(feedData.userData?.username ?? "")")
+                if (feedData.userData?.verified != nil) {
                     Image(systemName: "checkmark.seal.fill")
                 }
                 Spacer()
             }
             VStack {
-                Text(feedData!.postData.content ?? "")
+                Text(feedData.postData.content ?? "")
             }
         }
     }
@@ -1089,4 +1072,11 @@ struct PostUserArea: View {
     var body: some View {
         Text("hi")
     }
+}
+
+func ??<T>(lhs: Binding<Optional<T>>, rhs: T) -> Binding<T> {
+    Binding(
+        get: { lhs.wrappedValue ?? rhs },
+        set: { lhs.wrappedValue = $0 }
+    )
 }

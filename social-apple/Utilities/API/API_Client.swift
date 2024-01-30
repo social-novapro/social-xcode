@@ -20,7 +20,7 @@ class ApiClient: ObservableObject {
     var livechatWS: LiveChatWebSocket
     
     var apiHelper: API_Helper
-
+    
     @Published var loggedIn:Bool = false
     @Published var serverOffline: Bool = false
     
@@ -77,8 +77,8 @@ class ApiClient: ObservableObject {
                 }
             }
         }
-        self.checkServerStatus()
         
+        self.checkServerStatus()
     }
     
     func hasTokens() {
@@ -86,9 +86,8 @@ class ApiClient: ObservableObject {
     }
     
     func logout() {
-        self.userTokenManager.deleteUserToken()
-        self.loggedIn = false
         DispatchQueue.main.async {
+            self.userTokenManager.deleteUserToken()
             self.loggedIn = false
         }
     }
@@ -96,25 +95,25 @@ class ApiClient: ObservableObject {
     func provideTokens(userLoginResponse: UserLoginResponse) {
         /* sets up tokens */
         print("Providing tokens")
-        self.userTokens = UserTokenData(
-            accessToken: userLoginResponse.accessToken,
-            userToken: userLoginResponse.userToken,
-            userID: userLoginResponse.userID
-        )
-        
-        self.userTokenManager.saveUserTokens(userTokenData: userTokens)
-        
-        self.auth = AuthApi(userTokensProv: self.userTokens)
-        self.notifications = NotificationsApi(userTokensProv: self.userTokens)
-        self.posts = PostsApi(userTokensProv: self.userTokens)
-        self.users = UsersApi(userTokensProv: self.userTokens)
-        self.get = GetApi(userTokensProv: self.userTokens)
-        self.developer = DeveloperApi(userTokensProv: self.userTokens)
-
-        self.apiHelper = API_Helper(userTokensProv: self.userTokens)
-        self.livechatWS = LiveChatWebSocket(baseURL: apiHelper.baseAPIurl, userTokensProv: self.userTokens)
-
         DispatchQueue.main.async {
+                self.userTokens = UserTokenData(
+                accessToken: userLoginResponse.accessToken,
+                userToken: userLoginResponse.userToken,
+                userID: userLoginResponse.userID
+            )
+            
+            self.userTokenManager.saveUserTokens(userTokenData: self.userTokens)
+            
+            self.auth = AuthApi(userTokensProv: self.userTokens)
+            self.notifications = NotificationsApi(userTokensProv: self.userTokens)
+            self.posts = PostsApi(userTokensProv: self.userTokens)
+            self.users = UsersApi(userTokensProv: self.userTokens)
+            self.get = GetApi(userTokensProv: self.userTokens)
+            self.developer = DeveloperApi(userTokensProv: self.userTokens)
+            
+            self.apiHelper = API_Helper(userTokensProv: self.userTokens)
+            self.livechatWS = LiveChatWebSocket(baseURL: self.apiHelper.baseAPIurl, userTokensProv: self.userTokens)
+            
             self.loggedIn = true
         }
     }

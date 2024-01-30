@@ -9,36 +9,56 @@ import SwiftUI
 
 struct FeedPage: View {
     @ObservedObject var client: ApiClient
+    @ObservedObject var feedPosts: FeedPosts
+
     @State var userData: UserData?
-    @State var isLoading:Bool = true
-    
-    @State var feed: FeedV2Data?
     @State var writingPost: Bool = false
     @State var showProfile: Bool = false
-//    @State var allPosts: [AllPosts]? = []
-//    @State var originalPosts = [AllPosts]();
+    
+    init(client: ApiClient) {
+        self.client = client
+        self.feedPosts = FeedPosts(client: client)
+    }
     
     var body: some View {
         VStack {
-            if (!isLoading) {
-                childFeed(client: client, feedIn: $feed)
+            if (!feedPosts.isLoading) {
+                List {
+                    ForEach(self.feedPosts.posts.indices, id: \.self) { index in
+                        PostPreView(client: client, feedData: $feedPosts.posts[index])
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets())
+                            .padding(10)
+                            .onAppear(){
+                                if (self.feedPosts.posts.last?.id == feedPosts.posts[index].id && self.feedPosts.loadingScroll == false) {
+                                    client.hapticPress()
+                                    self.feedPosts.loadingScroll = true
+                                    
+                                    if (self.feedPosts.feed.prevIndexID != nil) {
+                                        DispatchQueue.main.async {
+                                            feedPosts.nextIndex()
+                                        }
+                                    }
+                                }
+                            }
+                    }
+                }
+                .listStyle(.plain)
+                .listRowSeparator(.hidden)
+                .refreshable {
+                    client.hapticPress()
+                    DispatchQueue.main.async {
+                        feedPosts.refreshFeed()
+                    }
+                }
             }
             else {
                 Text("loading feed")
             }
         }
         .onAppear {
-            client.posts.getUserFeed(userTokens: client.userTokens) { result in
-                print("allpost request")
-                
-                switch result {
-                case .success(let feed):
-                    self.feed = feed
-                    print("Done")
-                    self.isLoading = false
-                case .failure(let error):
-                    print("Error: \(error.localizedDescription)")
-                }
+            DispatchQueue.main.async {
+                self.feedPosts.getFeed()
             }
         }
         .navigationTitle("Feed")
@@ -76,85 +96,6 @@ struct FeedPage: View {
         .popover(isPresented: $showProfile) {
             NavigationView {
                 ProfileView(client: client, userData: client.userData)
-            }
-        }
-    }
-}
-
-struct childFeed: View {
-    @ObservedObject var client: ApiClient
-    
-    @Binding var feedIn: FeedV2Data?
-    @State var feed: FeedV2Data?
-    @State var allPosts: [AllPosts]?
-    @State var showData: Bool = false
-    @State var activePost: AllPosts?
-    @State var activeAction: Int32 = 0
-    @State var loadingScroll: Bool = false
-    
-    /*
-     0=none
-     1=reply
-     2=quote
-     3=share
-     */
-    
-    var body: some View {
-        VStack {
-            if showData {
-                List {
-                    ForEach(allPosts!) { post in
-                        PostPreView(client: client, feedDataIn: post)
-                            .listRowSeparator(.hidden)
-                            .listRowInsets(EdgeInsets())
-                            .padding(10)
-                            .onAppear(){
-                                if (self.feed!.posts.last == post && self.loadingScroll == false){
-                                    client.hapticPress()
-                                    self.loadingScroll = true
-                                    if (self.feed?.prevIndexID != nil) {
-                                        client.posts.getUserFeedIndex(userTokens: client.userTokens, index: self.feed?.prevIndexID ?? "") { result in
-                                            client.hapticPress()
-                                            switch result {
-                                            case .success(let feed):
-                                                self.feed = feed
-                                                self.allPosts! += feed.posts
-                                                self.loadingScroll = false
-                                            case .failure(let error):
-                                                print("Error: \(error.localizedDescription)")
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                    }
-                }
-                .refreshable {
-                    client.hapticPress()
-                    client.posts.getUserFeed(userTokens: client.userTokens) { result in
-                        client.hapticPress()
-                        switch result {
-                        case .success(let feedData):
-                            self.feed = feedData
-                            self.allPosts = feed!.posts
-                        case .failure(let error):
-                            print("Error: \(error.localizedDescription)")
-                        }
-                    }
-               }
-                .listStyle(.plain)
-                .listRowSeparator(.hidden)
-            }
-            else {
-                Text("Loading")
-            }
-        }
-        .onAppear {
-            self.feed = self.feedIn
-            self.allPosts = feed!.posts
-            if (feed != nil) {
-                showData = true;
-                print ("showing? why is it so many times")
             }
         }
     }

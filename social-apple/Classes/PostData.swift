@@ -6,6 +6,83 @@
 //
 
 import Foundation
+import SwiftUI
+
+class FeedPosts: ObservableObject {
+    @ObservedObject var client: ApiClient
+
+    @Published var feed: FeedV2Data = FeedV2Data(amount: 0, posts: [])
+    @Published var posts: [AllPosts] = []
+    @Published var loadingScroll: Bool = false
+    @Published var isLoading: Bool = true
+
+    init(client: ApiClient) {
+        self.client = client
+    }
+
+    func getFeed() {
+        DispatchQueue.main.async {
+            self.client.posts.getUserFeed(userTokens: self.client.userTokens) { result in
+                print("allpost request")
+                
+                switch result {
+                case .success(let feed):
+                    self.feed = feed
+                    self.posts = self.feed.posts
+                    print("Done")
+                    // Notify SwiftUI about the change
+                    DispatchQueue.main.async {
+                        self.isLoading = false
+
+                        self.objectWillChange.send()
+                    }
+
+                    print("Feed refreshed successfully.")
+
+                case .failure(let error):
+                    print("Error: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    func refreshFeed() -> Void {
+        DispatchQueue.main.async {
+            
+            self.client.posts.getUserFeed(userTokens: self.client.userTokens) { result in
+                self.client.hapticPress()
+                
+                switch result {
+                case .success(let feedData):
+                    self.feed = feedData
+                    self.posts = self.feed.posts
+                    // Notify SwiftUI about the change
+                    self.objectWillChange.send()
+                case .failure(let error):
+                    print("Error: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    func nextIndex() -> Void {
+        DispatchQueue.main.async {
+            self.client.posts.getUserFeedIndex(userTokens: self.client.userTokens, index: self.feed.prevIndexID ?? "") { result in
+                self.client.hapticPress()
+                
+                switch result {
+                case .success(let feed):
+                    self.feed = feed
+                    self.posts += self.feed.posts
+                    self.loadingScroll = false
+                    // Notify SwiftUI about the change
+                    self.objectWillChange.send()
+                case .failure(let error):
+                    print("Error: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+}
 
 struct PostData: Decodable, Encodable, Identifiable {
     var id = UUID()
@@ -63,7 +140,6 @@ struct PostCreateContent: Encodable {
 
 
 struct FeedV2Data: Decodable {
-//    var _id: String
     var nextIndexID: String? = nil
     var prevIndexID: String? = nil
     var amount: Int64
@@ -126,13 +202,6 @@ struct PollOptions: Decodable, Encodable, Identifiable {
         case currentIndexID
 //        case amountVoted
     }
-    /*
-     _id: nonreqString, // pollOptionID
-     optionTitle: nonreqString,
-     timestamp: nonreqNum, // time added option (maybe can add option later)
-     currentIndexID: nonreqString, // pollVoteIndexID (changes)
-     amountVoted: nonreqNum // amount of votes
-     */
 }
 
 struct PollData: Decodable, Encodable {
@@ -290,4 +359,34 @@ struct PostBookmarksPostsSchema: Decodable {
     var _id:String
     var bookmarkList: String?
     var timestamp: Int64?
+}
+
+struct PostExtraData: Observable {
+    var showData: Bool
+    var isActive: Bool
+    var isOwner: Bool
+    var deleted: Bool
+    var postIsLiked: Bool
+    var actionExpanded: Bool
+    var isSpecificPageActive: Bool
+    var activeAction: Int32
+    /*
+     * 0 = none
+     * 1 = reply
+     * 2 = quote
+     * 3 = showing reply parent
+     * 4 = delete post
+     * 5 = edit post
+     */
+    
+    var showingPopover: Bool
+    var showPostPage: Bool
+    var subAction: Int32
+    /*
+     * 0 = inactive
+     * 1 = edit history
+     * 2 = who liked
+     * 3 = replies
+     * 4 = quotes
+     */
 }
