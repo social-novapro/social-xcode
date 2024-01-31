@@ -10,7 +10,6 @@ import SwiftUI
 struct PostView: View {
     @ObservedObject var client: ApiClient
     @Binding var feedData: AllPosts
-    @Binding var postExtraData: PostExtraData
     
     var body: some View {
         ScrollView {
@@ -20,15 +19,15 @@ struct PostView: View {
                 }
                 
                 VStack {
-                    if (self.postExtraData.deleted) {
+                    if (self.feedData.postLiveData.deleted == true) {
                         HStack {
                             Text("This post was deleted.")
                             Spacer()
                         }
                     }
-                    else if postExtraData.showData {
+                    else if (feedData.postLiveData.showData == true) {
                         VStack {
-                            PostPreviewView(client: client, feedData: $feedData, postExtraData: $postExtraData)
+                            PostPreviewView(client: client, feedData: $feedData)
                         }
                     }
                     else {
@@ -38,17 +37,16 @@ struct PostView: View {
                         }
                     }
                 }
-                .popover(isPresented: $postExtraData.showingPopover) {
+                .popover(isPresented: $feedData.postLiveData.showingPopover) {
                     NavigationView {
-                        PopoverPostAction(client: client, feedData: $feedData, postExtraData: $postExtraData)
+                        PopoverPostAction(client: client, feedData: $feedData)
                     }
                 }
                 .onAppear {
-                    postExtraData.showData = true;
-                    postExtraData.postIsLiked = feedData.extraData.liked ?? false
+                    feedData.postLiveData.showData = true;
                     
                     if (feedData.postData.userID == client.userTokens.userID) {
-                        self.postExtraData.isOwner = true;
+                        self.feedData.postLiveData.isOwner = true;
                     }
                 }
                 .padding(15)
@@ -56,11 +54,11 @@ struct PostView: View {
                 .cornerRadius(20)
                 .overlay(
                     RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.accentColor, lineWidth: 3)
+                        .stroke(Color.gray, lineWidth: 3)
                 )
                 
-                if (self.postExtraData.actionExpanded == true) {
-                    ExpandedPostView(client: client, feedData: $feedData, postExtraData: $postExtraData)
+                if (self.feedData.postLiveData.actionExpanded == true) {
+                    ExpandedPostView(client: client, feedData: $feedData)
                 }
                 
                 if (self.feedData.postData.totalReplies ?? 0 > 0) {

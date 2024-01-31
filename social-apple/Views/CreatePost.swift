@@ -21,7 +21,6 @@ struct CreatePost: View {
 
     var body: some View {
         VStack {
-//            Spacer()
             if sending==true {
                 HStack {
                     Text("Status: ")
@@ -29,8 +28,7 @@ struct CreatePost: View {
                         Text("Sent!")
                     } else {
                         if failed==true {
-                            Text("Failed to send!")
-                            Text(errorMsg)
+                            Text("Failed: " + errorMsg)
                         } else {
                             Text("Sending")
                         }
@@ -43,10 +41,16 @@ struct CreatePost: View {
                 
                 Button(action: {
                     client.hapticPress()
-                    var postCreateContent = PostCreateContent(userID: client.userTokens.userID, content: self.content)
-                    
-                    self.content = ""
                     self.sending = true
+
+                    var postCreateContent = PostCreateContent(userID: client.userTokens.userID, content: self.content)
+                    if (self.content == "" ) {
+                        self.failed = true
+                        self.errorMsg = "Please enter post content."
+                        return
+                    }
+
+                    self.content = ""
                     let dispatchGroup = DispatchGroup()
 
                     // create poll vist
@@ -63,7 +67,6 @@ struct CreatePost: View {
                                     print(newPoll)
                                     self.newPoll = newPoll.pollData
                                     pollID = self.newPoll?._id
-//                                    self.sent = true
                                     client.hapticPress()
                                     do {
                                         dispatchGroup.leave()

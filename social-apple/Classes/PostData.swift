@@ -16,6 +16,7 @@ class FeedPosts: ObservableObject {
     @Published var posts: [AllPosts] = []
     @Published var loadingScroll: Bool = false
     @Published @MainActor var isLoading: Bool = true
+    @Published var gotFeed: Bool = false
 
     init(client: ApiClient) {
         self.client = client
@@ -23,23 +24,49 @@ class FeedPosts: ObservableObject {
 
     func getFeed() {
         DispatchQueue.main.async {
+            if (self.gotFeed==true) {
+                return
+            }
             self.client.posts.getUserFeed(userTokens: self.client.userTokens) { result in
                 print("allpost request")
                 
                 switch result {
                 case .success(let feed):
                     DispatchQueue.main.async {
-
                         self.feed = feed
-                        self.posts = self.feed.posts
+                        self.addPosts(newPosts: self.feed.posts, toClear: true)
                         print("Done")
                         self.isLoading = false
+                        self.gotFeed = true
                     }
 
                     print("Feed refreshed successfully.")
 
                 case .failure(let error):
                     print("Error: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    func addPosts(newPosts: [AllPosts], toClear:Bool=false) -> Void {
+        DispatchQueue.main.async {
+            // due to new posts showing at bottom
+            // could change that and fix it needing to be clear
+            if (toClear==true) {
+                self.posts = []
+            }
+            
+            for var newPost in newPosts {
+                if newPost.postData.userID == self.client.userTokens.userID {
+                    newPost.postLiveData.isOwner = true
+                }
+                
+                if let existingIndex = self.posts.firstIndex(where: { $0.postData._id == newPost.postData._id }) {
+                    print("existing")
+                    self.posts[existingIndex] = newPost
+                } else {
+                    self.posts.append(newPost)
                 }
             }
         }
@@ -54,7 +81,7 @@ class FeedPosts: ObservableObject {
                 case .success(let feedData):
                     DispatchQueue.main.async {
                         self.feed = feedData
-                        self.posts = self.feed.posts
+                        self.addPosts(newPosts: self.feed.posts, toClear: true)
                     }
                 case .failure(let error):
                     print("Error: \(error.localizedDescription)")
@@ -72,7 +99,7 @@ class FeedPosts: ObservableObject {
                 case .success(let feed):
                     DispatchQueue.main.async {
                         self.feed = feed
-                        self.posts += self.feed.posts
+                        self.addPosts(newPosts: self.feed.posts, toClear: false)
                         self.loadingScroll = false
                     }
                 case .failure(let error):
@@ -147,7 +174,7 @@ struct FeedV2Data: Decodable {
     var posts: [AllPosts]
 }
 
-struct AllPosts: Decodable, Identifiable, Equatable {
+struct AllPosts: Observable, Decodable, Identifiable, Equatable {
     static func == (lhs: AllPosts, rhs: AllPosts) -> Bool {
         return (lhs.postData._id == rhs.postData._id)
     }
@@ -162,6 +189,7 @@ struct AllPosts: Decodable, Identifiable, Equatable {
     var voteData: VoteData? = nil
     var coposterData: [UserData]? = nil
     var extraData: ExtraData
+    var postLiveData: PostExtraData = PostExtraData()
     
     
     private enum CodingKeys: String, CodingKey {
@@ -339,14 +367,13 @@ struct PostBookmarksPostsSchema: Decodable {
 }
 
 struct PostExtraData: Observable {
-    var showData: Bool
-    var isActive: Bool
-    var isOwner: Bool
-    var deleted: Bool
-    var postIsLiked: Bool
-    var actionExpanded: Bool
-    var isSpecificPageActive: Bool
-    var activeAction: Int32
+    var showData: Bool = true
+    var isActive: Bool = false
+    var isOwner: Bool = false
+    var deleted: Bool = false
+    var actionExpanded: Bool = false
+    var isSpecificPageActive: Bool = false
+    var activeAction: Int32 = 0
     /*
      * 0 = none
      * 1 = reply
@@ -356,9 +383,9 @@ struct PostExtraData: Observable {
      * 5 = edit post
      */
     
-    var showingPopover: Bool
-    var showPostPage: Bool
-    var subAction: Int32
+    var showingPopover: Bool = false
+    var showPostPage: Bool = false
+    var subAction: Int32 = 0
     /*
      * 0 = inactive
      * 1 = edit history
