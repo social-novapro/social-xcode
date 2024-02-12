@@ -10,21 +10,19 @@ import Charts
 
 @available(macOS 14.0, *)
 struct Graph: View {
+    @ObservedObject var client: ApiClient
     @State var graphType:Int64? = nil
     @State var analytics: [AnalyticTrendDataPoint]?
     @State var functionData: AnalyticFunctionDataPoint?
     @State var dataLoaded: Bool = false
-    
-    let api_requests = API_Rquests()
-    
-    
+        
     var body: some View {
         VStack {
             if (dataLoaded == true) {
                 Text("\(functionData?.title ?? "Unknown Title")")
                 if #available(iOS 17, *) {
                     Chart {
-                        ForEach((functionData?.points!)!) { point in
+                        ForEach((functionData?.points) ?? []) { point in
                             BarMark(
                                 x: .value("Amounts", point.y ?? 0),
                                 y: .value("Days", point.x ?? "Unknown")
@@ -39,7 +37,7 @@ struct Graph: View {
             }
         }
         .onAppear {
-            api_requests.getAnalyticFunction(graphType: graphType ?? 1) { result in
+            client.anaytics.getAnalyticFunction(graphType: graphType ?? 1) { result in
                 print("analytic request")
                 print (result)
                 switch result {

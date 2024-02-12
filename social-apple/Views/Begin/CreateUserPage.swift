@@ -14,7 +14,6 @@ struct CreateUserPage: View {
     
     
     var onDone: (UserLoginResponse) -> Void
-    let api_requests = API_Rquests()
     
     @State private var email: String = ""
     @State private var username: String = ""

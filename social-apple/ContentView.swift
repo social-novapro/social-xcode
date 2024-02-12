@@ -73,15 +73,17 @@ struct ContentView: View {
 #endif
                 VStack {
 #if os(iOS)
+                    Text("hello")
+                        .background(Color(hex:0xf5bc53))
                     if horizontalSizeClass != .compact {
                         SideBarNavigation(client: client, feedPosts: feedPosts)
                     }
 #endif
 #if os(macOS)
-                    SideBarNavigation(client: client)
+                    SideBarNavigation(client: client, feedPosts: feedPosts)
 #endif
 #if os(visionOS)
-                    SideBarNavigation(client: client)
+                    SideBarNavigation(client: client, feedPosts: feedPosts)
                     
                     if (client.serverOffline == true) {
                         ServerStatusOffline(client: client)
@@ -354,7 +356,7 @@ struct SideBarNavigation: View {
             }
             VStack {
                 NavigationLink {
-                    AnalyticsView() // could pass devmode
+                    AnalyticsView(client: client) // could pass devmode
                 } label: {
                     Text("Analytics")
                 }
@@ -492,5 +494,15 @@ struct TabButton: View {
             .font(.system(size: 22))
             .foregroundColor(isActive ? .accentColor:  .secondary)
             .padding(.horizontal)
+    }
+}
+
+
+extension Color {
+    init(hex: Int, opacity: Double = 1.0) {
+        let red = Double((hex & 0xff0000))
+        let green = Double((hex & 0x00ff00))
+        let blue = Double((hex & 0x0000ff))
+        self.init(.sRGB, red: red, green: green, blue: blue, opacity: opacity)
     }
 }

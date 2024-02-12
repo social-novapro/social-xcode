@@ -26,12 +26,13 @@ struct PostPreView: View {
                     Button(action: {
                         client.hapticPress()
                         self.feedData.postLiveData.showPostPage = true
-                        print("showing usuer?")
+                        print("showing post?")
                     }) {
                         VStack {
                             PostPreviewView(client: client, feedData: $feedData)
                         }
                     }
+                    .buttonStyle(.plain)
                 }
                 else {
                     HStack {

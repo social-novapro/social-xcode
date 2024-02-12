@@ -8,6 +8,12 @@
 import Foundation
 
 class UsersApi: API_Helper {
+    var themes: UsersThemesAPI
+
+    override init(userTokensProv: UserTokenData) {
+        self.themes = UsersThemesAPI(userTokensProv: userTokensProv)
+        super .init(userTokensProv: userTokensProv)
+    }
     func getByID(userID: String, completion: @escaping (Result<UserData, Error>) -> Void) {
         print("user login request")
         let APIUrl = baseAPIurl + "/get/userByID/" + userID

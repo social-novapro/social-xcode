@@ -8,20 +8,6 @@
 import Foundation
 
 class PostsApi: API_Helper {
-    func userLoginRequest(userLogin: UserLoginData, completion: @escaping (Result<UserLoginResponse, Error>) -> Void) {
-        print("user login request")
-        let APIUrl = baseAPIurl + "/auth/userLogin"
-        self.requestData(urlString: APIUrl) { (result: Result<UserLoginResponse, Error>) in
-            switch result {
-            case .success(let userLoginData):
-                print("Logged in")
-                completion(.success(userLoginData))
-            case .failure(let error):
-                print("Error: \(error)")
-            }
-        }
-    }
-    
     func getUserFeed(userTokens: UserTokenData, completion: @escaping (Result<FeedV2Data, Error>) -> Void) {
         print("Getting all posts")
         let APIUrl = baseAPIurl + "/feeds/userFeed/v2"

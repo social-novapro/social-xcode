@@ -193,10 +193,13 @@ struct DeveloperTokenView: View {
                         }
                 } else {
                     Text("Click to Copy devToken")
+#if os(iOS)
+
                         .onTapGesture(count: 1) {
                             UIPasteboard.general.string = self.developerToken._id ?? "failed"
                             self.copied=true
                         }
+#endif
                 }
                 Spacer()
             }
@@ -293,10 +296,12 @@ struct AppTokenView: View {
                         }
                  } else {
                     Text("Click to Copy appToken")
+#if os(iOS)
                     .onTapGesture(count: 1) {
                             UIPasteboard.general.string = self.appToken._id
                             self.copied=true
                         }
+ #endif
                 }
                 Spacer()
             }

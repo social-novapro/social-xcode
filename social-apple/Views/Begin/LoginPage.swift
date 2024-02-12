@@ -13,7 +13,6 @@ struct LoginPage: View {
     
     
     var onDone: (UserLoginResponse) -> Void
-    let api_requests = API_Rquests()
     
     @State private var username: String = ""
     @State private var password: String = ""

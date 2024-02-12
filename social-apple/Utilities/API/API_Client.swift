@@ -17,7 +17,8 @@ class ApiClient: ObservableObject {
     var get: GetApi
     var developer: DeveloperApi
     var polls: PollsApi
-
+    var anaytics: AnalyticsApi
+    
     var livechatWS: LiveChatWebSocket
     var apiHelper: API_Helper
 //    @Published var feedPosts: FeedPosts
@@ -63,12 +64,10 @@ class ApiClient: ObservableObject {
         self.get = GetApi(userTokensProv: userTokens)
         self.developer = DeveloperApi(userTokensProv: userTokens)
         self.polls = PollsApi(userTokensProv: userTokens)
+        self.anaytics = AnalyticsApi(userTokensProv: userTokens)
         
-
         self.apiHelper = API_Helper(userTokensProv: userTokens)
         self.livechatWS = LiveChatWebSocket(baseURL: self.apiHelper.baseAPIurl, userTokensProv: userTokens)
-//        self.feedPosts = FeedPosts(client: self)
-
 
         if (self.loggedIn == true) {
             self.users.getByID(userID: userTokens.userID) { result in

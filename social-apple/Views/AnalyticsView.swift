@@ -9,7 +9,7 @@ import SwiftUI
 import Charts
 
 struct AnalyticsView: View {
-    let api_requests = API_Rquests()
+    @ObservedObject var client: ApiClient
     @State var doneLoading: Bool = false
     @State var analytics: [AnalyticTrendDataPoint]?
     @State var graphIsShown:Bool = false
@@ -67,7 +67,7 @@ struct AnalyticsView: View {
                         Spacer()
                         if ((graphNumber ?? 0 ) > 0 && (graphNumber ?? 0) < 5) {
                             if #available(macOS 14.0, *) {
-                                Graph(graphType: graphNumber, analytics: self.analytics)
+                                Graph(client: client, graphType: graphNumber, analytics: self.analytics)
                             } else {
                                 Text("requires newer macOS")
                             }
@@ -85,7 +85,7 @@ struct AnalyticsView: View {
             }
         }
         .onAppear {
-            api_requests.getAnalyticTrend() { result in
+            client.anaytics.getAnalyticTrend() { result in
                 print("analytic request")
                 switch result {
                 case .success(let analytics):
