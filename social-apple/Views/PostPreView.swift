@@ -166,7 +166,7 @@ struct PostPreviewView: View {
                 VStack {
                     if (feedData.pollData != nil) {
                         Divider()
-                        PollView(client: client,
+                        PollView(client: client, feedData: $feedData,
                             pollData: feedData.pollData ?? PollData(_id: ""), voteOption: feedData.voteData?.pollOptionID ?? "")
                     }
                 }

@@ -55,6 +55,7 @@ struct CreatePost: View {
 
                     // create poll vist
                     var pollID:String? = nil
+                    
                     if (pollAdded) {
                         if (tempPollCreator.amountOptions>1) {
                             dispatchGroup.enter()
@@ -68,6 +69,7 @@ struct CreatePost: View {
                                     self.newPoll = newPoll.pollData
                                     pollID = self.newPoll?._id
                                     client.hapticPress()
+                                    
                                     do {
                                         dispatchGroup.leave()
                                     }
@@ -86,11 +88,13 @@ struct CreatePost: View {
                     
                     dispatchGroup.wait()
                     if (self.failed == true) {
+                        print("failed caught before create post, after poll creation")
                         return
                     }
                     if (pollID != nil) {
                         postCreateContent.linkedPollID = pollID
                     }
+                    
                     print(pollID ?? "")
                     print(newPoll ?? "")
                     
@@ -102,6 +106,9 @@ struct CreatePost: View {
                             self.newPost = newPost
                             self.sent = true
                             client.hapticPress()
+                            // clears poll data
+                            pollAdded = false
+                            tempPollCreator = TempPollCreator()
                         case .failure(let error):
                             self.failed = true
                             self.errorMsg = "Post failed to send"
@@ -144,7 +151,20 @@ struct CreatePost: View {
                     .stroke(Color.accentColor, lineWidth: 3)
             )
             if (pollAdded) {
-                PollCreatorView(client: client, tempPollCreator: $tempPollCreator)
+                if (content == "") {
+                    HStack {
+                        Text("Please add text to content before creating a poll.")
+                        Spacer()
+                    }
+                    .padding(15)
+                    .cornerRadius(20)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color.accentColor, lineWidth: 3)
+                    )
+                } else {
+                    PollCreatorView(client: client, tempPollCreator: $tempPollCreator)
+                }
             }
             Spacer()
         }

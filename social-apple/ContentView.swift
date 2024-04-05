@@ -73,8 +73,8 @@ struct ContentView: View {
 #endif
                 VStack {
 #if os(iOS)
-                    Text("hello")
-                        .background(Color(hex:0xf5bc53))
+                    // Text("hello")
+                      //  .background(Color(hex:0xf5bc53))
                     if horizontalSizeClass != .compact {
                         SideBarNavigation(client: client, feedPosts: feedPosts)
                     }

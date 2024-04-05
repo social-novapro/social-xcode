@@ -28,6 +28,7 @@ struct VoteData: Decodable, Encodable {
     var timestamp: Int64?
     var pollIndexID: String?
     var pollOptionID: String?
+    var oldVote: String? = nil
 }
 
 struct TempPollCreator {

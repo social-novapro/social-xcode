@@ -221,14 +221,14 @@ struct PollOptions: Decodable, Encodable, Identifiable {
     var optionTitle: String?
     var timestamp: Int64?
     var currentIndexID: String?
-//    var amountVoted: Int32?
+    var amountVoted: Int64? = 0
     
     private enum CodingKeys: String, CodingKey {
         case _id
         case optionTitle
         case timestamp
         case currentIndexID
-//        case amountVoted
+        case amountVoted
     }
 }
 

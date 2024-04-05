@@ -83,6 +83,9 @@ class PollsApi: API_Helper {
                 
                 if (voteData.newVote != nil) {
                     returningData = voteData.newVote ?? VoteData(_id: "")
+                    if (voteData.oldVote != nil) {
+                        returningData.oldVote = voteData.oldVote?.pollOptionID
+                    }
                 } else {
                     returningData = VoteData(
                         _id: voteData._id ?? "",
