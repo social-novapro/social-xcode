@@ -18,6 +18,7 @@ class ApiClient: ObservableObject {
     var developer: DeveloperApi
     var polls: PollsApi
     var anaytics: AnalyticsApi
+    var search: SearchApi
     
     var livechatWS: LiveChatWebSocket
     var apiHelper: API_Helper
@@ -65,6 +66,7 @@ class ApiClient: ObservableObject {
         self.developer = DeveloperApi(userTokensProv: userTokens)
         self.polls = PollsApi(userTokensProv: userTokens)
         self.anaytics = AnalyticsApi(userTokensProv: userTokens)
+        self.search = SearchApi(userTokensProv: userTokens)
         
         self.apiHelper = API_Helper(userTokensProv: userTokens)
         self.livechatWS = LiveChatWebSocket(baseURL: self.apiHelper.baseAPIurl, userTokensProv: userTokens)
@@ -114,6 +116,7 @@ class ApiClient: ObservableObject {
             self.get = GetApi(userTokensProv: self.userTokens)
             self.developer = DeveloperApi(userTokensProv: self.userTokens)
             self.polls = PollsApi(userTokensProv: self.userTokens)
+            self.search = SearchApi(userTokensProv: self.userTokens)
 
             self.apiHelper = API_Helper(userTokensProv: self.userTokens)
             self.livechatWS = LiveChatWebSocket(baseURL: self.apiHelper.baseAPIurl, userTokensProv: self.userTokens)

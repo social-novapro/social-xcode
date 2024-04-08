@@ -71,6 +71,7 @@ struct PollOptionView: View {
                                //ForEach( feedData.pollData?.pollOptions  ?? []) { option in
                                     //i=i+1;
                                // }
+                                feedData.voteData = nil
                             }
                             client.hapticPress()
                             voting = false
@@ -114,7 +115,7 @@ struct PollOptionView: View {
             }
             .buttonStyle(.plain)
             .padding(15)
-            .background(option._id == voteOption ? Color.accentColor : Color.clear)
+            .background(option._id == feedData.voteData?.pollOptionID ? Color.accentColor : Color.clear)
             .cornerRadius(20)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)

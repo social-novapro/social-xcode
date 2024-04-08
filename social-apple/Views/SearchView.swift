@@ -40,7 +40,7 @@ struct SearchView: View {
                 return;
             }
             print(newValue)
-            client.get.searchRequest(lookup: SearchLookupData(lookupkey: newValue)) { result in
+            client.search.searchRequest(lookup: SearchLookupData(lookupkey: newValue)) { result in
                 print("allpost request")
                 
                 switch result {
@@ -50,7 +50,7 @@ struct SearchView: View {
                         return;
                     } else {
                         self.searchData = results
-                        self.foundPosts = results.postsFound ?? []
+                        self.foundPosts = results.postsFound?.reversed() ?? []
                         print("Done")
                         self.foundData = true
                     }
