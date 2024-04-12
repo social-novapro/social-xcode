@@ -57,6 +57,10 @@ struct DeveloperSettingsView: View {
                             }
                         }
                     }
+                    VStack {
+                        
+                    }
+                    .padding(50)
                 }
             }
         }

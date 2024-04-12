@@ -132,7 +132,7 @@ struct ContentView: View {
         
         .if(horizontalSizeClass == .compact) { view in
             view.overlay(
-                NotificationView(client: client)
+                IncomeNotificationView(client: client)
                     .frame(height: 50)
                     .padding(.top, 25),
                 alignment: .top
@@ -159,7 +159,7 @@ extension View {
     }
 }
 
-struct NotificationView: View {
+struct IncomeNotificationView: View {
     @ObservedObject var client: ApiClient
     @State var expand = false
     @State var newNotification = false
@@ -290,32 +290,12 @@ struct SideBarNavigation: View {
                         Text("Create Post")
                     }
                 }
-                VStack {
-                    NavigationLink {
-                        PushNotifications(client: client)
-                    } label: {
-                        Text("Notifications")
-                    }
-                }
+                
                 VStack {
                     NavigationLink {
                         BasicSettings(client: client)
                     } label: {
-                        Text("Basic Settings")
-                    }
-                }
-                VStack {
-                    NavigationLink {
-                        DeveloperSettingsView(client: client)
-                    } label: {
-                        Text("Developer Settings")
-                    }
-                }
-                VStack {
-                    NavigationLink {
-                        AccountsView(client: client)
-                    } label: {
-                        Text("Account Settings")
+                        Text("Settings")
                     }
                 }
                 VStack {
@@ -405,7 +385,7 @@ struct AppTabNavigation: View {
                                 client.hapticPress()
                                 client.navigation = client.navigationManager.switchTab(newTab: 0)
                             }) {
-                                Image(systemName: "tray.2")
+                                Image(systemName: "house")
                                     .font(.system(size: 22))
                                     .foregroundColor(client.navigation?.selectedTab == 0 ? .accentColor: .secondary)
                                     .padding(.horizontal)
@@ -425,7 +405,7 @@ struct AppTabNavigation: View {
                                 client.hapticPress()
                                 client.navigation = client.navigationManager.switchTab(newTab: 2)
                             }) {
-                                Image(systemName: "gear")
+                                Image(systemName: "archivebox")
                                     .font(.system(size: 22))
                                     .foregroundColor(client.navigation?.selectedTab == 2 ? .accentColor: .secondary)
                                     .padding(.horizontal)

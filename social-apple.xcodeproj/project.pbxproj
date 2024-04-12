@@ -62,6 +62,12 @@
 		659B62EA2B2BBE4800CF2FA4 /* LocalLogsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659B62E92B2BBE4800CF2FA4 /* LocalLogsHandler.swift */; };
 		659B62EC2B2BBE5600CF2FA4 /* LocalLogData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659B62EB2B2BBE5600CF2FA4 /* LocalLogData.swift */; };
 		65AAB0482B682E5A00D4AEBB /* PostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AAB0472B682E5A00D4AEBB /* PostView.swift */; };
+		65CA9D3E2BC85ECD00CB145F /* AdminView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA9D3D2BC85ECD00CB145F /* AdminView.swift */; };
+		65CA9D402BC8D98000CB145F /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA9D3F2BC8D98000CB145F /* NotificationView.swift */; };
+		65CA9D422BC8D9DF00CB145F /* AdminData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA9D412BC8D9DF00CB145F /* AdminData.swift */; };
+		65CA9D452BC8DA0900CB145F /* Admin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA9D442BC8DA0900CB145F /* Admin.swift */; };
+		65CA9D472BC8DA1700CB145F /* AdminErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA9D462BC8DA1700CB145F /* AdminErrors.swift */; };
+		65CA9D492BC8DE9B00CB145F /* AdminErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA9D482BC8DE9B00CB145F /* AdminErrorView.swift */; };
 		65CC79332B697C44002B5ADA /* Polls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CC79322B697C44002B5ADA /* Polls.swift */; };
 		65CC79352B697CE0002B5ADA /* PollsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CC79342B697CE0002B5ADA /* PollsData.swift */; };
 		65DA82BB2B1D2041008509E2 /* CreateUserPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DA82BA2B1D2041008509E2 /* CreateUserPage.swift */; };
@@ -131,6 +137,12 @@
 		659B62E92B2BBE4800CF2FA4 /* LocalLogsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLogsHandler.swift; sourceTree = "<group>"; };
 		659B62EB2B2BBE5600CF2FA4 /* LocalLogData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLogData.swift; sourceTree = "<group>"; };
 		65AAB0472B682E5A00D4AEBB /* PostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostView.swift; sourceTree = "<group>"; };
+		65CA9D3D2BC85ECD00CB145F /* AdminView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminView.swift; sourceTree = "<group>"; };
+		65CA9D3F2BC8D98000CB145F /* NotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
+		65CA9D412BC8D9DF00CB145F /* AdminData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminData.swift; sourceTree = "<group>"; };
+		65CA9D442BC8DA0900CB145F /* Admin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Admin.swift; sourceTree = "<group>"; };
+		65CA9D462BC8DA1700CB145F /* AdminErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminErrors.swift; sourceTree = "<group>"; };
+		65CA9D482BC8DE9B00CB145F /* AdminErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminErrorView.swift; sourceTree = "<group>"; };
 		65CC79322B697C44002B5ADA /* Polls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Polls.swift; sourceTree = "<group>"; };
 		65CC79342B697CE0002B5ADA /* PollsData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollsData.swift; sourceTree = "<group>"; };
 		65DA82BA2B1D2041008509E2 /* CreateUserPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserPage.swift; sourceTree = "<group>"; };
@@ -164,11 +176,12 @@
 		6516E5902B0ADF78008A84E4 /* API */ = {
 			isa = PBXGroup;
 			children = (
+				6516E5A82B0AE993008A84E4 /* API_Client.swift */,
+				651757E429FB8B2E00E90FBA /* API_Data.swift */,
+				6516E59C2B0AE8B9008A84E4 /* API_Helper.swift */,
+				65CA9D432BC8D9F900CB145F /* Admin */,
 				650C38362B797331002956DA /* Users */,
 				65DC094E2B30150E004B5865 /* Notifications.swift */,
-				651757E429FB8B2E00E90FBA /* API_Data.swift */,
-				6516E5A82B0AE993008A84E4 /* API_Client.swift */,
-				6516E59C2B0AE8B9008A84E4 /* API_Helper.swift */,
 				6516E5A02B0AE935008A84E4 /* Users.swift */,
 				6516E5AC2B0AF2D3008A84E4 /* Posts.swift */,
 				6516E59E2B0AE8CC008A84E4 /* Auth.swift */,
@@ -177,6 +190,7 @@
 				65CC79322B697C44002B5ADA /* Polls.swift */,
 				650C38332B796FD7002956DA /* Analytics.swift */,
 				65297ECD2BC34D980070C958 /* Search.swift */,
+				65CA9D442BC8DA0900CB145F /* Admin.swift */,
 			);
 			path = API;
 			sourceTree = "<group>";
@@ -263,6 +277,7 @@
 				65CC79342B697CE0002B5ADA /* PollsData.swift */,
 				650C383B2B797462002956DA /* UserThemesData.swift */,
 				65297ECF2BC34E530070C958 /* SearchData.swift */,
+				65CA9D412BC8D9DF00CB145F /* AdminData.swift */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -293,6 +308,9 @@
 				651553D42B5785F100DF3353 /* DeveloperSettingsView.swift */,
 				656362FC2B5892F700AF42F1 /* AccountsView.swift */,
 				65AAB0472B682E5A00D4AEBB /* PostView.swift */,
+				65CA9D3D2BC85ECD00CB145F /* AdminView.swift */,
+				65CA9D3F2BC8D98000CB145F /* NotificationView.swift */,
+				65CA9D482BC8DE9B00CB145F /* AdminErrorView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -302,6 +320,14 @@
 			children = (
 			);
 			path = Navigation;
+			sourceTree = "<group>";
+		};
+		65CA9D432BC8D9F900CB145F /* Admin */ = {
+			isa = PBXGroup;
+			children = (
+				65CA9D462BC8DA1700CB145F /* AdminErrors.swift */,
+			);
+			path = Admin;
 			sourceTree = "<group>";
 		};
 		65D19EE12B5B1AC8003B6431 /* Post */ = {
@@ -399,6 +425,7 @@
 				65DA82BB2B1D2041008509E2 /* CreateUserPage.swift in Sources */,
 				655BC0CA2B07575100949356 /* CurrentNavigationHandler.swift in Sources */,
 				6526E87C2B54E4570072E33E /* BasicSettings.swift in Sources */,
+				65CA9D3E2BC85ECD00CB145F /* AdminView.swift in Sources */,
 				651757DE29FB811300E90FBA /* DevModeHandler.swift in Sources */,
 				65CC79332B697C44002B5ADA /* Polls.swift in Sources */,
 				6526E87A2B54E2B80072E33E /* HapticModeHandler.swift in Sources */,
@@ -422,10 +449,12 @@
 				65297ECE2BC34D980070C958 /* Search.swift in Sources */,
 				659B62EC2B2BBE5600CF2FA4 /* LocalLogData.swift in Sources */,
 				655AB60929F0720500C61F3A /* social_appleApp.swift in Sources */,
+				65CA9D422BC8D9DF00CB145F /* AdminData.swift in Sources */,
 				65DC094F2B30150E004B5865 /* Notifications.swift in Sources */,
 				6503515C29F370CA005C4253 /* FeedPage.swift in Sources */,
 				655BC0C42B07565E00949356 /* LiveChatView.swift in Sources */,
 				655AB62C29F0E25600C61F3A /* HomeView.swift in Sources */,
+				65CA9D452BC8DA0900CB145F /* Admin.swift in Sources */,
 				655BC0C82B0756D100949356 /* PollView.swift in Sources */,
 				655BC0C62B07569E00949356 /* LiveChatWebSocket.swift in Sources */,
 				651553D92B578A6A00DF3353 /* Developer.swift in Sources */,
@@ -437,10 +466,12 @@
 				650C383A2B797393002956DA /* UsersThemes.swift in Sources */,
 				655AB63029F19B0A00C61F3A /* ErrorData.swift in Sources */,
 				65AAB0482B682E5A00D4AEBB /* PostView.swift in Sources */,
+				65CA9D492BC8DE9B00CB145F /* AdminErrorView.swift in Sources */,
 				6516E5A12B0AE935008A84E4 /* Users.swift in Sources */,
 				655AB62A29F080CB00C61F3A /* UserView.swift in Sources */,
 				650C383C2B797462002956DA /* UserThemesData.swift in Sources */,
 				651757E129FB816F00E90FBA /* social_apple.xcdatamodeld in Sources */,
+				65CA9D402BC8D98000CB145F /* NotificationView.swift in Sources */,
 				651553D72B57877E00DF3353 /* DeveloperData.swift in Sources */,
 				650B89A42B5362B1007BE000 /* ProfileView.swift in Sources */,
 				659B62EA2B2BBE4800CF2FA4 /* LocalLogsHandler.swift in Sources */,
@@ -451,6 +482,7 @@
 				655AB60B29F0720500C61F3A /* Persistence.swift in Sources */,
 				651553D52B5785F100DF3353 /* DeveloperSettingsView.swift in Sources */,
 				655AB62529F0741200C61F3A /* LoginPage.swift in Sources */,
+				65CA9D472BC8DA1700CB145F /* AdminErrors.swift in Sources */,
 				6516E59F2B0AE8CC008A84E4 /* Auth.swift in Sources */,
 				65DC09472B300EE1004B5865 /* MyAppDelegate.swift in Sources */,
 			);
@@ -583,7 +615,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "social-apple/social_apple.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 43;
+				CURRENT_PROJECT_VERSION = 44;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"social-apple/Preview Content\"";
 				DEVELOPMENT_TEAM = VHCWBN8GY3;
@@ -625,7 +657,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "social-apple/social_apple.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 43;
+				CURRENT_PROJECT_VERSION = 44;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"social-apple/Preview Content\"";
 				DEVELOPMENT_TEAM = VHCWBN8GY3;

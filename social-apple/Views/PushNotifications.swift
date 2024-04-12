@@ -63,6 +63,10 @@ struct PushNotifications: View {
                     }
                     EmptyView()
                         .frame(height: 200, alignment: .bottom)
+                    VStack {
+                        
+                    }
+                    .padding(50)
                 }
                 .listStyle(.plain)
                 .listRowSeparator(.hidden)

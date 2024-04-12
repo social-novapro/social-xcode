@@ -26,6 +26,10 @@ struct SearchView: View {
                         PostPreView(client: client, feedData: $post)
                             .padding(10)
                     }
+                    VStack {
+                        
+                    }
+                    .padding(50)
                 }
             }
             else {

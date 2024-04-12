@@ -9,11 +9,12 @@ import SwiftUI
 
 struct BasicSettings: View {
     @ObservedObject var client: ApiClient
+    @State var adminErrorFeed: AdminErrorFeed = AdminErrorFeed(client: ApiClient())
 
     @State var enabledDevMode:Bool
     @State var enabledHaptic:Bool
-    @State var searchSettingOpen:Bool = false;
-    @State var feedSettingOpen:Bool = false;
+    @State var subSettings:Bool = false;
+    @State var settingsTab:Int64 = 0;
     
     init(client: ApiClient) {
         self.client = client;
@@ -57,7 +58,8 @@ struct BasicSettings: View {
                 #endif
                 Button(action: {
                     client.hapticPress()
-                    self.searchSettingOpen = true
+                    self.subSettings = true
+                    self.settingsTab = 1
                 }) {
                     VStack {
                         VStack {
@@ -75,6 +77,96 @@ struct BasicSettings: View {
                 }
                 .buttonStyle(.plain)
                 .padding(10)
+                Button(action: {
+                    client.hapticPress()
+                    self.subSettings = true
+                    self.settingsTab = 2
+                }) {
+                    VStack {
+                        VStack {
+                            HStack {
+                                Text("Developer")
+                                Spacer()
+                                Image(systemName: "arrow.forward.circle")
+                            }
+                            HStack {
+                                Text("Press to open developer settings.")
+                                Spacer()
+                            }
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+                .padding(10)
+                Button(action: {
+                    client.hapticPress()
+                    self.subSettings = true
+                    self.settingsTab = 3
+                }) {
+                    VStack {
+                        VStack {
+                            HStack {
+                                Text("Account")
+                                Spacer()
+                                Image(systemName: "arrow.forward.circle")
+                            }
+                            HStack {
+                                Text("Press to open account settings.")
+                                Spacer()
+                            }
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+                .padding(10)
+                Button(action: {
+                    client.hapticPress()
+                    self.subSettings = true
+                    self.settingsTab = 4
+                }) {
+                    VStack {
+                        VStack {
+                            HStack {
+                                Text("Notifications")
+                                Spacer()
+                                Image(systemName: "arrow.forward.circle")
+                            }
+                            HStack {
+                                Text("Press to open push notification settings.")
+                                Spacer()
+                            }
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+                .padding(10)
+                
+                Button(action: {
+                    client.hapticPress()
+                    self.subSettings = true
+                    self.settingsTab = 5
+                }) {
+                    VStack {
+                        VStack {
+                            HStack {
+                                Text("Admin Issues")
+                                Spacer()
+                                Image(systemName: "arrow.forward.circle")
+                            }
+                            HStack {
+                                Text("Press to open admin issues.")
+                                Spacer()
+                            }
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+                .padding(10)
+                
+                VStack {
+                    
+                }
+                .padding(50)
             }
         }
         .onChange(of: enabledDevMode) { newValue in
@@ -85,12 +177,21 @@ struct BasicSettings: View {
             client.haptic = client.hapticModeManager.swapMode()
         }
         #endif
-        .navigationDestination(isPresented: $searchSettingOpen) {
-            SearchSettingPage(client: client)
+        .navigationDestination(isPresented: $subSettings) {
+            if (settingsTab==1) {
+                SearchSettingPage(client: client)
+            } else if (settingsTab==2) {
+                DeveloperSettingsView(client: client)
+            } else if (settingsTab==3) {
+                AccountsView(client: client)
+            } else if (settingsTab==4) {
+                PushNotifications(client: client)
+            } else if (settingsTab==5) {
+                AdminErrorView(client: client, adminErrorFeed: adminErrorFeed)
+            }
         }
-
         .padding(10)
-        .navigationTitle("Basic Settings")
+        .navigationTitle("Settings")
     }
 }
 
