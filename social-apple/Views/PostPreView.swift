@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+
 struct PostPreView: View {
     @ObservedObject var client: ApiClient
     @Binding var feedData: AllPosts
@@ -44,6 +45,11 @@ struct PostPreView: View {
             .popover(isPresented: $feedData.postLiveData.showingPopover) {
                 NavigationView {
                     PopoverPostAction(client: client, feedData: $feedData)
+                }
+            }
+            .popover(isPresented: $feedData.postLiveData.showingEditPopover) {
+                NavigationView {
+                    EditPostPopover(client: client, feedData: $feedData)
                 }
             }
             .navigationDestination(isPresented: $feedData.postLiveData.showPostPage) {
@@ -138,7 +144,7 @@ struct PostPreviewView: View {
                                     HStack {
                                         Text(feedData.quoteData?.quoteUser?.displayName ?? "")
                                         Text("@\(feedData.quoteData?.quoteUser?.username ?? "")")
-                                        if (feedData.userData?.verified != nil) {
+                                        if (feedData.userData?.verified == true) {
                                             Image(systemName: "checkmark.seal.fill")
                                         }
                                         Spacer()
@@ -187,6 +193,7 @@ struct PostPreviewView: View {
         }
     }
 }
+
 struct ReplyParentPostView : View {
     @ObservedObject var client: ApiClient
     @Binding var feedData: AllPosts
@@ -196,7 +203,7 @@ struct ReplyParentPostView : View {
             HStack {
                 Text(feedData.replyData?.replyUser?.displayName ?? "")
                 Text("@\(feedData.replyData?.replyUser?.username ?? "")")
-                if (feedData.replyData?.replyUser?.verified != nil) {
+                if (feedData.replyData?.replyUser?.verified == true) {
                     Image(systemName: "checkmark.seal.fill")
                 }
                 Spacer()
@@ -254,7 +261,7 @@ struct ProfilePostView: View {
                             HStack {
                                 Text(coposter.displayName ?? "")
                                 Text("@\(coposter.username ?? "")")
-                                if (coposter.verified != nil) {
+                                if (coposter.verified == true) {
                                     Image(systemName: "checkmark.seal.fill")
                                 }
                                 Spacer()
@@ -891,6 +898,25 @@ struct PostActionButtons: View {
                     Button(action: {
                         client.hapticPress()
                         DispatchQueue.main.async {
+                            self.feedData.postLiveData.activeAction = 5
+                            self.feedData.postLiveData.showingEditPopover = true
+
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: "pencil")
+                        }
+                        .padding(5)
+                        .foregroundColor(.secondary)
+                        .background(client.devMode?.isEnabled == true ? Color.blue : Color.clear)
+                        .cornerRadius(10)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+                VStack {
+                    Button(action: {
+                        client.hapticPress()
+                        DispatchQueue.main.async {
                             self.feedData.postLiveData.activeAction = 4
                         }
                         self.deletePostConfirm = true
@@ -945,6 +971,98 @@ struct PostActionButtons: View {
     }
 }
 
+struct EditPostPopover: View {
+    @ObservedObject var client: ApiClient
+    @Binding var feedData: AllPosts
+    
+    @State private var content: String = ""
+    @State var sending: Bool = false
+    @State var sent: Bool = false
+    @State var failed: Bool = false
+    
+    var body : some View {
+        VStack {
+            if (self.feedData.postLiveData.activeAction==5) {
+                if sending==true {
+                    HStack {
+                        Text("Status: ")
+                        if sent==true {
+                            Text("Edited!")
+                        } else {
+                            if failed==true {
+                                Text("Failed to edit!")
+                            } else {
+                                Text("Editing")
+                            }
+                        }
+                    }
+                }
+                VStack {
+                    HStack {
+                        Text(feedData.userData?.displayName ?? "")
+                        Text("@\(feedData.userData?.username ?? "")")
+                        if (feedData.userData?.verified == nil) {
+                            Image(systemName: "checkmark.seal.fill")
+                        }
+                        Spacer()
+                    }
+                    HStack {
+                        Text(feedData.postData.content ?? "")
+                        Spacer()
+                    }
+                }
+                .padding(15)
+                .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+                .cornerRadius(20)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.gray, lineWidth: 3)
+                )
+                
+                VStack {
+                    TextField("Content", text: $content)
+                    Button(action: {
+                        client.hapticPress()
+                        print("button pressed")
+                        print("createPost")
+                        self.sending = true
+                        if (content == "") {
+                            self.failed = true
+                            return;
+                        }
+                        
+                        client.posts.editPost(postID: self.feedData.postData._id, newContent: content) { result in
+                            print("api rquest login:")
+                            switch result {
+                            case .success(let newPost):
+                                self.feedData.postData = newPost.new
+                                self.sent = true
+                                client.hapticPress()
+                            case .failure(let error):
+                                self.failed = true
+                                print("Error: \(error.localizedDescription)")
+                            }
+                        }
+                        self.content = ""
+
+                    }) {
+                        Text("Publish Post")
+                    }
+                }
+                .padding(15)
+                .cornerRadius(20)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.gray, lineWidth: 3)
+                )
+            }
+            Spacer()
+        }
+        .padding(10)
+        .navigationTitle(self.feedData.postLiveData.activeAction==5 ? "Editing Post" : "Unknown Action")
+    }
+}
+
 struct PopoverPostAction: View {
     @ObservedObject var client: ApiClient
     @Binding var feedData: AllPosts
@@ -980,13 +1098,14 @@ struct PopoverPostAction: View {
                 HStack {
                     Text(feedData.userData?.displayName ?? "")
                     Text("@\(feedData.userData?.username ?? "")")
-                    if (feedData.userData?.verified != nil) {
+                    if (feedData.userData?.verified == true) {
                         Image(systemName: "checkmark.seal.fill")
                     }
                     Spacer()
                 }
-                VStack {
+                HStack {
                     Text(feedData.postData.content ?? "")
+                    Spacer()
                 }
             }
             .padding(15)

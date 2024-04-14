@@ -67,7 +67,7 @@ struct FeedPage: View {
                     self.writingPost = true;
                 }, label: {
                     HStack {
-                        Image(systemName: "pencil.circle")
+                        Image(systemName: "plus.circle")
                             .foregroundColor(.accentColor)
                             .font(.system(size: 22))
                     }

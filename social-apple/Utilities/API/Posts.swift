@@ -161,6 +161,22 @@ class PostsApi: API_Helper {
         }
     }
     
+    // edit post
+    func editPost(postID: String, newContent: String, completion: @escaping (Result<PostEditRes, Error>) -> Void) {
+        print("edit post")
+        let APIUrl = baseAPIurl + "/posts/edit/"
+        self.requestDataWithBody(urlString: APIUrl, httpMethod: "PUT", httpBody: PostEditReq(postID: postID, content: newContent)) { (result: Result<PostEditRes, Error>) in
+            switch result {
+            case .success(let postData):
+                print("edits Post")
+                completion(.success(postData))
+            case .failure(let error):
+                completion(.failure(error))
+                print("Error: \(error)")
+            }
+        }
+    }
+    
     // delete post
     func deletePost(postID: String, completion: @escaping (Result<PostDeleteRes, Error>) -> Void) {
         print("unliking post")

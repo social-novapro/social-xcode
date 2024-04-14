@@ -166,8 +166,16 @@ struct BasicSettings: View {
                 VStack {
                     
                 }
-                .padding(50)
+                .padding(20)
             }
+            .padding(15)
+            .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+            .cornerRadius(20)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.accentColor, lineWidth: 3)
+            )
+            .padding(10)
         }
         .onChange(of: enabledDevMode) { newValue in
             client.devMode = client.devModeManager.swapMode()

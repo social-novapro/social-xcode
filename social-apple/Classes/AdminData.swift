@@ -33,7 +33,6 @@ class AdminErrorFeed: ObservableObject {
                 case .success(let feed):
                     DispatchQueue.main.async {
                         self.errorIndex = feed
-                        self.errorIndex.foundIssues.reverse()
                         self.addIssues(newIssues: self.errorIndex.foundIssues, toClear: true)
                         print("Done")
                         self.isLoading = false
@@ -50,6 +49,9 @@ class AdminErrorFeed: ObservableObject {
     }
     
     func addIssues(newIssues: [ErrorIssueData], toClear:Bool=false) -> Void{
+        var addIssues = newIssues
+        addIssues.reverse()
+
         DispatchQueue.main.async {
             // due to new posts showing at bottom
             // could change that and fix it needing to be clear
@@ -57,7 +59,7 @@ class AdminErrorFeed: ObservableObject {
                 self.issues = []
             }
             
-            for newIssue in newIssues {
+            for newIssue in addIssues {
                 if let existingIndex = self.issues.firstIndex(where: { $0._id == newIssue._id }) {
                     print("existing")
                     self.issues[existingIndex] = newIssue
@@ -105,6 +107,7 @@ class AdminErrorFeed: ObservableObject {
         }
     }
 }
+
 struct ErrorIndexData: Decodable {
     var indexID: String
     var nextIndexID: String? = nil
@@ -113,7 +116,6 @@ struct ErrorIndexData: Decodable {
     var timestamp: Int64
     var foundIssues: [ErrorIssueData]
 }
-
 
 struct ErrorIssueData: Decodable, Identifiable, Equatable {
     static func == (lhs: ErrorIssueData, rhs: ErrorIssueData) -> Bool {

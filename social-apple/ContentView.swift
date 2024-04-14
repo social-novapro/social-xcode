@@ -104,6 +104,10 @@ struct ContentView: View {
                 ServerStatusOffline(client: client)
             })
 #endif
+            .onChange(of: client.loggedIn, perform: {newValue in
+                self.feedPosts.newClient(client: client)
+                self.feedPosts.getFeed()
+            })
             if horizontalSizeClass != .compact {
                 if (client.serverOffline == true) {
                     ServerStatusOffline(client: client)

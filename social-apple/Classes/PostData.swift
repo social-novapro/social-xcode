@@ -10,7 +10,7 @@ import SwiftUI
 
 class FeedPosts: ObservableObject {
 //    @ObservedObject var client: ApiClient
-    let client: ApiClient
+    var client: ApiClient
 
     @Published var feed: FeedV2Data = FeedV2Data(amount: 0, posts: [])
     @Published var posts: [AllPosts] = []
@@ -22,6 +22,9 @@ class FeedPosts: ObservableObject {
         self.client = client
     }
 
+    func newClient(client: ApiClient) {
+        self.client = client
+    }
     func getFeed() {
         DispatchQueue.main.async {
             if (self.gotFeed==true) {
@@ -385,7 +388,9 @@ struct PostExtraData: Observable {
     
     var showingPopover: Bool = false
     var showPostPage: Bool = false
+    var showingEditPopover: Bool = false
     var subAction: Int32 = 0
+    
     /*
      * 0 = inactive
      * 1 = edit history
@@ -393,4 +398,14 @@ struct PostExtraData: Observable {
      * 3 = replies
      * 4 = quotes
      */
+}
+
+struct PostEditRes : Decodable {
+    var before : PostData
+    var new : PostData
+}
+
+struct PostEditReq : Encodable {
+    var postID: String
+    var content: String
 }
