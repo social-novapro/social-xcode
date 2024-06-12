@@ -282,7 +282,7 @@ struct SideBarNavigation: View {
                 }
                 VStack {
                     NavigationLink {
-                        ProfileView(client: client, userData: client.userData)
+                        ProfileView(client: client, userData: client.userData, userID: client.userTokens.userID)
                     } label: {
                         Text("Profile")
                     }
@@ -338,6 +338,7 @@ struct SideBarNavigation: View {
                     Text("About")
                 }
             }
+            /*
             VStack {
                 NavigationLink {
                     AnalyticsView(client: client) // could pass devmode
@@ -352,6 +353,7 @@ struct SideBarNavigation: View {
                     Text("Analytics2")
                 }
             }
+            */
         }
         .navigationTitle("Interact")
     }

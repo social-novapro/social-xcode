@@ -283,7 +283,7 @@ struct ProfilePostView: View {
                 print(self.feedData.coposterData ?? "none")
             }
             .navigationDestination(isPresented: $profileShowing) {
-                ProfileView(client: client, userData: feedData.userData ?? nil)
+                ProfileView(client: client, userData: feedData.userData ?? nil, userID: feedData.userData?._id ?? nil)
             }
         }
     }

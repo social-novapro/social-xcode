@@ -93,7 +93,7 @@ struct FeedPage: View {
         }
         .popover(isPresented: $showProfile) {
             NavigationView {
-                ProfileView(client: client, userData: client.userData)
+                ProfileView(client: client, userData: client.userData, userID: client.userTokens.userID)
             }
         }
     }

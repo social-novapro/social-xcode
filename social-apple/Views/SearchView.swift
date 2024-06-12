@@ -97,7 +97,7 @@ struct userPreview: View {
             }
         }
         .navigationDestination(isPresented: $profileShowing) {
-            ProfileView(client: client, userData: userData)
+            ProfileView(client: client, userData: userData, userID: userData._id)
         }
         .padding(15)
         .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
