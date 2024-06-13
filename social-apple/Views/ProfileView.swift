@@ -39,6 +39,8 @@ struct ProfileView : View {
                                 BadgeCardView(client: client, badgeData: badge)
                                     .padding(10)
                             }
+                            EmptyView()
+                                .padding(.bottom, 20)
                         }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -54,6 +56,8 @@ struct ProfileView : View {
                                     .listRowInsets(EdgeInsets())
                                     .padding(10)
                             }
+                            EmptyView()
+                                .padding(.bottom, 20)
                         }
                         .listStyle(.plain)
                         .listRowSeparator(.hidden)
@@ -72,6 +76,8 @@ struct ProfileView : View {
                                     .listRowInsets(EdgeInsets())
                                     .padding(10)
                             }
+                            EmptyView()
+                                .padding(.bottom, 20)
                         }
                         .listStyle(.plain)
                         .listRowSeparator(.hidden)
@@ -79,32 +85,26 @@ struct ProfileView : View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 }
+                .padding(15)
                 .tabViewStyle(PageTabViewStyle())
                 .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
             } else {
                 if ((profileData.userData) != nil) {
-                    VStack {
-                        Text("Quick Info")
-                        ProfileUserDataView(client: client, profileData: profileData)
+                    TabView {
+                        VStack {
+                            Text("Quick Info")
+                            ProfileUserDataView(client: client, profileData: profileData)
+                        }
                     }
+                    .padding(10)
+                    .tabViewStyle(PageTabViewStyle())
+                    .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+                    
                 } else {
                     Text("Loading")
                 }
             }
         }
-//        VStack {
-//            if (profileData.doneLoading) {
-//                ScrollView {
-//                    VStack {
-//                        ProfileUserDataView(client: client, profileData: profileData)
-//                            .padding(15)
-//                    }
-//                    VStack {
-//                        ProfileDetailedView(client: client, profileData: profileData)
-//                    }
-//                }
-//            }
-//        }
         .onAppear() {
             if (self.userData != nil) {
                 profileData.provBasic(userData: userData!)
@@ -182,74 +182,6 @@ struct ProfileUserDataView: View {
             }
         }
         Spacer()
-//        }
-    }
-    
-}
-struct ProfileDetailedView: View {
-    @ObservedObject var client: ApiClient
-    @ObservedObject var profileData: ProfileViewClass
-
-    var body: some View {
-//        ScrollView {
-            VStack {
-
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack {
-                        if (profileData.badgeData.count > 0) {
-                            ForEach(profileData.badgeData, id: \.id) { badge in
-                                BadgeCardView(client: client, badgeData: badge)
-                                    .padding(10)
-                            }
-                        }
-                    }
-                }
-            }
-            VStack {
-                ScrollView(.horizontal, showsIndicators: true) {
-                    HStack {
-                        ForEach(self.profileData.pinData.indices, id: \.self) { index in
-                            PostPreView(client: client, feedData: $profileData.pinData[index])
-                                .padding(10)
-                        }
-                    }
-                }
-            }
-            VStack {
-
-                List {
-                    HStack {
-                        ForEach(self.profileData.postData.indices, id: \.self) { index in
-                            PostPreView(client: client, feedData: $profileData.postData[index])
-                                .padding(10)
-                        }
-                    }
-                }
-            }
-//        }
-    }
-}
-
-
-struct UserBadgeView : View {
-    @ObservedObject var client: ApiClient
-    @Binding var badgeData: [BadgeData]?
-
-    var body: some View {
-        VStack {
-            if (badgeData != nil) {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack {
-                        if (badgeData?.count ?? 0 > 0) {
-                            ForEach(badgeData!, id: \.id) { badge in
-                                BadgeCardView(client: client, badgeData: badge)
-                                
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -258,30 +190,36 @@ struct BadgeCardView : View {
     @State var badgeData: BadgeData
 
     var body: some View {
-        VStack {
+        HStack {
             Spacer()
             VStack {
-                Text(badgeData.name)
-                Text(badgeData.description)
-                Text("Achieved: " + int64TimeFormatter(timestamp: badgeData.achieved));
                 Spacer()
-            }
-            VStack {
-                if (badgeData.showCount==true) {
-                    Text("Achieved " + String(badgeData.count) + " times")
-                    Text("Lastest: " + int64TimeFormatter(timestamp: badgeData.latest ?? badgeData.achieved));
+
+                VStack {
+                    Text(badgeData.name)
+                    Text(badgeData.description)
+                    Text("Achieved: " + int64TimeFormatter(timestamp: badgeData.achieved));
                     Spacer()
                 }
+                VStack {
+                    if (badgeData.showCount==true) {
+                        Text("Achieved " + String(badgeData.count) + " times")
+                        Text("Lastest: " + int64TimeFormatter(timestamp: badgeData.latest ?? badgeData.achieved));
+                        Spacer()
+                    }
+                }
+                Spacer()
+
             }
             Spacer()
         }
-        .padding(15)
+        .padding(10)
         .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
         .cornerRadius(20)
         .overlay(
             RoundedRectangle(cornerRadius: 20)
                 .stroke(Color.gray, lineWidth: 3)
         )
-        .padding(15)
+//        .padding(15)
     }
 }
