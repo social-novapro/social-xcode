@@ -8,6 +8,169 @@
 import Foundation
 import SwiftUI
 
+struct PublishPollData: Decodable, Encodable {
+    var pollID: String?
+    var sentPoll: Bool
+    var pollPossibleFailed: Bool
+}
+
+class PostCreation: ObservableObject {
+    var client: ApiClient
+    @Published var content: String = ""
+
+    private var publishPollData: PublishPollData = PublishPollData(pollID: nil, sentPoll: false, pollPossibleFailed: false)
+    @Published var newPost: PostData?
+    @Published var newPoll: PollData?
+    @Published var sending: Bool = false
+    @Published var sent: Bool = false
+    @Published var errorMsg: String = "Unknown error."
+    @Published var failed: Bool = false
+    @Published var pollAdded: Bool = false
+    @Published var tempPollCreator: TempPollCreator = TempPollCreator()
+
+    
+    init(client: ApiClient) {
+        self.client = client
+    }
+    
+    func publishPoll() async throws -> CreatePollRes {
+        print("1- inside poll")
+        if self.pollAdded {
+            print("2- poll added yes")
+            do {
+                print("2- setting poll")
+                let newPoll = try await self.client.polls.createV2(pollInput: self.tempPollCreator)
+                print("4- made poll")
+                print(newPoll)
+                
+                DispatchQueue.main.async {
+                    self.newPoll = newPoll.pollData
+                    self.publishPollData.pollID = self.newPoll?._id
+                    self.publishPollData.sentPoll = true
+                    self.client.hapticPress()
+                }
+                
+                return newPoll
+            } catch {
+                print("5- failed inside")
+                DispatchQueue.main.async {
+                    self.failed = true
+                    self.errorMsg = "Poll failed to be created, check for invalid options"
+                    self.publishPollData.pollPossibleFailed = true
+                }
+                
+                print("Error: \(error.localizedDescription)")
+                throw ErrorData(code: "Z001", msg: "Uknown", error: true)
+            }
+        } else {
+            throw ErrorData(code: "Z001", msg: "Uknown", error: true)
+        }
+    }
+    
+    func sendPost() async throws -> PostData {
+        // if previously press send
+        if (self.failed == false && self.sending) {
+            throw ErrorData(code: "Z001", msg: "Uknown", error: true)
+        // if previously tried to send and failed
+        } else if (self.failed==true && self.sending) {
+            DispatchQueue.main.async {
+                self.sending = false
+                self.failed = false
+                self.publishPollData = PublishPollData(pollID: nil, sentPoll: false, pollPossibleFailed: false)
+            }
+        }
+        
+        // haptic press
+        self.client.hapticPress()
+
+        // sending
+        DispatchQueue.main.async {
+            self.sending = true
+        }
+        // set up post content
+        var postCreateContent = PostCreateContent(userID: self.client.userTokens.userID, content: self.content)
+
+        
+        // is content empty
+        if (self.content == "") {
+            self.failed = true
+            self.errorMsg = "Please enter post content."
+            
+            throw ErrorData(code: "Z001", msg: "Uknown", error: true)
+        }
+        
+        // publish poll
+        if (self.pollAdded) {
+            do {
+                let _ = try await self.publishPoll()
+            } catch {
+                print("failed to do after")
+                throw ErrorData(code: "Z001", msg: "Uknown", error: true)
+            }
+        }
+            
+        // clear content
+        DispatchQueue.main.async {
+            self.content = ""
+        }
+        
+        // check for fail in poll agressivly
+        print(self.failed)
+        print(self.publishPollData)
+        print(self.pollAdded)
+
+        if (
+            (self.failed == true) ||// failed (self explaintory)
+            (self.publishPollData.pollID == nil && self.pollAdded==true) || // no poll ID, when expected
+            (self.publishPollData.sentPoll == false && self.pollAdded==true)
+        ) {
+            print("failed caught before create post, after poll creation")
+            print (self.failed)
+            print(self.publishPollData)
+            print(self.pollAdded)
+            throw ErrorData(code: "Z001", msg: "Uknown", error: true)
+        } else {
+            print("no poll, or post was added")
+        }
+
+        // add poll link
+        if (self.publishPollData.pollID != nil) {
+            postCreateContent.linkedPollID = self.publishPollData.pollID
+            print("linked poll to post")
+        }
+        
+        print(self.publishPollData.pollID ?? "")
+        print(self.newPoll ?? "")
+            
+        // publish post
+        do {
+            let newPost = try await self.client.posts.createPostV2(postCreateContent: postCreateContent)
+            print(newPost)
+            
+            DispatchQueue.main.async {
+                self.newPost = newPost
+                self.sent = true
+                self.client.hapticPress()
+                // clears poll data
+                self.pollAdded = false
+                self.tempPollCreator = TempPollCreator()
+            }
+            
+            return newPost
+        } catch {
+            DispatchQueue.main.async {
+                self.failed = true
+                self.errorMsg = "Post failed to send"
+                print("Error: \(error.localizedDescription)")
+            }
+            
+            print("Error: \(error.localizedDescription)")
+            throw ErrorData(code: "Z001", msg: "Uknown", error: true)
+        }
+    }
+}
+
+
 class FeedPosts: ObservableObject {
 //    @ObservedObject var client: ApiClient
     var client: ApiClient

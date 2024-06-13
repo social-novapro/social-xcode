@@ -9,26 +9,23 @@ import SwiftUI
 
 struct CreatePost: View {
     @ObservedObject var client: ApiClient
-    @State private var content: String = ""
-    @State var newPost: PostData?
-    @State var newPoll: PollData?
-    @State var sending: Bool = false
-    @State var sent: Bool = false
-    @State var errorMsg: String = "Unknown error."
-    @State var failed: Bool = false
-    @State var pollAdded: Bool = false
-    @State var tempPollCreator: TempPollCreator = TempPollCreator()
+    @ObservedObject var postCreation: PostCreation
 
+    init (client: ApiClient) {
+        self.client = client
+        self.postCreation = PostCreation(client: client)
+    }
+    
     var body: some View {
         VStack {
-            if sending==true {
+            if postCreation.sending==true {
                 HStack {
                     Text("Status: ")
-                    if sent==true {
+                    if postCreation.sent==true {
                         Text("Sent!")
                     } else {
-                        if failed==true {
-                            Text("Failed: " + errorMsg)
+                        if postCreation.failed==true {
+                            Text("Failed: " + postCreation.errorMsg)
                         } else {
                             Text("Sending")
                         }
@@ -37,84 +34,21 @@ struct CreatePost: View {
             }
             
             VStack {
-                TextField("Content", text: $content)
+                TextField("Content", text: $postCreation.content)
                 
                 Button(action: {
-                    client.hapticPress()
-                    self.sending = true
-
-                    var postCreateContent = PostCreateContent(userID: client.userTokens.userID, content: self.content)
-                    if (self.content == "" ) {
-                        self.failed = true
-                        self.errorMsg = "Please enter post content."
-                        return
-                    }
-
-                    self.content = ""
-                    let dispatchGroup = DispatchGroup()
-
-                    // create poll vist
-                    var pollID:String? = nil
-                    
-                    if (pollAdded) {
-                        if (tempPollCreator.amountOptions>1) {
-                            dispatchGroup.enter()
-
-                            client.polls.create(pollInput: tempPollCreator) { result in
-                                print("api request create poll:")
-
-                                switch result {
-                                case .success(let newPoll):
-                                    print(newPoll)
-                                    self.newPoll = newPoll.pollData
-                                    pollID = self.newPoll?._id
-                                    client.hapticPress()
-                                    
-                                    do {
-                                        dispatchGroup.leave()
-                                    }
-                                    
-                                case .failure(let error):
-                                    self.failed = true
-                                    self.errorMsg = "Poll failed to be created"
-                                    print("Error: \(error.localizedDescription)")
-                                    do {
-                                        dispatchGroup.leave()
-                                    }
-                                }
+                    DispatchQueue.main.async {
+                        Task{
+                            do {
+                                let result = try await postCreation.sendPost()
+                                print(result) // Handle successful result
+                            } catch {
+                                // Handle error
+                                print("Failed to send post: \(error.localizedDescription)")
                             }
                         }
                     }
-                    
-                    dispatchGroup.wait()
-                    if (self.failed == true) {
-                        print("failed caught before create post, after poll creation")
-                        return
-                    }
-                    if (pollID != nil) {
-                        postCreateContent.linkedPollID = pollID
-                    }
-                    
-                    print(pollID ?? "")
-                    print(newPoll ?? "")
-                    
-                    // send out post
-                    client.posts.createPost(postCreateContent: postCreateContent) { result in
-                        print("api request create post:")
-                        switch result {
-                        case .success(let newPost):
-                            self.newPost = newPost
-                            self.sent = true
-                            client.hapticPress()
-                            // clears poll data
-                            pollAdded = false
-                            tempPollCreator = TempPollCreator()
-                        case .failure(let error):
-                            self.failed = true
-                            self.errorMsg = "Post failed to send"
-                            print("Error: \(error.localizedDescription)")
-                        }
-                    }
+            
                 }) {
                     Text("Publish Post")
                 }
@@ -134,11 +68,11 @@ struct CreatePost: View {
                 Divider()
                 HStack {
                     Button(action: {
-                        pollAdded.toggle()
+                        postCreation.pollAdded.toggle()
                     }) {
                         HStack {
                             Image(systemName: "checklist")
-                            Text("\(pollAdded==true ? "Remove" : "Add") Poll")
+                            Text("\(postCreation.pollAdded==true ? "Remove" : "Add") Poll")
                         }
                     }
                     Spacer()
@@ -150,8 +84,8 @@ struct CreatePost: View {
                 RoundedRectangle(cornerRadius: 20)
                     .stroke(Color.accentColor, lineWidth: 3)
             )
-            if (pollAdded) {
-                if (content == "") {
+            if (postCreation.pollAdded) {
+                if (postCreation.content == "") {
                     HStack {
                         Text("Please add text to content before creating a poll.")
                         Spacer()
@@ -163,13 +97,12 @@ struct CreatePost: View {
                             .stroke(Color.accentColor, lineWidth: 3)
                     )
                 } else {
-                    PollCreatorView(client: client, tempPollCreator: $tempPollCreator)
+                    PollCreatorView(client: client, tempPollCreator: $postCreation.tempPollCreator)
                 }
             }
             Spacer()
         }
         .padding(10)
         .navigationTitle("Create")
-//        .navigationBarTitleDisplayMode(.large)
     }
 }

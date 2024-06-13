@@ -28,123 +28,22 @@ struct ContentView: View {
     }
     
     @ViewBuilder var body: some View {
-        NavigationView {
-            ZStack {
+        Group {
 #if os(iOS)
-                if horizontalSizeClass == .compact {
-//                    NavigationStack {
-                        if (client.loggedIn) {
-                            switch client.navigation?.selectedTab {
-                            case 0:
-                                NavigationStack {
-                                    FeedPage(client: client, feedPosts: feedPosts)
-                                }
-                            case 1:
-                                NavigationStack {
-                                    CreatePost(client: client)
-                                }
-                            case 2:
-                                NavigationStack {
-                                    SideBarNavigation(client: client, feedPosts: feedPosts)
-                                }
-                            case 3:
-                                NavigationStack {
-                                    DevModeView(client: client)
-                                }
-                            case 4:
-                                NavigationStack {
-                                    LiveChatView(client: client)
-                                }
-                            case 5:
-                                NavigationStack {
-                                    SearchView(client: client)
-                                }
-                            default:
-                                NavigationStack {
-                                    BeginPage(client: client)
-                                }
-                            }
-                        } else {
-                            NavigationStack {
-                                BeginPage(client: client)
-                            }
-                        }
-                }
+           if horizontalSizeClass == .compact {
+               compactLayoutView(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
+           } else {
+               regularLayoutView(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
+
+           }
+#elseif os(macOS)
+            macLayoutView(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
+            
+#elseif os(visionOS)
+            visionLayoutView(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
+
 #endif
-                VStack {
-#if os(iOS)
-                    // Text("hello")
-                      //  .background(Color(hex:0xf5bc53))
-                    if horizontalSizeClass != .compact {
-                        SideBarNavigation(client: client, feedPosts: feedPosts)
-                    }
-#endif
-#if os(macOS)
-                    SideBarNavigation(client: client, feedPosts: feedPosts)
-#endif
-#if os(visionOS)
-                    SideBarNavigation(client: client, feedPosts: feedPosts)
-                    
-                    if (client.serverOffline == true) {
-                        ServerStatusOffline(client: client)
-                    } else if (client.loggedIn) {
-                        NavigationStack {
-                            FeedPage(client: client, feedPosts: feedPosts)
-                        }
-                    } else {
-                        NavigationStack {
-                            BeginPage(client: client)
-                        }
-                    }
-#endif
-                }
-            }
-#if os(iOS)
-            .fullScreenCover(isPresented: $client.serverOffline, content: {
-                ServerStatusOffline(client: client)
-            })
-#endif
-            .onChange(of: client.loggedIn, perform: {newValue in
-                self.feedPosts.newClient(client: client)
-                self.feedPosts.getFeed()
-            })
-            if horizontalSizeClass != .compact {
-                if (client.serverOffline == true) {
-                    ServerStatusOffline(client: client)
-                } else if (client.loggedIn) {
-                    NavigationStack {
-                        FeedPage(client: client, feedPosts: feedPosts)
-                    }
-                } else {
-                    NavigationStack {
-                        BeginPage(client: client)
-                    }
-                }
-            }
         }
-#if os(iOS)
-        .if(horizontalSizeClass == .compact) { view in
-            view.overlay(
-                AppTabNavigation(client: client)
-                    .frame(height: 50)
-                    .padding(.bottom, 25),
-                alignment: .bottom
-            )
-          
-            .navigationViewStyle(StackNavigationViewStyle())
-        }
-        
-        .if(horizontalSizeClass == .compact) { view in
-            view.overlay(
-                IncomeNotificationView(client: client)
-                    .frame(height: 50)
-                    .padding(.top, 25),
-                alignment: .top
-            )
-          
-            .navigationViewStyle(StackNavigationViewStyle())
-        }
-#endif
         .onAppear {
             print("serveroffline \(client.serverOffline)")
             print ("devMode: \(client.devMode!)")
@@ -159,6 +58,150 @@ extension View {
             content(self)
         } else {
             self
+        }
+    }
+}
+
+
+struct compactLayoutView : View {
+    @ObservedObject var client: ApiClient
+    @ObservedObject var feedPosts: FeedPosts
+    @State var horizontalSizeClass: UserInterfaceSizeClass?
+
+    @ViewBuilder var body: some View {
+        VStack {
+            if (client.loggedIn) {
+                switch client.navigation?.selectedTab {
+                case 0:
+                    NavigationStack {
+                        FeedPage(client: client, feedPosts: feedPosts)
+                    }
+                case 1:
+                    NavigationStack {
+                        CreatePost(client: client)
+                    }
+                case 2:
+                    NavigationStack {
+                        SideBarNavigation(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
+                    }
+                case 3:
+                    NavigationStack {
+                        DevModeView(client: client)
+                    }
+                case 4:
+                    NavigationStack {
+                        LiveChatView(client: client)
+                    }
+                case 5:
+                    NavigationStack {
+                        SearchView(client: client)
+                    }
+                default:
+                    NavigationStack {
+                        BeginPage(client: client)
+                    }
+                }
+            } else {
+                NavigationStack {
+                    BeginPage(client: client)
+                }
+            }
+        }
+        .fullScreenCover(isPresented: $client.serverOffline, content: {
+            ServerStatusOffline(client: client)
+        })
+        .onChange(of: client.loggedIn, perform: {newValue in
+            self.feedPosts.newClient(client: client)
+            self.feedPosts.getFeed()
+        })
+        .overlay(
+            AppTabNavigation(client: client)
+                .frame(height: 50)
+                .padding(.bottom, 25),
+            alignment: .bottom
+        )
+        .navigationViewStyle(StackNavigationViewStyle())
+        .overlay(
+            IncomeNotificationView(client: client)
+                .frame(height: 50)
+                .padding(.top, 25),
+            alignment: .top
+        )
+        .navigationViewStyle(StackNavigationViewStyle())
+    }
+}
+
+struct regularLayoutView : View {
+    @ObservedObject var client: ApiClient
+    @ObservedObject var feedPosts: FeedPosts
+    @State var horizontalSizeClass: UserInterfaceSizeClass?
+
+    
+    @ViewBuilder var body: some View {
+        NavigationSplitView {
+            SideBarNavigation(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
+        } detail: {
+            if client.serverOffline {
+                ServerStatusOffline(client: client)
+            } else if client.loggedIn {
+                FeedPage(client: client, feedPosts: feedPosts)
+            } else {
+                BeginPage(client: client)
+            }
+        }
+        .fullScreenCover(isPresented: $client.serverOffline, content: {
+            ServerStatusOffline(client: client)
+        })
+        .onChange(of: client.loggedIn, perform: {newValue in
+            self.feedPosts.newClient(client: client)
+            self.feedPosts.getFeed()
+        })
+        .overlay(
+            IncomeNotificationView(client: client)
+                .frame(height: 50)
+                .padding(.top, 25),
+            alignment: .top
+        )
+        .navigationViewStyle(StackNavigationViewStyle())
+    }
+}
+
+struct macLayoutView : View {
+    @ObservedObject var client: ApiClient
+    @ObservedObject var feedPosts: FeedPosts
+    @State var horizontalSizeClass: UserInterfaceSizeClass?
+
+    @ViewBuilder var body: some View {
+        VStack {
+            SideBarNavigation(client: client, feedPosts: feedPosts,  horizontalSizeClass: horizontalSizeClass)
+        }
+        .onChange(of: client.loggedIn, perform: {newValue in
+            self.feedPosts.newClient(client: client)
+            self.feedPosts.getFeed()
+        })
+    }
+}
+
+struct visionLayoutView : View {
+    @ObservedObject var client: ApiClient
+    @ObservedObject var feedPosts: FeedPosts
+    @State var horizontalSizeClass: UserInterfaceSizeClass?
+
+    @ViewBuilder var body: some View {
+        VStack {
+            SideBarNavigation(client: client, feedPosts: feedPosts,  horizontalSizeClass: horizontalSizeClass)
+            
+            if (client.serverOffline == true) {
+                ServerStatusOffline(client: client)
+            } else if (client.loggedIn) {
+                NavigationStack {
+                    FeedPage(client: client, feedPosts: feedPosts)
+                }
+            } else {
+                NavigationStack {
+                    BeginPage(client: client)
+                }
+            }
         }
     }
 }
@@ -254,32 +297,36 @@ struct IncomeNotificationView: View {
 struct SideBarNavigation: View {
     @ObservedObject var client: ApiClient
     @ObservedObject var feedPosts: FeedPosts
+    @State var horizontalSizeClass: UserInterfaceSizeClass?
 
     var body: some View {
         List {
             // when user is logged in
             if (client.loggedIn) {
-                VStack {
-                    NavigationLink {
-                        FeedPage(client: client, feedPosts: feedPosts)
-                    } label: {
-                        Text("Feed")
+                if horizontalSizeClass != .compact {
+                    VStack {
+                        NavigationLink {
+                            FeedPage(client: client, feedPosts: feedPosts)
+                        } label: {
+                            Text("Feed")
+                        }
+                    }
+                    VStack {
+                        NavigationLink {
+                            LiveChatView(client: client)
+                        } label: {
+                            Text("Chat")
+                        }
+                    }
+                    VStack {
+                        NavigationLink {
+                            SearchView(client: client)
+                        } label: {
+                            Text("Search Interact")
+                        }
                     }
                 }
-                VStack {
-                    NavigationLink {
-                        LiveChatView(client: client)
-                    } label: {
-                        Text("Chat")
-                    }
-                }
-                VStack {
-                    NavigationLink {
-                        SearchView(client: client)
-                    } label: {
-                        Text("Search Interact")
-                    }
-                }
+                
                 VStack {
                     NavigationLink {
                         ProfileView(client: client, userData: client.userData, userID: client.userTokens.userID)

@@ -54,7 +54,7 @@ struct CreatePollReq: Encodable {
     var option_10: String?
 }
 
-struct CreatePollRes: Decodable {
+struct CreatePollRes: Codable {
     var pollData: PollData
 //    foundErrors
 }

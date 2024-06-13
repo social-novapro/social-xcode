@@ -51,6 +51,21 @@ class PostsApi: API_Helper {
         }
     }
     
+    func createPostV2(postCreateContent: PostCreateContent) async throws -> PostData {
+        print("Creating post")
+        let APIUrl = baseAPIurl + "/posts/create"
+
+        do {
+            let data:PostData = try await asyncRequestDataBody(urlString: APIUrl, httpMethod: "POST", httpBody: postCreateContent);
+            print("Created Post")
+
+            return data;
+        } catch {
+            print("Error: \(error)")
+            throw ErrorData(code: "Z001", msg: "Uknown", error: true)
+        }
+    }
+    
     func createPost(postCreateContent: PostCreateContent, completion: @escaping (Result<PostData, Error>) -> Void) {
         print("Creating post")
         let APIUrl = baseAPIurl + "/posts/create"

@@ -15,50 +15,52 @@ struct BeginPage: View {
     @State var signup = false;
     
     var body: some View {
-        VStack {
-            if (!client.loggedIn) {
-                Text("Welcome to Interact.")
-                Text("You can login, or create a new account.")
-
-                Button(action: {
-                    client.hapticPress()
-                    self.login = true
-                }, label: {
-                    Text("Login")
-                        .padding(15)
-                        .cornerRadius(20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.accentColor, lineWidth: 3)
-                        )
-                })
-                .navigationDestination(isPresented: $login) {
-                    LoginPage(client: client, onDone: { userLoginResponseIn in
-                        print("userresponsein")
+        NavigationStack {
+            VStack {
+                if (!client.loggedIn) {
+                    Text("Welcome to Interact.")
+                    Text("You can login, or create a new account.")
+                    
+                    Button(action: {
+                        client.hapticPress()
+                        self.login = true
+                    }, label: {
+                        Text("Login")
+                            .padding(15)
+                            .cornerRadius(20)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(Color.accentColor, lineWidth: 3)
+                            )
                     })
-                }
-                
-                Button(action: {
-                    client.hapticPress()
-                    self.signup = true
-                }, label: {
-                    Text("Sign up")
-                        .padding(15)
-                        .cornerRadius(20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.accentColor, lineWidth: 3)
-                        )
-                })
-                .navigationDestination(isPresented: $signup) {
-                    CreateUserPage(client: client, onDone: { userLoginResponseIn in
-                        print("userresponsein")
+                    .navigationDestination(isPresented: $login) {
+                        LoginPage(client: client, onDone: { userLoginResponseIn in
+                            print("userresponsein")
+                        })
+                    }
+                    
+                    Button(action: {
+                        client.hapticPress()
+                        self.signup = true
+                    }, label: {
+                        Text("Sign up")
+                            .padding(15)
+                            .cornerRadius(20)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(Color.accentColor, lineWidth: 3)
+                            )
                     })
+                    .navigationDestination(isPresented: $signup) {
+                        CreateUserPage(client: client, onDone: { userLoginResponseIn in
+                            print("userresponsein")
+                        })
+                    }
+                } else {
+                    //                UserView(client: client)
+                    LogoutView(client: client)
+                    //                FeedPage(client: client, feedPosts: feedPosts)
                 }
-            } else {
-//                UserView(client: client)
-                LogoutView(client: client)
-//                FeedPage(client: client, feedPosts: feedPosts)
             }
         }
         .navigationTitle("Welcome")

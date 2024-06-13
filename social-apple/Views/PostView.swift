@@ -37,7 +37,7 @@ struct PostView: View {
                         }
                     }
                 }
-                .popover(isPresented: $feedData.postLiveData.showingPopover) {
+                .sheet(isPresented: $feedData.postLiveData.showingPopover) {
                     NavigationView {
                         PopoverPostAction(client: client, feedData: $feedData)
                     }

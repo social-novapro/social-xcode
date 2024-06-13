@@ -86,8 +86,10 @@ struct ProfileView : View {
 
                 }
                 .padding(15)
+#if os(iOS)
                 .tabViewStyle(PageTabViewStyle())
                 .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+#endif
             } else {
                 if ((profileData.userData) != nil) {
                     TabView {
@@ -97,9 +99,10 @@ struct ProfileView : View {
                         }
                     }
                     .padding(10)
+#if os(iOS)
                     .tabViewStyle(PageTabViewStyle())
                     .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
-                    
+#endif
                 } else {
                     Text("Loading")
                 }

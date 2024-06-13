@@ -62,9 +62,9 @@ class ProfileViewClass: ObservableObject {
                 DispatchQueue.main.async {
                     self.userDataFull = results;
                     self.userData = results.userData;
-                    self.postData = results.postData;
-                    self.pinData = results.pinData;
-                    self.badgeData = results.badgeData ?? []
+                    self.postData = results.postData.reversed();
+                    self.pinData = results.pinData.reversed();
+                    self.badgeData = results.badgeData?.reversed() ?? []
                     self.doneLoading = true
                     self.possibleFail = false
                 }

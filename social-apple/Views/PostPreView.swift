@@ -11,7 +11,7 @@ import SwiftUI
 struct PostPreView: View {
     @ObservedObject var client: ApiClient
     @Binding var feedData: AllPosts
-
+    
     var body: some View {
         if (self.feedData.postLiveData.activeAction==3) {
             ReplyParentPostView(client: client, feedData: $feedData)
@@ -42,12 +42,12 @@ struct PostPreView: View {
                     }
                 }
             }
-            .popover(isPresented: $feedData.postLiveData.showingPopover) {
+            .sheet(isPresented: $feedData.postLiveData.showingPopover) {
                 NavigationView {
                     PopoverPostAction(client: client, feedData: $feedData)
                 }
             }
-            .popover(isPresented: $feedData.postLiveData.showingEditPopover) {
+            .sheet(isPresented: $feedData.postLiveData.showingEditPopover) {
                 NavigationView {
                     EditPostPopover(client: client, feedData: $feedData)
                 }
@@ -57,6 +57,69 @@ struct PostPreView: View {
             }
             .onAppear {
                 print ("showing")
+            }
+            .padding(15)
+            .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+            .cornerRadius(20)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.gray, lineWidth: 3)
+            )
+        if (self.feedData.postLiveData.actionExpanded == true) {
+            ExpandedPostView(client: client, feedData: $feedData)
+        }
+    }
+}
+
+struct PostFeedPreView: View {
+    @ObservedObject var client: ApiClient
+    @Binding var feedData: AllPosts
+
+    @Binding var selectedPostIndex: Int?
+    @Binding var selectedPost: Bool
+    @State var currentPostIndex: Int
+    
+    var body: some View {
+        if (self.feedData.postLiveData.activeAction==3) {
+            ReplyParentPostView(client: client, feedData: $feedData)
+        }
+            VStack {
+                if (self.feedData.postLiveData.deleted) {
+                    HStack {
+                        Text("This post was deleted.")
+                        Spacer()
+                    }
+                }
+                else if feedData.postLiveData.showData {
+                    Button(action: {
+                        client.hapticPress()
+                        self.feedData.postLiveData.showPostPage = true
+                        print("showing post?")
+                        self.selectedPost = true
+                        self.selectedPostIndex = currentPostIndex
+                    }) {
+                        VStack {
+                            PostPreviewView(client: client, feedData: $feedData)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+                else {
+                    HStack {
+                        Text("Unknown Error with Post Apperance. Try again later.")
+                        Spacer()
+                    }
+                }
+            }
+            .sheet(isPresented: $feedData.postLiveData.showingPopover) {
+                NavigationView {
+                    PopoverPostAction(client: client, feedData: $feedData)
+                }
+            }
+            .sheet(isPresented: $feedData.postLiveData.showingEditPopover) {
+                NavigationView {
+                    EditPostPopover(client: client, feedData: $feedData)
+                }
             }
             .padding(15)
             .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
@@ -282,6 +345,7 @@ struct ProfilePostView: View {
             .onAppear {
                 print(self.feedData.coposterData ?? "none")
             }
+            // TODO: MOVE TO FEEDPAGE WITH NAVIGIATIONSTACK, WHERE POST SHOWING IS
             .navigationDestination(isPresented: $profileShowing) {
                 ProfileView(client: client, userData: feedData.userData ?? nil, userID: feedData.userData?._id ?? nil)
             }
@@ -869,7 +933,7 @@ struct PostActionButtons: View {
             VStack {
                 Button(action: {
                     client.hapticPress()
-                    print("action")
+                    print("expand")
                     withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
                         DispatchQueue.main.async {
                             self.feedData.postLiveData.actionExpanded.toggle()

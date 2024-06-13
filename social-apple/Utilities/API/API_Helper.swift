@@ -6,6 +6,7 @@
 //
 
 import Foundation
+//import Combine/
 
 class API_Helper {
     var userTokenManager = UserTokenHandler()
@@ -28,6 +29,60 @@ class API_Helper {
     
     func decodeData() {
         
+    }
+    
+    func asyncRequestDataBody<T: Codable, B: Encodable>(
+        urlString: String,
+        errorType: String = "normal",
+        httpHeaders: [ApiHeader]=[],
+        httpMethod: String = "GET",
+        httpBody: B
+    ) async throws -> T {
+        //create the new url
+        let url = URL(string: urlString)
+        
+        //create a new urlRequest passing the url
+        var request = URLRequest(url: url!)
+        request.httpMethod = httpMethod
+
+        // headers
+        request.addValue(appToken, forHTTPHeaderField: "apptoken")
+        request.addValue(devToken, forHTTPHeaderField: "devtoken")
+        request.addValue(self.userTokens.accessToken, forHTTPHeaderField: "accesstoken")
+        request.addValue(self.userTokens.userToken, forHTTPHeaderField: "usertoken")
+        request.addValue(self.userTokens.userID, forHTTPHeaderField: "userid")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        for header in httpHeaders {
+            request.addValue(header.value, forHTTPHeaderField: header.field)
+        }
+        
+        // encode body
+        do {
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = .prettyPrinted
+
+            request.httpBody = try encoder.encode(httpBody)
+        } catch {
+            throw ErrorData(code: "Z001", msg: "Uknown", error: true)
+        }
+
+        // Execute the request
+        let (data, response) = try await URLSession.shared.data(for: request)
+           
+        // Check HTTP status code
+        guard let httpResponse = response as? HTTPURLResponse, 200..<300 ~= httpResponse.statusCode else {
+            throw ErrorData(code: "Z001", msg: "Invalid response status", error: true)
+        }
+           
+        // Decode the response
+        do {
+            let decodedData = try JSONDecoder().decode(T.self, from: data)
+            return decodedData
+        } catch {
+            print("Error: \(error)")
+            throw ErrorData(code: "Z001", msg: "Failed to decode response", error: true)
+        }
     }
     
     func requestDataWithBody<T: Decodable, B: Encodable>(

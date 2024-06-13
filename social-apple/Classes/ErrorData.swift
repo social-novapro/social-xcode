@@ -7,7 +7,15 @@
 
 import Foundation
 
-struct ErrorData : Decodable, Error {
+
+enum APIError: Error {
+    case code
+    case msg
+    case decodingError(Error)
+    // Add more cases as needed for specific error types in your API interactions
+}
+
+struct ErrorData : Codable, Error {
     let code: String
     let msg: String
     let error: Bool

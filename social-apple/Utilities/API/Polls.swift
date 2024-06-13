@@ -6,10 +6,67 @@
 //
 
 import Foundation
+import Combine
 
 class PollsApi: API_Helper {
+    func createV2(pollInput: TempPollCreator) async throws -> CreatePollRes {
+        var goodOptions:Int32 = 0
+        var foundOptions: [String] = []
+        
+        for option in pollInput.options {
+            if (option != "") {
+                goodOptions+=1
+                foundOptions.append(option)
+            }
+        }
+        
+        if (goodOptions <= 1) {
+            throw ErrorData(code: "Z001", msg: "Uknown", error: true)
+//            return Fail(error: NSError(domain: "com.example.error", code: 0, userInfo: nil)).eraseToAnyPublisher()
+        }
+        
+        var createPollReq = CreatePollReq(pollName: pollInput.pollQuestion, optionAmount: goodOptions, option_1: foundOptions[0], option_2: foundOptions[1])
+
+        var amount:Int32 = 0
+        
+        // this is horrible code - need to update the api to work better
+        for optionFound in foundOptions {
+            amount+=1
+            if (amount==3) {
+                createPollReq.option_3 = optionFound
+            } else if (amount==4) {
+                createPollReq.option_4 = optionFound
+            } else if (amount==5) {
+                createPollReq.option_5 = optionFound
+            } else if (amount==6) {
+                createPollReq.option_6 = optionFound
+            } else if (amount==7) {
+                createPollReq.option_7 = optionFound
+            } else if (amount==8) {
+                createPollReq.option_8 = optionFound
+            } else if (amount==9) {
+                createPollReq.option_9 = optionFound
+            } else if (amount==10) {
+                createPollReq.option_10 = optionFound
+            }
+        }
+        
+        let APIUrl = baseAPIurl + "/polls/create"
+        
+        print("procededing")
+        do {
+            let data:CreatePollRes = try await asyncRequestDataBody(urlString: APIUrl, httpMethod: "POST", httpBody: createPollReq);
+            
+            return data;
+        } catch {
+            throw ErrorData(code: "Z001", msg: "Uknown", error: true)
+
+        }
+//        return asyncRequestDataBody(urlString: APIUrl, errorType: "normal", httpMethod: "POST", httpBody: createPollReq)
+    }
+    
     func create(pollInput: TempPollCreator, completion: @escaping (Result<CreatePollRes, Error>) -> Void) {
-                
+
         var goodOptions:Int32 = 0
         var foundOptions: [String] = []
         
