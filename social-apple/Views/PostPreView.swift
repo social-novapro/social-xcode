@@ -49,7 +49,7 @@ struct PostPreView: View {
             }
             .sheet(isPresented: $feedData.postLiveData.showingEditPopover) {
                 NavigationView {
-                    EditPostPopover(client: client, feedData: $feedData)
+                    EditPostPopover(client: client, feedData: $feedData, content: feedData.postData.content ?? "")
                 }
             }
             .navigationDestination(isPresented: $feedData.postLiveData.showPostPage) {
@@ -118,7 +118,7 @@ struct PostFeedPreView: View {
             }
             .sheet(isPresented: $feedData.postLiveData.showingEditPopover) {
                 NavigationView {
-                    EditPostPopover(client: client, feedData: $feedData)
+                    EditPostPopover(client: client, feedData: $feedData, content: feedData.postData.content ?? "")
                 }
             }
             .padding(15)
@@ -1039,7 +1039,7 @@ struct EditPostPopover: View {
     @ObservedObject var client: ApiClient
     @Binding var feedData: AllPosts
     
-    @State private var content: String = ""
+    @State var content: String
     @State var sending: Bool = false
     @State var sent: Bool = false
     @State var failed: Bool = false

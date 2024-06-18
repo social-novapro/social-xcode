@@ -106,7 +106,8 @@ class MyAppDelegate: UIResponder, UIApplicationDelegate {
                 newMessage = "\(subtitle.replacing(" quoted your post!", with: " quoted")): \(body)"
             } else if (title == "Interact Copost") {
                 newMessage = "\(subtitle.replacing(" wants to copost with you!", with: " requested to copost")): \(body)"
-
+            } else if (title == "Interact Mention") {
+                newMessage = "\(subtitle.replacing(" mentioned you in a post!", with: " mentioned")): \(body)"
             } else {
                 newMessage = "\(subtitle) : \(body)"
             }

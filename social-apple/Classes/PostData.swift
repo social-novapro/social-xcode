@@ -26,8 +26,9 @@ class PostCreation: ObservableObject {
     @Published var errorMsg: String = "Unknown error."
     @Published var failed: Bool = false
     @Published var pollAdded: Bool = false
+    @Published var coposterAdded: Bool = false
     @Published var tempPollCreator: TempPollCreator = TempPollCreator()
-
+    @Published var coposters: [String] = []
     
     init(client: ApiClient) {
         self.client = client

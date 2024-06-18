@@ -32,63 +32,43 @@ struct CreatePost: View {
                     }
                 }
             }
-            
-            VStack {
-                TextField("Content", text: $postCreation.content)
-                
-                Button(action: {
-                    DispatchQueue.main.async {
-                        Task{
-                            do {
-                                let result = try await postCreation.sendPost()
-                                print(result) // Handle successful result
-                            } catch {
-                                // Handle error
-                                print("Failed to send post: \(error.localizedDescription)")
+            ScrollView {
+                VStack {
+                    VStack {
+                        ZStack {
+                            TextEditor(text: $postCreation.content)
+                            
+                            if postCreation.content.isEmpty {
+                                VStack {
+                                    HStack {
+                                        Text("Content")
+                                            .foregroundStyle(.tertiary)
+                                            .padding(.top, 8)
+                                            .padding(.leading, 5)
+                                        
+                                        Spacer()
+                                    }
+                                    Spacer()
+                                }
                             }
                         }
-                    }
-            
-                }) {
-                    Text("Publish Post")
-                }
-            }
-            .padding(15)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.accentColor, lineWidth: 3)
-            )
-            
-            VStack {
-                HStack {
-                    Text("Options")
-                    Spacer()
-                }
-                Divider()
-                HStack {
-                    Button(action: {
-                        postCreation.pollAdded.toggle()
-                    }) {
-                        HStack {
-                            Image(systemName: "checklist")
-                            Text("\(postCreation.pollAdded==true ? "Remove" : "Add") Poll")
+                        
+                        Button(action: {
+                            DispatchQueue.main.async {
+                                Task{
+                                    do {
+                                        let result = try await postCreation.sendPost()
+                                        print(result) // Handle successful result
+                                    } catch {
+                                        // Handle error
+                                        print("Failed to send post: \(error.localizedDescription)")
+                                    }
+                                }
+                            }
+                            
+                        }) {
+                            Text("Publish Post")
                         }
-                    }
-                    Spacer()
-                }
-            }
-            .padding(15)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.accentColor, lineWidth: 3)
-            )
-            if (postCreation.pollAdded) {
-                if (postCreation.content == "") {
-                    HStack {
-                        Text("Please add text to content before creating a poll.")
-                        Spacer()
                     }
                     .padding(15)
                     .cornerRadius(20)
@@ -96,13 +76,95 @@ struct CreatePost: View {
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(Color.accentColor, lineWidth: 3)
                     )
-                } else {
-                    PollCreatorView(client: client, tempPollCreator: $postCreation.tempPollCreator)
+                    
+                    VStack {
+                        HStack {
+                            Text("Options")
+                            Spacer()
+                        }
+                        Divider()
+                        HStack {
+                            Button(action: {
+                                postCreation.pollAdded.toggle()
+                            }) {
+                                HStack {
+                                    Image(systemName: "checklist")
+                                    Text("\(postCreation.pollAdded==true ? "Remove" : "Add") Poll")
+                                }
+                            }
+                            Spacer()
+                            Button(action: {
+                                postCreation.coposterAdded.toggle()
+                            }) {
+                                HStack {
+                                    Image(systemName: "person.2")
+                                    Text("\(postCreation.coposterAdded==true ? "Remove" : "Add") Coposters")
+                                }
+                            }
+                        }
+                    }
+                    .padding(15)
+                    .cornerRadius(20)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color.accentColor, lineWidth: 3)
+                    )
+                    
+                    if (postCreation.pollAdded) {
+                        if (postCreation.content == "") {
+                            HStack {
+                                Text("Please add text to content before creating a poll.")
+                                Spacer()
+                            }
+                            .padding(15)
+                            .cornerRadius(20)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(Color.accentColor, lineWidth: 3)
+                            )
+                        } else {
+                            PollCreatorView(client: client, tempPollCreator: $postCreation.tempPollCreator)
+                        }
+                    }
+                    
+                    if (postCreation.coposterAdded) {
+                        if (postCreation.content == "") {
+                            HStack {
+                                Text("Please add text to content before adding coposters.")
+                                Spacer()
+                            }
+                            .padding(15)
+                            .cornerRadius(20)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(Color.accentColor, lineWidth: 3)
+                            )
+                        } else {
+                            PollCreatorView(client: client, tempPollCreator: $postCreation.tempPollCreator)
+                        }
+                    }
                 }
+                .padding(10)
             }
-            Spacer()
         }
-        .padding(10)
         .navigationTitle("Create")
+    }
+}
+
+
+struct CoposterCreatorView: View {
+    @ObservedObject var client: ApiClient
+    @Binding var coposters: [String]
+    
+    var body: some View {
+        VStack {
+            Text("Adding")
+        }
+        .padding(15)
+        .cornerRadius(20)
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color.accentColor, lineWidth: 3)
+        )
     }
 }
