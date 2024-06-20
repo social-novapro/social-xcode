@@ -29,9 +29,85 @@ class PostCreation: ObservableObject {
     @Published var coposterAdded: Bool = false
     @Published var tempPollCreator: TempPollCreator = TempPollCreator()
     @Published var coposters: [String] = []
+    @Published var possibleTags: SearchPossibleTags?
     
     init(client: ApiClient) {
         self.client = client
+    }
+    
+    func replaceTag(tag: String) {
+        if (tag == "") {
+            DispatchQueue.main.async {
+                self.possibleTags = nil;
+                return
+            }
+        }
+        var words: [String] {
+            content.split(separator: " ").map { String($0) }
+        }
+
+        var newWords: [String] = words
+        newWords.removeLast()
+
+        
+// because api doesnt add @ automatically
+// undo because i did it on the frontend of the app
+
+//        var addTag = tag
+//        if (!tag.starts(with: "#")) {
+//            addTag = "@" + tag
+//        }
+        
+        newWords.append("\(tag) ")
+        let newContent = newWords.joined(separator: " ")
+        DispatchQueue.main.async {
+            self.content = newContent
+            self.possibleTags = nil;
+        }
+    }
+    
+    func typePost(newValue: String) {
+        if (newValue == "") {
+            DispatchQueue.main.async {
+                self.possibleTags = nil;
+                return
+            }
+        }
+//        print("--- \(newValue) \(content)")
+        
+        var words: [String] {
+            content.split(separator: " ").map { String($0) }
+        }
+
+        if (words.count == 0) {
+            return
+        }
+        let currentWord = words[words.count-1]
+        print(words[words.count-1])
+        
+        // if doesnt meet tag requirements
+        if (content.last == " " || !currentWord.starts(with: "@") && !currentWord.starts(with: "#")){
+            DispatchQueue.main.async {
+                self.possibleTags = nil;
+            }
+
+            return;
+        }
+
+//        if (currentWord.starts(with: "@"))
+
+        client.search.searchTagSuggestion(searchText: currentWord) { result in
+            switch result {
+            case .success(let results):
+                DispatchQueue.main.async {
+                    self.possibleTags = results;
+                    print(results)
+                }
+                break;
+            case .failure(let error):
+                print("Error: \(error.localizedDescription)")
+            }
+        }
     }
     
     func publishPoll() async throws -> CreatePollRes {
@@ -88,6 +164,7 @@ class PostCreation: ObservableObject {
         DispatchQueue.main.async {
             self.sending = true
         }
+        
         // set up post content
         var postCreateContent = PostCreateContent(userID: self.client.userTokens.userID, content: self.content)
 
@@ -155,6 +232,8 @@ class PostCreation: ObservableObject {
                 // clears poll data
                 self.pollAdded = false
                 self.tempPollCreator = TempPollCreator()
+                self.failed = false
+                self.sending = false
             }
             
             return newPost
@@ -355,8 +434,10 @@ struct AllPosts: Observable, Decodable, Identifiable, Equatable {
     var pollData: PollData? = nil
     var voteData: VoteData? = nil
     var coposterData: [UserData]? = nil
+    var tagData: [TagData]? = nil
     var extraData: ExtraData
     var postLiveData: PostExtraData = PostExtraData()
+    var contentArgs: [String] = []
     
     
     private enum CodingKeys: String, CodingKey {
@@ -368,8 +449,19 @@ struct AllPosts: Observable, Decodable, Identifiable, Equatable {
         case pollData
         case voteData
         case coposterData
+        case tagData
         case extraData
     }
+}
+
+struct TagData:Decodable, Encodable {
+    var _id: String
+    var tagTextOriginal: String
+    var wordIndex: Int64
+    var timestamp: Int64
+    var indexID: String
+    var userID: String
+    var postID: String
 }
 
 struct QuoteData: Decodable, Encodable {
@@ -572,4 +664,26 @@ struct PostEditRes : Decodable {
 struct PostEditReq : Encodable {
     var postID: String
     var content: String
+}
+
+struct TagPotentialData : Identifiable, Decodable {
+    var id = UUID()
+    var possibility: String
+    var tag: String
+    
+    private enum CodingKeys: String, CodingKey {
+        case possibility
+        case tag
+    }
+}
+
+struct TagFoundData : Identifiable, Decodable {
+    var id = UUID()
+    var tag: String
+    var posts: [AllPosts]? = []
+    
+    private enum CodingKeys: String, CodingKey {
+        case tag
+        case posts
+    }
 }

@@ -16,7 +16,7 @@ class UsersApi: API_Helper {
     }
     func getByID(userID: String, completion: @escaping (Result<UserData, Error>) -> Void) {
         print("user login request")
-        let APIUrl = baseAPIurl + "/get/userByID/" + userID
+        let APIUrl = baseAPIurl + "/users/get/basic/" + userID
         self.requestData(urlString: APIUrl) { (result: Result<UserData, Error>) in
             switch result {
             case .success(let userData):
@@ -29,7 +29,7 @@ class UsersApi: API_Helper {
     }
     func getUser(userID: String, completion: @escaping (Result<UserDataFull, Error>) -> Void) {
         print("user login request")
-        let APIUrl = baseAPIurl + "/get/user/" + userID
+        let APIUrl = baseAPIurl + "/users/get/" + userID
         self.requestData(urlString: APIUrl) { (result: Result<UserDataFull, Error>) in
             switch result {
             case .success(let userData):

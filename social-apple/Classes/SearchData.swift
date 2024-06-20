@@ -7,13 +7,70 @@
 
 import Foundation
 
+class SearchClass: ObservableObject {
+    var client: ApiClient
+    @Published var searchText: String = ""
+    @Published var searchResults: SearchFoundData = SearchFoundData()
+    @Published var foundData: Bool = false
+
+    init(client: ApiClient) {
+        self.client = client
+    }
+            
+    func search(newValue: String) {
+        if (newValue == "") {
+            DispatchQueue.main.async {
+                self.foundData = false;
+            }
+            return;
+        }
+        
+        client.search.searchRequest(lookup: SearchLookupData(lookupkey: newValue)) { result in
+            switch result {
+            case .success(let results):
+                if (newValue != self.searchText) {
+                    return;
+                } else {
+                    DispatchQueue.main.async {
+                        self.searchResults = results
+                        self.searchResults.postsFound = self.searchResults.postsFound?.reversed()
+                        self.foundData = true
+                    }
+                }
+            case .failure(let error):
+                print("Error: \(error.localizedDescription)")
+            }
+        }
+        
+    }
+}
+
 struct SearchLookupData: Encodable {
     var lookupkey: String
 }
 
 struct SearchFoundData: Decodable {
-    var usersFound: [UserData]?
-    var postsFound: [AllPosts]?
+    var usersFound: [UserData]? = []
+    var postsFound: [AllPosts]? = []
+    var tagsFound: [TagFoundData]? = []
+    var hashtagsFound: [TagPotentialData]? = []
+}
+
+struct SearchPossibleTags : Decodable {
+    var hashtags: [TagPotentialData]? = []
+    var users: [UserPotentialData]? = []
+    var found: Bool? = false
+}
+
+struct UserPotentialData: Identifiable, Decodable {
+    var id = UUID()
+    var possibility: String
+    var user: UserData
+    
+    private enum CodingKeys: String, CodingKey {
+        case possibility
+        case user
+    }
 }
 
 struct SearchSettingResponse: Decodable {

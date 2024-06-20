@@ -178,6 +178,10 @@ struct PostPreviewView: View {
                 Spacer()
                 HStack {
                     VStack {
+                        // doesnt work
+//                        TappableText(content: feedData.postData.content!) { word in
+//                            print("tapped on \(word)")
+//                        }
                         Text(feedData.postData.content!)
                             .foregroundColor(.secondary)
                             .lineLimit(100) // or set a specific number
@@ -352,6 +356,34 @@ struct ProfilePostView: View {
         }
     }
 }
+
+
+struct TappableText: View {
+    let content: String
+    let onTap: (String) -> Void
+
+    var words: [String] {
+        content.split(separator: " ").map { String($0) }
+    }
+
+    var body: some View {
+        VStack {
+            HStack {
+                ForEach(words, id: \.self) { word in
+                    Text(word + " ")
+                        .foregroundColor(.blue)
+                        .onTapGesture {
+                            onTap(word)
+                        }
+//                        .padding(.trailing, 4) // Add some space between words
+                }
+                Spacer()
+            }
+            .frame(maxWidth: .infinity, alignment: .leading) // Allow text to wrap
+        }
+    }
+}
+
 
 struct DevModePostView: View {
     @Binding var feedData: AllPosts

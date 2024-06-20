@@ -15,6 +15,7 @@ class ProfileViewClass: ObservableObject {
     @Published var postData: [AllPosts] = []
     @Published var pinData: [AllPosts] = []
     @Published var badgeData: [BadgeData] = []
+    @Published var mentionData: [AllPosts] = []
     @Published var userDataFull: UserDataFull?
     
     @Published var doneLoading: Bool = false
@@ -53,9 +54,6 @@ class ProfileViewClass: ObservableObject {
     }
     
     func ready() {
-//        self.client = client
-//        self.userID = userID ?? client.userTokens.userID
-
         client.users.getUser(userID: self.userID) { result in
             switch result {
             case .success(let results):
@@ -65,6 +63,7 @@ class ProfileViewClass: ObservableObject {
                     self.postData = results.postData.reversed();
                     self.pinData = results.pinData.reversed();
                     self.badgeData = results.badgeData?.reversed() ?? []
+                    self.mentionData = results.mentionData?.reversed() ?? []
                     self.doneLoading = true
                     self.possibleFail = false
                 }
@@ -133,6 +132,7 @@ struct UserDataFull: Decodable, Identifiable {
     var postData: [AllPosts]
     var pinData: [AllPosts]
     var badgeData: [BadgeData]?
+    var mentionData: [AllPosts]?
     
     private enum CodingKeys: String, CodingKey {
         case included
@@ -140,6 +140,7 @@ struct UserDataFull: Decodable, Identifiable {
         case postData
         case pinData
         case badgeData
+        case mentionData
     }
 }
 

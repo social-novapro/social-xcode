@@ -18,12 +18,13 @@ struct CreatePost: View {
     
     var body: some View {
         VStack {
+            if postCreation.sent==true {
+                Text("Status: Sent!")
+            }
             if postCreation.sending==true {
                 HStack {
                     Text("Status: ")
-                    if postCreation.sent==true {
-                        Text("Sent!")
-                    } else {
+                    if postCreation.sent==false {
                         if postCreation.failed==true {
                             Text("Failed: " + postCreation.errorMsg)
                         } else {
@@ -37,6 +38,9 @@ struct CreatePost: View {
                     VStack {
                         ZStack {
                             TextEditor(text: $postCreation.content)
+                                .onChange(of: postCreation.content) { newValue in
+                                    postCreation.typePost(newValue: newValue)
+                                }
                             
                             if postCreation.content.isEmpty {
                                 VStack {
@@ -67,7 +71,8 @@ struct CreatePost: View {
                             }
                             
                         }) {
-                            Text("Publish Post")
+                            FancyText(text: "Publish Post")
+                                .padding(10)
                         }
                     }
                     .padding(15)
@@ -76,7 +81,9 @@ struct CreatePost: View {
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(Color.accentColor, lineWidth: 3)
                     )
-                    
+//                    VStack {
+//                        TagSuggestionsView(client: client, postCreation: postCreation)
+//                    }
                     VStack {
                         HStack {
                             Text("Options")
@@ -92,6 +99,7 @@ struct CreatePost: View {
                                     Text("\(postCreation.pollAdded==true ? "Remove" : "Add") Poll")
                                 }
                             }
+                            /*
                             Spacer()
                             Button(action: {
                                 postCreation.coposterAdded.toggle()
@@ -101,6 +109,7 @@ struct CreatePost: View {
                                     Text("\(postCreation.coposterAdded==true ? "Remove" : "Add") Coposters")
                                 }
                             }
+                             */
                         }
                     }
                     .padding(15)
@@ -109,7 +118,10 @@ struct CreatePost: View {
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(Color.accentColor, lineWidth: 3)
                     )
-                    
+                    if (postCreation.possibleTags != nil) {
+                        TagSuggestionsView(client: client, postCreation: postCreation)
+                    }
+
                     if (postCreation.pollAdded) {
                         if (postCreation.content == "") {
                             HStack {
@@ -147,10 +159,76 @@ struct CreatePost: View {
                 .padding(10)
             }
         }
-        .navigationTitle("Create")
+        .navigationTitle("Create Post")
     }
 }
 
+struct TagSuggestionsView: View {
+    @ObservedObject var client: ApiClient
+    @ObservedObject var postCreation: PostCreation
+    
+    var body: some View {
+        VStack {
+            if let possibleTags = postCreation.possibleTags {
+                if let hashtags = possibleTags.hashtags {
+                    if (hashtags.count > 0) {
+                        FancyText(text: "Suggested Hashtags:")
+
+                        ForEach(hashtags) { hashtag in
+                            TagSuggestionView(client: client, postCreation: postCreation, suggestion: hashtag.tag)
+                        }
+                    }
+                }
+                if let users = possibleTags.users {
+                    if (users.count > 0) {
+                        FancyText(text: "Suggested User Tags:")
+
+                        ForEach(users) { user in
+                            TagSuggestionView(client: client, postCreation: postCreation, suggestion: "@\( user.user.username ?? "")")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct FancyText : View {
+    @State var text: String
+    var body: some View {
+        VStack {
+            HStack {
+                Spacer()
+                VStack {
+                    Text(text)
+                }
+                Spacer()
+            }
+        }
+        .padding(15)
+        .cornerRadius(20)
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color.accentColor, lineWidth: 3)
+        )
+
+    }
+}
+
+struct TagSuggestionView: View {
+    @ObservedObject var client: ApiClient
+    @ObservedObject var postCreation: PostCreation
+    @State var suggestion: String
+    
+    var body: some View {
+        VStack {
+            FancyText(text: suggestion)
+            .onTapGesture {
+                postCreation.replaceTag(tag: suggestion)
+            }
+        }
+    }
+}
 
 struct CoposterCreatorView: View {
     @ObservedObject var client: ApiClient

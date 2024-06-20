@@ -76,14 +76,36 @@ struct ProfileView : View {
                                     .listRowInsets(EdgeInsets())
                                     .padding(10)
                             }
-                            EmptyView()
-                                .padding(.bottom, 20)
+                            VStack {
+                                
+                            }
+                            .padding(50)
                         }
                         .listStyle(.plain)
                         .listRowSeparator(.hidden)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
+                    ProfileMentionView(client: client, profileData: profileData)
+//                    VStack {
+//                        Text("User Mentions")
+//
+//                        List {
+//                            ForEach(self.profileData.mentionData.indices, id: \.self) { index in
+//                                PostPreView(client: client, feedData: $profileData.mentionData[index])
+//                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                                    .listRowSeparator(.hidden)
+//                                    .listRowInsets(EdgeInsets())
+//                                    .padding(10)
+//                            }
+//                            EmptyView()
+//                                .padding(.bottom, 20)
+//                        }
+//                        .listStyle(.plain)
+//                        .listRowSeparator(.hidden)
+//
+//                    }
+//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
                 .padding(15)
 #if os(iOS)
@@ -118,6 +140,38 @@ struct ProfileView : View {
     }
 }
 
+struct ProfileMentionView: View {
+    @ObservedObject var client: ApiClient
+    @ObservedObject var profileData: ProfileViewClass
+
+    init(client: ApiClient, profileData: ProfileViewClass) {
+        self.client = client
+        self.profileData = profileData
+        print(profileData)
+    }
+
+    var body: some View {
+        VStack {
+            Text("User Mentions")
+
+            List {
+                ForEach(self.profileData.mentionData.indices, id: \.self) { index in
+                    PostPreView(client: client, feedData: $profileData.mentionData[index])
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets())
+                        .padding(10)
+                }
+                EmptyView()
+                    .padding(.bottom, 20)
+            }
+            .listStyle(.plain)
+            .listRowSeparator(.hidden)
+
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
 
 struct ProfileUserDataView: View {
     @ObservedObject var client: ApiClient

@@ -9,28 +9,48 @@ import SwiftUI
 
 struct SearchView: View {
     @ObservedObject var client: ApiClient
-    @State var searchText:String = ""
-    @State var foundData: Bool = false
-    @State var searchData: SearchFoundData = SearchFoundData(usersFound: [], postsFound: [])
-    @State var foundPosts: [AllPosts] = []
+    @ObservedObject var searchClass: SearchClass
     
+    init(client: ApiClient) {
+        self.client = client;
+        self.searchClass = SearchClass(client: client)
+    }
+
+    @State var searchText:String = ""
+
     var body: some View {
         NavigationView {
             VStack {
-                if (foundData == true) {
+                if (searchClass.foundData == true) {
                     ScrollView {
-                        ForEach (searchData.usersFound ?? []) { user in
-                            userPreview(client: client, userData: user)
-                                .padding(10)
-                        }
-                        ForEach ($foundPosts) { $post in
-                            postSearchPreview(client: client, feedData: $post)
-                                .padding(10)
-                        }
                         VStack {
+                            if (searchClass.searchResults.usersFound?.isEmpty != true) {
+                                FancyText(text: "Users Found")
+                            }
+                            ForEach (searchClass.searchResults.usersFound ?? []) { user in
+                                userPreview(client: client, userData: user)
+                            }
+                            if (searchClass.searchResults.hashtagsFound?.isEmpty != true) {
+                                FancyText(text: "Related Hashtags")
+                            }
+                            ForEach ($searchClass.searchResults.hashtagsFound ?? []) { $tag in
+    //                            TagsPreview(client: client, tagPotential: $tag)
+                                FancyText(text: tag.tag)
+                            }
+                            // exported out cause xcode complains a lot
+                            SearchHashtagResultsView(client: client, searchClass: searchClass)
+                            if (searchClass.searchResults.postsFound?.isEmpty != true) {
+                                FancyText(text: "Posts Found")
+
+                            }
+                            SearchPostResultsView(client: client, searchClass: searchClass)
                             
+                            VStack {
+                                
+                            }
+                            .padding(50)
                         }
-                        .padding(50)
+                        .padding(10)
                     }
                 }
                 else {
@@ -40,32 +60,37 @@ struct SearchView: View {
         }
         
         .navigationTitle("Search")
-        .searchable(text: $searchText,/* placement: .toolbar,*/ prompt: "Search for something")
-        .onChange(of: searchText) { newValue in
-            if (newValue == "") {
-                foundData = false;
-                return;
+        .searchable(text: $searchClass.searchText,/* placement: .toolbar,*/ prompt: "Search for something")
+        .onChange(of: searchClass.searchText) { newValue in
+            self.searchClass.search(newValue: newValue)
+        }
+    }
+}
+
+struct SearchHashtagResultsView: View {
+    @ObservedObject var client: ApiClient
+    @ObservedObject var searchClass: SearchClass
+
+    var body: some View {
+        ForEach($searchClass.searchResults.tagsFound ?? []) { $tag in
+            if (tag.posts?.isEmpty != true) {
+                FancyText(text: "Posts for \(tag.tag)")
             }
-            print(newValue)
-            
-            client.search.searchRequest(lookup: SearchLookupData(lookupkey: newValue)) { result in
-                print("allpost request")
-                
-                switch result {
-                case .success(let results):
-                    if (newValue != searchText) {
-                        print("canceled " + newValue)
-                        return;
-                    } else {
-                        self.searchData = results
-                        self.foundPosts = results.postsFound?.reversed() ?? []
-                        print("Done")
-                        self.foundData = true
-                    }
-                case .failure(let error):
-                    print("Error: \(error.localizedDescription)")
-                }
+
+            ForEach($tag.posts ?? []) { $post in
+                postSearchPreview(client: client, feedData: $post)
             }
+        }
+    }
+}
+
+struct SearchPostResultsView: View {
+    @ObservedObject var client: ApiClient
+    @ObservedObject var searchClass: SearchClass
+
+    var body: some View {
+        ForEach ($searchClass.searchResults.postsFound ?? []) { $post in
+            postSearchPreview(client: client, feedData: $post)
         }
     }
 }
@@ -184,6 +209,19 @@ struct postSearchPreview: View {
         }
     }
 }
+
+/*
+ struct TagsPreview: View {
+    @ObservedObject var client: ApiClient
+    @Binding var tagPotential: TagPotentialData
+    
+    var body: some View {
+        VStack {
+            FancyText(text: tagPotential.tag)
+        }
+    }
+}
+ */
 
 struct userPreview: View {
     @ObservedObject var client: ApiClient

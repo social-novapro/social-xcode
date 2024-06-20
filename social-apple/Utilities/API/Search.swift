@@ -50,4 +50,26 @@ class SearchApi: API_Helper {
             }
         }
     }
+    
+    func searchTagSuggestion(searchText: String, completion: @escaping (Result<SearchPossibleTags, Error>) -> Void) {
+        print("Request login")
+        var searchTextReplace = searchText
+        if (searchText.starts(with: "@")){
+            searchTextReplace = searchText.replacingOccurrences(of: "@", with: "0")
+        }
+        else if (searchText.starts(with: "#")){
+            searchTextReplace = searchText.replacingOccurrences(of: "#", with: "1")
+        }
+        
+        let APIUrl = baseAPIurl + "/search/tags/" + searchTextReplace
+        
+        self.requestData(urlString: APIUrl, httpMethod: "GET") { (result: Result<SearchPossibleTags, Error>) in
+            switch result {
+            case .success(let seachTags):
+                completion(.success(seachTags))
+            case .failure(let error):
+                print("Error: \(error)")
+            }
+        }
+    }
 }
