@@ -7,6 +7,14 @@
 
 import Foundation
 
+
+func dateTimeFormatterInt64(date: Date) -> Int64 {
+    // convert Date to TimeInterval (typealias for Double)
+    let timeInterval = date.timeIntervalSince1970
+    let myInt = Int64(timeInterval) // seconds
+    return myInt*1000; // ms
+}
+
 func stringTimeFormatter(timestamp: String) -> String{
     if let epochTime = Double(timestamp) {
         let timeInterval = TimeInterval(epochTime)

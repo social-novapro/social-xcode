@@ -286,9 +286,9 @@
 				65DA82B92B1D2037008509E2 /* Begin */,
 				651757E62A006D2D00E90FBA /* Analytics */,
 				655AB62B29F0E25600C61F3A /* HomeView.swift */,
+				6503515B29F370CA005C4253 /* FeedPage.swift */,
 				6503514C29F1F84C005C4253 /* PostPreView.swift */,
 				6503515929F2F663005C4253 /* LogoutView.swift */,
-				6503515B29F370CA005C4253 /* FeedPage.swift */,
 				6503515D29F474A9005C4253 /* AboutView.swift */,
 				651757DB29FA254500E90FBA /* CreatePost.swift */,
 				651757E229FB889900E90FBA /* DevModeView.swift */,
@@ -595,7 +595,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "social-apple/social_apple.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 48;
+				CURRENT_PROJECT_VERSION = 49;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"social-apple/Preview Content\"";
 				DEVELOPMENT_TEAM = VHCWBN8GY3;
@@ -637,7 +637,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "social-apple/social_apple.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 48;
+				CURRENT_PROJECT_VERSION = 49;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"social-apple/Preview Content\"";
 				DEVELOPMENT_TEAM = VHCWBN8GY3;

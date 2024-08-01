@@ -495,11 +495,13 @@ struct ExtraData: Decodable, Encodable {
     var liked:Bool? = false
     var pinned:Bool? = false
     var saved:Bool? = false
+    var followed:Bool? = false
 
     private enum CodingKeys: String, CodingKey {
         case liked
         case pinned
         case saved
+        case followed
     }
 }
 

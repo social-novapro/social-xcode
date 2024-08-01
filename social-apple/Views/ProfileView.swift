@@ -22,7 +22,7 @@ struct ProfileView : View {
     
     var body: some View {
         VStack {
-            if (profileData.doneLoading) {
+            if (self.profileData.doneLoading) {
                 TabView {
                     VStack {
                         Text("Quick Info")
@@ -87,25 +87,6 @@ struct ProfileView : View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                     ProfileMentionView(client: client, profileData: profileData)
-//                    VStack {
-//                        Text("User Mentions")
-//
-//                        List {
-//                            ForEach(self.profileData.mentionData.indices, id: \.self) { index in
-//                                PostPreView(client: client, feedData: $profileData.mentionData[index])
-//                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                                    .listRowSeparator(.hidden)
-//                                    .listRowInsets(EdgeInsets())
-//                                    .padding(10)
-//                            }
-//                            EmptyView()
-//                                .padding(.bottom, 20)
-//                        }
-//                        .listStyle(.plain)
-//                        .listRowSeparator(.hidden)
-//
-//                    }
-//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
                 .padding(15)
 #if os(iOS)
@@ -135,6 +116,7 @@ struct ProfileView : View {
                 profileData.provBasic(userData: userData!)
             }
             profileData.ready()
+            print("showing)")
         }
         .navigationTitle("Profile of @" + (profileData.userData?.username ?? "unknown"))
     }
@@ -197,11 +179,56 @@ struct ProfileUserDataView: View {
                 Text(profileData.userData!.description!)
                 Spacer()
             }
+            HStack {
+                Text(String(profileData.userData?.followingCount ?? 0) + " Following")
+                Text("|")
+                Text(String(profileData.userData?.followerCount ?? 0) + " Followers")
+
+                if (profileData.userData?._id ?? "" != self.client.userTokens.userID) {
+                    Button(action: {
+                        client.hapticPress()
+                        print(profileData.followed)
+                        DispatchQueue.main.async {
+                            Task {
+                                if (profileData.followed == true) {
+                                    do {
+                                        _ = try await client.users.unFollowUser(userID: self.profileData.userData?._id ?? "")
+                                        profileData.followed = false
+                                    } catch let error as ErrorData {
+                                        print("ErrorData: \(error.code), \(error.msg)")
+                                    } catch {
+                                        print("Unexpected error: \(error)")
+                                    }
+                                } else {
+                                    do {
+                                        //self.profileData.userDataFull?.extraData?.followed
+                                        _ = try await client.users.followUser(userID: self.profileData.userData?._id ?? "")
+                                        profileData.followed = true
+                                    } catch {
+                                        print("failed true" )
+                                        print(error as! ErrorData)
+                                    }
+                                }
+                            }
+                        }
+                    }) {
+                        Text("|")
+                        if (profileData.followed == true) {
+                            Text("Unfollow User")
+                        } else {
+                            Text("Follow User")
+                        }
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+                Spacer()
+            }
             if (profileData.userData!.likeCount != nil) {
                 HStack {
                     Text(String(profileData.userData!.likeCount!) + " Likes")
                     Spacer()
-                }                }
+                }
+            }
             if (profileData.userData!.likedCount != nil) {
                 HStack {
                     Text(String(profileData.userData!.likedCount!) + " Liked Posts")

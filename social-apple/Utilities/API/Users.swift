@@ -66,4 +66,21 @@ class UsersApi: API_Helper {
             }
         }
     }
+    
+    func followUser(userID: String) async throws -> UserFollowData {
+        do {
+            let data:UserFollowData = try await asyncRequestData(urlString: "\(baseAPIurl)/users/follow/\(userID)", httpMethod: "POST");
+            return data;
+        } catch {
+            throw error
+        }
+    }
+    func unFollowUser(userID: String) async throws -> UserFollowData {
+        do {
+            let data:UserFollowData = try await asyncRequestData(urlString: "\(baseAPIurl)/users/unfollow/\(userID)", httpMethod: "DELETE");
+            return data;
+        } catch {
+            throw error;
+        }
+    }
 }

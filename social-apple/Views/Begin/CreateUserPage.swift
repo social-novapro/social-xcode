@@ -22,6 +22,7 @@ struct CreateUserPage: View {
     @State private var description: String = ""
     @State private var pronouns: String = ""
     @State private var status: String = ""
+    @State private var userAge: Date = Date()
     @State private var shouldNavigate: Bool = false;
     
     var body: some View {
@@ -44,7 +45,7 @@ struct CreateUserPage: View {
                 HStack {
                     Spacer()
                     Image(systemName: "person.circle")
-                    TextField("Username", text: $username)
+                    TextField("Username (required)", text: $username)
                         .padding(15)
                         .cornerRadius(20)
                         .overlay(
@@ -58,7 +59,7 @@ struct CreateUserPage: View {
                 HStack {
                     Spacer()
                     Image(systemName: "magnifyingglass.circle")
-                    TextField("Display Name", text: $displayName)
+                    TextField("Display Name (required)", text: $displayName)
                         .padding(15)
                         .cornerRadius(20)
                         .overlay(
@@ -72,7 +73,7 @@ struct CreateUserPage: View {
                 HStack {
                     Spacer()
                     Image(systemName: "lock.circle")
-                    SecureField("Password", text: $password)
+                    SecureField("Password (required)", text: $password)
                         .padding(15)
                         .cornerRadius(20)
                         .overlay(
@@ -86,7 +87,7 @@ struct CreateUserPage: View {
                 HStack {
                     Spacer()
                     Image(systemName: "line.3.horizontal.decrease.circle")
-                    TextField("Description", text: $description)
+                    TextField("Description (optional)", text: $description)
                         .padding(15)
                         .cornerRadius(20)
                         .overlay(
@@ -99,8 +100,19 @@ struct CreateUserPage: View {
                 
                 HStack {
                     Spacer()
+                    Image(systemName: "line.3.horizontal.decrease.circle")
+                    DatePicker(selection: $userAge, in: ...Date.now, displayedComponents: .date) {
+                        Text("Select a date")
+                    }
+                    Spacer()
+
+                }
+                .padding(5)
+                
+                HStack {
+                    Spacer()
                     Image(systemName: "pencil.tip.crop.circle")
-                    TextField("Pronouns", text: $pronouns)
+                    TextField("Pronouns (optional)", text: $pronouns)
                         .padding(15)
                         .cornerRadius(20)
                         .overlay(
@@ -114,7 +126,7 @@ struct CreateUserPage: View {
                 HStack {
                     Spacer()
                     Image(systemName: "info.circle")
-                    TextField("Status", text: $status)
+                    TextField("Activity Status (optional)", text: $status)
                         .padding(15)
                         .cornerRadius(20)
                         .overlay(
@@ -128,7 +140,7 @@ struct CreateUserPage: View {
                 Button(action: {
                     client.hapticPress()
                     print("button pressed")
-                    let userLogin = UserCreateData(email: email, username: username, password: password, displayName: displayName, description: description, pronouns: pronouns, status: status)
+                    let userLogin = UserCreateData(email: email, username: username, password: password, displayName: displayName, description: description, pronouns: pronouns, status: status, userAge: dateTimeFormatterInt64(date: userAge))
                     print("userlogin, LoginPage")
                     client.auth.userCreateRequest(userCreate: userLogin) { result in
                         print("api rquest login:")

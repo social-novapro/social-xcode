@@ -20,6 +20,7 @@ struct UserCreateData: Decodable, Encodable {
     let description: String
     let pronouns: String
     let status: String
+    let userAge: Int64
 }
 
 struct UserLoginResponse: Decodable {
@@ -75,5 +76,6 @@ struct DevModeData: Decodable, Encodable {
 struct CurrentNavigationData: Decodable, Encodable {
     let selectedTab: Int16
     let expanded: Bool?
+    var hidden: Bool? = false
 }
 

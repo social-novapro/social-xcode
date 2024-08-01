@@ -29,7 +29,7 @@ class ApiClient: ObservableObject {
     @Published var serverOffline: Bool = false
     
     @Published var devMode: DevModeData? = DevModeData(isEnabled: false)
-    @Published var navigation: CurrentNavigationData? = CurrentNavigationData(selectedTab: 0, expanded: false)
+    @Published var navigation: CurrentNavigationData? = CurrentNavigationData(selectedTab: 0, expanded: false, hidden: false)
     @Published var haptic: HapticModeData? = HapticModeData(isEnabled: true)
 
     var userTokenManager = UserTokenHandler()

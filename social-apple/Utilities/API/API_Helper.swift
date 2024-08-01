@@ -14,10 +14,10 @@ class API_Helper {
     var userTokens:UserTokenData
     
     var baseAPIurl:String = "https://interact-api.novapro.net/v1"
-
+    
     var appToken:String
     var devToken:String
-
+    
     init(userTokensProv: UserTokenData) {
         self.userTokens = userTokensProv
         self.baseAPIurl = apiData.getURL()
@@ -29,6 +29,57 @@ class API_Helper {
     
     func decodeData() {
         
+    }
+    
+    func asyncRequestData<T: Codable> (
+        urlString: String,
+        errorType: String = "normal",
+        httpHeaders: [ApiHeader]=[],
+        httpMethod: String = "GET"
+    ) async throws -> T {
+        //create the new url
+        let url = URL(string: urlString)
+        
+        //create a new urlRequest passing the url
+        var request = URLRequest(url: url!)
+        request.httpMethod = httpMethod
+
+        // headers
+        request.addValue(appToken, forHTTPHeaderField: "apptoken")
+        request.addValue(devToken, forHTTPHeaderField: "devtoken")
+        request.addValue(self.userTokens.accessToken, forHTTPHeaderField: "accesstoken")
+        request.addValue(self.userTokens.userToken, forHTTPHeaderField: "usertoken")
+        request.addValue(self.userTokens.userID, forHTTPHeaderField: "userid")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        for header in httpHeaders {
+            request.addValue(header.value, forHTTPHeaderField: header.field)
+        }
+        
+        // Execute the request
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw ErrorData(code: "Z003", msg: "Invalid response", error: true)
+            }
+
+            if 200..<300 ~= httpResponse.statusCode {
+                let decodedData = try JSONDecoder().decode(T.self, from: data)
+                    return decodedData
+                } else {
+                    // Log the raw error response for debugging
+                    if let errorString = String(data: data, encoding: .utf8) {
+                        print("Error response string: \(errorString)")
+                    }
+
+                    // Decode the error response
+                    let errorData = try JSONDecoder().decode(ErrorData.self, from: data)
+                    throw errorData
+                }
+        } catch {
+            throw error
+        }
     }
     
     func asyncRequestDataBody<T: Codable, B: Encodable>(

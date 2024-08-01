@@ -413,14 +413,15 @@ struct AppTabNavigation: View {
     var body: some View {
         VStack {
             HStack (alignment: .center) {
-                
-                if (client.loggedIn == false) {
+                if (client.navigation?.hidden == true || client.loggedIn == false) {
                     EmptyView()
                 }
                 else {
                     Spacer(minLength: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/)
                     HStack {
                         if !(client.navigation?.expanded ?? false) {
+//                            Spacer(minLength: 5)
+
                             Button(action: {
                                 client.hapticPress()
                                 withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {

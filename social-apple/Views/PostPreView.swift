@@ -439,6 +439,7 @@ struct ExpandedPostView: View {
 
     @State var savedPost: Bool?
     @State var pinnedPost: Bool?
+    @State var followed: Bool?
     
     var body : some View {
         VStack {
@@ -462,8 +463,45 @@ struct ExpandedPostView: View {
                         .underline()
                     Spacer()
                 }
+                if (client.userTokens.userID != feedData.userData?._id ?? "") {
+                    HStack {
+                        Button(action: {
+                            client.hapticPress()
+                            DispatchQueue.main.async {
+                                Task {
+                                    if (followed == true) {
+                                        do {
+                                            _ = try await client.users.unFollowUser(userID: self.feedData.userData?._id ?? "")
+                                            followed = false
+                                        } catch let error as ErrorData {
+                                            print("ErrorData: \(error.code), \(error.msg)")
+                                        } catch {
+                                            print("Unexpected error: \(error)")
+                                        }
+                                    } else {
+                                        do {
+                                            _ = try await client.users.followUser(userID: self.feedData.userData?._id ?? "")
+                                            followed = true
+                                        } catch {
+                                            print("failed true" )
+                                            print(error as! ErrorData)
+                                        }
+                                    }
+                                }
+                            }
+                        }) {
+                            if (followed == true) {
+                                Text("Unfollow User")
+                            } else {
+                                Text("Follow User")
+                            }
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        Spacer()
+                    }
+                }
+                
                 HStack {
-                    
                     Button(action: {
                         client.hapticPress()
 
@@ -603,6 +641,7 @@ struct ExpandedPostView: View {
         .onAppear {
             savedPost = self.feedData.extraData.saved ?? false
             pinnedPost = self.feedData.extraData.pinned ?? false
+            followed = self.feedData.extraData.followed ?? false
         }
     }
 }

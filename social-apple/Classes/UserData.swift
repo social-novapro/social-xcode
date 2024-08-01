@@ -17,6 +17,7 @@ class ProfileViewClass: ObservableObject {
     @Published var badgeData: [BadgeData] = []
     @Published var mentionData: [AllPosts] = []
     @Published var userDataFull: UserDataFull?
+    @Published var followed: Bool = false
     
     @Published var doneLoading: Bool = false
     @Published var possibleFail: Bool = false
@@ -57,7 +58,9 @@ class ProfileViewClass: ObservableObject {
         client.users.getUser(userID: self.userID) { result in
             switch result {
             case .success(let results):
+                print("Updating results")
                 DispatchQueue.main.async {
+                    self.followed = results.extraData?.followed ?? false
                     self.userDataFull = results;
                     self.userData = results.userData;
                     self.postData = results.postData.reversed();
@@ -100,6 +103,7 @@ struct UserData: Decodable, Encodable, Identifiable {
     var totalQuotes: Int64? = nil
     var username: String? = nil
     var verified: Bool? = nil
+    var followed: Bool? = nil
     
     private enum CodingKeys: String, CodingKey {
         case _id
@@ -120,6 +124,7 @@ struct UserData: Decodable, Encodable, Identifiable {
         case totalQuotes
         case username
         case verified
+        case followed
     }
 }
 
@@ -133,6 +138,7 @@ struct UserDataFull: Decodable, Identifiable {
     var pinData: [AllPosts]
     var badgeData: [BadgeData]?
     var mentionData: [AllPosts]?
+    var extraData: UserExtraData?
     
     private enum CodingKeys: String, CodingKey {
         case included
@@ -141,9 +147,12 @@ struct UserDataFull: Decodable, Identifiable {
         case pinData
         case badgeData
         case mentionData
+        case extraData
     }
 }
-
+struct UserExtraData: Decodable {
+    var followed: Bool
+}
 struct UserIncluded: Decodable {
     var user: String
     var posts: String
@@ -167,4 +176,53 @@ struct BadgeInfoData: Decodable {
     var date_achieved: String
     var version_introduced: String
     var multiple_count: Bool
+}
+
+/*
+ {
+   "_id": "e8b85ea2-cbda-4eee-97ca-ed0cb069fbcd",
+   "timestamp": 1722458728039,
+   "current": true,
+   "userID": "6ceae342-2ca2-48ec-8ce3-0e39caebe989",
+   "followedUserID": "fa7f424d-9cd9-4818-a4bf-670d3da2a174",
+   "indexFollowingID": "6fd32f05-5a43-4408-82c7-6fa4617f7a87",
+   "indexFollowersID": "f1ef58f0-a0ea-4d1d-a38d-e13d59c5927b",
+   "__v": 0
+ }
+ */
+
+struct UserFollowData: Decodable, Encodable {
+    let _id: String
+    let timestamp: Int64
+    let current: Bool
+    let userID: String
+    let followedUserID: String
+    let indexFollowingID: String
+    let indexFollowersID: String
+}
+
+struct UserFollowDataList: Decodable, Encodable, Identifiable {
+    var id = UUID()
+    let followData: UserFollowData
+    let userData: UserData
+    
+    private enum CodingKeys: String, CodingKey {
+        case followData
+        case userData
+    }
+}
+
+struct UserFollowListData: Decodable, Encodable {
+    let found: Bool
+    let followIndexID: String
+    let prevIndexID: String?
+    let nextIndexID: String?
+    let timestamp: Int64
+    let current: Bool
+    let type: Int
+    let userID: String
+    let userData: UserData
+    let amount: Int
+    let includedIndexes: [String]
+    let follows: [UserFollowData]
 }
