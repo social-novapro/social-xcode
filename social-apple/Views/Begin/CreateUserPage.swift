@@ -102,7 +102,7 @@ struct CreateUserPage: View {
                     Spacer()
                     Image(systemName: "line.3.horizontal.decrease.circle")
                     DatePicker(selection: $userAge, in: ...Date.now, displayedComponents: .date) {
-                        Text("Select a date")
+                        Text("Select a date (must be older than 13)")
                     }
                     Spacer()
 
