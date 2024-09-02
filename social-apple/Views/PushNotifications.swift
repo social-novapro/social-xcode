@@ -133,7 +133,7 @@ struct ChildNotificationDevice: View {
             }
         }
         .padding(15)
-        .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+        .background(client.themeData.mainBackground)
         .cornerRadius(20)
         .overlay(
             RoundedRectangle(cornerRadius: 20)

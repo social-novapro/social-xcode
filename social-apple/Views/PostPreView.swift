@@ -11,6 +11,7 @@ import SwiftUI
 struct PostPreView: View {
     @ObservedObject var client: ApiClient
     @Binding var feedData: AllPosts
+    @Binding var selectedProfile: SelectedProfileData
     
     var body: some View {
         if (self.feedData.postLiveData.activeAction==3) {
@@ -30,7 +31,7 @@ struct PostPreView: View {
                         print("showing post?")
                     }) {
                         VStack {
-                            PostPreviewView(client: client, feedData: $feedData)
+                            PostPreviewView(client: client, feedData: $feedData, selectedProfile: $selectedProfile)
                         }
                     }
                     .buttonStyle(.plain)
@@ -44,7 +45,7 @@ struct PostPreView: View {
             }
             .sheet(isPresented: $feedData.postLiveData.showingPopover) {
                 NavigationView {
-                    PopoverPostAction(client: client, feedData: $feedData)
+                    CreatePost(client: client, feedData: $feedData.optionalBinding())
                 }
             }
             .sheet(isPresented: $feedData.postLiveData.showingEditPopover) {
@@ -53,13 +54,13 @@ struct PostPreView: View {
                 }
             }
             .navigationDestination(isPresented: $feedData.postLiveData.showPostPage) {
-                PostView(client: client, feedData: $feedData)
+                PostView(client: client, feedData: $feedData, selectedProfile: $selectedProfile)
             }
             .onAppear {
                 print ("showing")
             }
             .padding(15)
-            .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+            .background(client.themeData.mainBackground)
             .cornerRadius(20)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
@@ -77,6 +78,7 @@ struct PostFeedPreView: View {
 
     @Binding var selectedPostIndex: Int?
     @Binding var selectedPost: Bool
+    @Binding var selectedProfile: SelectedProfileData
     @State var currentPostIndex: Int
     
     var body: some View {
@@ -99,7 +101,7 @@ struct PostFeedPreView: View {
                         self.selectedPostIndex = currentPostIndex
                     }) {
                         VStack {
-                            PostPreviewView(client: client, feedData: $feedData)
+                            PostPreviewView(client: client, feedData: $feedData, selectedProfile: $selectedProfile)
                         }
                     }
                     .buttonStyle(.plain)
@@ -113,7 +115,7 @@ struct PostFeedPreView: View {
             }
             .sheet(isPresented: $feedData.postLiveData.showingPopover) {
                 NavigationView {
-                    PopoverPostAction(client: client, feedData: $feedData)
+                    CreatePost(client: client, feedData: $feedData.optionalBinding())
                 }
             }
             .sheet(isPresented: $feedData.postLiveData.showingEditPopover) {
@@ -122,7 +124,7 @@ struct PostFeedPreView: View {
                 }
             }
             .padding(15)
-            .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+            .background(client.themeData.mainBackground)
             .cornerRadius(20)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
@@ -137,6 +139,7 @@ struct PostFeedPreView: View {
 struct PostPreviewView: View {
     @ObservedObject var client: ApiClient
     @Binding var feedData: AllPosts
+    @Binding var selectedProfile: SelectedProfileData
 
     var body: some View {
         VStack {
@@ -173,7 +176,7 @@ struct PostPreviewView: View {
             VStack {
                 Spacer()
                 VStack {
-                    ProfilePostView(client: client, feedData: $feedData)
+                    ProfilePostView(client: client, feedData: $feedData, selectedProfile: $selectedProfile)
                 }
                 Spacer()
                 HStack {
@@ -189,7 +192,7 @@ struct PostPreviewView: View {
                     }
                     Spacer()
                 }
-                .background(client.devMode?.isEnabled == true ? Color.green : Color.clear)
+                .background(client.themeData.greenBackground)
                 Spacer()
 // This is an extra long content that will totally look great on a large display with a small content area.
             }
@@ -206,6 +209,11 @@ struct PostPreviewView: View {
                                 }
                                 print ("showing usuer?")
                                 // go to user
+//                                selectedProfile = true
+                                selectedProfile.showProfile = true
+                                selectedProfile.profileData = feedData.quoteData?.quoteUser
+                                selectedProfile.userID = feedData.quoteData?.quoteUser?._id ?? ""
+
                             }) {
                                 if (feedData.quoteData?.quoteUser != nil) {
                                     HStack {
@@ -230,7 +238,7 @@ struct PostPreviewView: View {
                                 }
                             }
                             .foregroundColor(.secondary)
-                            .background(client.devMode?.isEnabled == true ? Color.green : Color.clear)
+                            .background(client.themeData.greenBackground)
                             
                             Spacer()
                         }
@@ -286,7 +294,7 @@ struct ReplyParentPostView : View {
             }
         }
         .padding(15)
-        .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+        .background(client.themeData.mainBackground)
         .cornerRadius(20)
         .overlay(
             RoundedRectangle(cornerRadius: 20)
@@ -299,7 +307,7 @@ struct ProfilePostView: View {
     @ObservedObject var client: ApiClient
     @Binding var feedData: AllPosts
 
-    @State var profileShowing: Bool = false;
+    @Binding var selectedProfile: SelectedProfileData
     
     var body: some View {
         VStack {
@@ -307,8 +315,11 @@ struct ProfilePostView: View {
                 client.hapticPress()
                 DispatchQueue.main.async {
                     feedData.postLiveData.isActive=true
-                    profileShowing = true
+                    selectedProfile.showProfile = true
+                    selectedProfile.profileData = feedData.userData
+                    selectedProfile.userID = feedData.userData?._id ?? ""
                     self.feedData.postLiveData.isSpecificPageActive.toggle()
+//                    selectedProfile = true
                 }
                 print("showing usuer?")
             }) {
@@ -350,9 +361,9 @@ struct ProfilePostView: View {
                 print(self.feedData.coposterData ?? "none")
             }
             // TODO: MOVE TO FEEDPAGE WITH NAVIGIATIONSTACK, WHERE POST SHOWING IS
-            .navigationDestination(isPresented: $profileShowing) {
-                ProfileView(client: client, userData: feedData.userData ?? nil, userID: feedData.userData?._id ?? nil)
-            }
+//            .navigationDestination(isPresented: $profileShowing) {
+//                ProfileView(client: client, userData: feedData.userData ?? nil, userID: feedData.userData?._id ?? nil)
+//            }
         }
     }
 }
@@ -627,7 +638,7 @@ struct ExpandedPostView: View {
                 }
             }
             .padding(15)
-            .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+            .background(client.themeData.mainBackground)
             .cornerRadius(20)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
@@ -678,7 +689,7 @@ struct SubExpandedPostView: View {
             }
         }
         .padding(15)
-        .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+        .background(client.themeData.mainBackground)
         .cornerRadius(20)
         .overlay(
             RoundedRectangle(cornerRadius: 20)
@@ -949,7 +960,7 @@ struct PostActionButtons: View {
                     }
                     .padding(5)
                     .foregroundColor(self.feedData.extraData.liked == true ? .accentColor : .secondary)
-                    .background(client.devMode?.isEnabled == true ? Color.blue : Color.clear)
+                    .background(client.themeData.blueBackground)
                     .cornerRadius(10)
                 }
                 .buttonStyle(PlainButtonStyle())
@@ -960,7 +971,10 @@ struct PostActionButtons: View {
                     client.hapticPress()
                     print("reply button")
                     DispatchQueue.main.async {
-                        self.feedData.postLiveData.activeAction = 1
+                        self.feedData.postLiveData.showingPopover = false // force close
+                        self.feedData.postLiveData.popoverAction = 0
+
+                        self.feedData.postLiveData.popoverAction = 1
                         self.feedData.postLiveData.showingPopover = true
                     }
                 }) {
@@ -972,7 +986,7 @@ struct PostActionButtons: View {
                     }
                     .padding(5)
                     .foregroundColor(.secondary)
-                    .background(client.devMode?.isEnabled == true ? Color.blue : Color.clear)
+                    .background(client.themeData.blueBackground)
                     .cornerRadius(10)
                 }
                 .buttonStyle(PlainButtonStyle())
@@ -983,7 +997,10 @@ struct PostActionButtons: View {
                     client.hapticPress()
                     print("quote button")
                     DispatchQueue.main.async {
-                        self.feedData.postLiveData.activeAction = 2
+                        self.feedData.postLiveData.showingPopover = false // force close
+                        self.feedData.postLiveData.popoverAction = 0
+
+                        self.feedData.postLiveData.popoverAction = 2
                         self.feedData.postLiveData.showingPopover = true
                     }
                 }) {
@@ -995,7 +1012,7 @@ struct PostActionButtons: View {
                     }
                     .padding(5)
                     .foregroundColor(.secondary)
-                    .background(client.devMode?.isEnabled == true ? Color.blue : Color.clear)
+                    .background(client.themeData.blueBackground)
                     .cornerRadius(10)
                 }
                 .buttonStyle(PlainButtonStyle())
@@ -1020,7 +1037,7 @@ struct PostActionButtons: View {
                     }
                     .padding(5)
                     .foregroundColor(.secondary)
-                    .background(client.devMode?.isEnabled == true ? Color.blue : Color.clear)
+                    .background(client.themeData.blueBackground)
                     .cornerRadius(10)
                 }
                 .buttonStyle(PlainButtonStyle())
@@ -1043,7 +1060,7 @@ struct PostActionButtons: View {
                         }
                         .padding(5)
                         .foregroundColor(.secondary)
-                        .background(client.devMode?.isEnabled == true ? Color.blue : Color.clear)
+                        .background(client.themeData.blueBackground)
                         .cornerRadius(10)
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -1061,7 +1078,7 @@ struct PostActionButtons: View {
                         }
                         .padding(5)
                         .foregroundColor(.secondary)
-                        .background(client.devMode?.isEnabled == true ? Color.blue : Color.clear)
+                        .background(client.themeData.blueBackground)
                         .cornerRadius(10)
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -1147,7 +1164,7 @@ struct EditPostPopover: View {
                     }
                 }
                 .padding(15)
-                .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+                .background(client.themeData.mainBackground)
                 .cornerRadius(20)
                 .overlay(
                     RoundedRectangle(cornerRadius: 20)
@@ -1155,7 +1172,27 @@ struct EditPostPopover: View {
                 )
                 
                 VStack {
-                    TextField("Content", text: $content)
+                    ZStack {
+                        TextEditor(text: $content)
+//                            .onChange(of: conent) { newValue in
+//                                postCreation.typePost(newValue: newValue)
+//                            }
+                        
+                        if content.isEmpty {
+                            VStack {
+                                HStack {
+                                    Text("Content")
+                                        .foregroundStyle(.tertiary)
+                                        .padding(.top, 8)
+                                        .padding(.leading, 5)
+                                    
+                                    Spacer()
+                                }
+                                Spacer()
+                            }
+                        }
+                    }
+//                    TextEditor("Content", text: $content)
                     Button(action: {
                         client.hapticPress()
                         print("button pressed")
@@ -1170,8 +1207,11 @@ struct EditPostPopover: View {
                             print("api rquest login:")
                             switch result {
                             case .success(let newPost):
-                                self.feedData.postData = newPost.new
-                                self.sent = true
+                                DispatchQueue.main.async {
+                                    
+                                    self.feedData.postData = newPost.new
+                                    self.sent = true
+                                }
                                 client.hapticPress()
                             case .failure(let error):
                                 self.failed = true
@@ -1244,7 +1284,7 @@ struct PopoverPostAction: View {
                 }
             }
             .padding(15)
-            .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+            .background(client.themeData.mainBackground)
             .cornerRadius(20)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)

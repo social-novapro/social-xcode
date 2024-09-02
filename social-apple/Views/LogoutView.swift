@@ -34,6 +34,7 @@ struct LogoutView: View {
                 }
                 Spacer()
             }
+            
         }
     }
 }

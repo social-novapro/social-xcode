@@ -74,7 +74,7 @@ struct AdminErrorIssueView : View {
                 }
             }
             .padding(15)
-            .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+            .background(client.themeData.mainBackground)
             .cornerRadius(20)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
@@ -83,7 +83,7 @@ struct AdminErrorIssueView : View {
             AdminErrorIssueSubData(client: client, issueData: $issueData)
         }
         .padding(15)
-        .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+        .background(client.themeData.mainBackground)
         .cornerRadius(20)
         .overlay(
             RoundedRectangle(cornerRadius: 20)
@@ -143,7 +143,7 @@ struct AdminErrorIssueSubData : View {
             }
         }
         .padding(15)
-        .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+        .background(client.themeData.mainBackground)
         .cornerRadius(20)
         .overlay(
             RoundedRectangle(cornerRadius: 20)

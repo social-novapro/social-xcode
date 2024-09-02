@@ -99,6 +99,7 @@ struct postSearchPreview: View {
     @ObservedObject var client: ApiClient
     @Binding var feedData: AllPosts
     @State var showingPost:Bool = false
+    @State var selectedProfile:SelectedProfileData = SelectedProfileData()
     
     var body: some View {
         VStack {
@@ -126,7 +127,7 @@ struct postSearchPreview: View {
                         VStack {
                             Spacer()
                             VStack {
-                                ProfilePostView(client: client, feedData: $feedData)
+                                ProfilePostView(client: client, feedData: $feedData, selectedProfile: $selectedProfile)
                             }
                             Spacer()
                             
@@ -139,7 +140,7 @@ struct postSearchPreview: View {
                                 }
                                 Spacer()
                             }
-                            .background(client.devMode?.isEnabled == true ? Color.green : Color.clear)
+                            .background(client.themeData.greenBackground)
                             Spacer()
                         }
                         
@@ -180,7 +181,7 @@ struct postSearchPreview: View {
                                             }
                                         }
                                         .foregroundColor(.secondary)
-                                        .background(client.devMode?.isEnabled == true ? Color.green : Color.clear)
+                                        .background(client.themeData.greenBackground)
                                         
                                         Spacer()
                                     }
@@ -197,7 +198,7 @@ struct postSearchPreview: View {
         }
         
         .padding(15)
-        .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+        .background(client.themeData.mainBackground)
         .cornerRadius(20)
         .overlay(
             RoundedRectangle(cornerRadius: 20)
@@ -257,7 +258,7 @@ struct userPreview: View {
             ProfileView(client: client, userData: userData, userID: userData._id)
         }
         .padding(15)
-        .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+        .background(client.themeData.mainBackground)
         .cornerRadius(20)
         .overlay(
             RoundedRectangle(cornerRadius: 20)

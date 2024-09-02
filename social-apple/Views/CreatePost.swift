@@ -10,10 +10,17 @@ import SwiftUI
 struct CreatePost: View {
     @ObservedObject var client: ApiClient
     @ObservedObject var postCreation: PostCreation
+    @Binding var feedData: AllPosts?
 
-    init (client: ApiClient) {
+//    init (client: ApiClient) {
+//        self.client = client
+//        self.postCreation = PostCreation(client: client)
+//    }
+//    
+    init (client: ApiClient, feedData: Binding<AllPosts?> = .constant(nil)) {
         self.client = client
-        self.postCreation = PostCreation(client: client)
+        _feedData = feedData
+        self.postCreation = PostCreation(client: client, feedData: feedData.wrappedValue)
     }
     
     var body: some View {
@@ -33,8 +40,42 @@ struct CreatePost: View {
                     }
                 }
             }
+            
             ScrollView {
                 VStack {
+                    if (self.feedData != nil) {
+                        VStack {
+                            HStack {
+                                if (self.feedData?.postLiveData.popoverAction==1) {
+                                    Text("Relplying to Post")
+                                } else if (self.feedData?.postLiveData.popoverAction==2) {
+                                    Text("Quoting Post")
+                                }
+                                Spacer()
+                            }
+                            Divider()
+                            HStack {
+                                Text(feedData?.userData?.displayName ?? "")
+                                Text("@\(feedData?.userData?.username ?? "")")
+                                if (feedData?.userData?.verified == true) {
+                                    Image(systemName: "checkmark.seal.fill")
+                                }
+                                Spacer()
+                            }
+                            HStack {
+                                Text(feedData?.postData.content ?? "")
+                                Spacer()
+                            }
+                        }
+                        .padding(15)
+                        .background(client.themeData.mainBackground)
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.accentColor, lineWidth: 3)
+                        )
+                    }
+                    
                     VStack {
                         ZStack {
                             TextEditor(text: $postCreation.content)

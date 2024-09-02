@@ -169,7 +169,7 @@ struct BasicSettings: View {
                 .padding(20)
             }
             .padding(15)
-            .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+            .background(client.themeData.mainBackground)
             .cornerRadius(20)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
@@ -179,6 +179,7 @@ struct BasicSettings: View {
         }
         .onChange(of: enabledDevMode) { newValue in
             client.devMode = client.devModeManager.swapMode()
+            client.themeData.updateThemes(devMode: client.devMode ?? DevModeData(isEnabled: false))
         }
         #if os(iOS)
         .onChange(of: enabledHaptic) { newValue in

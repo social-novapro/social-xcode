@@ -10,6 +10,7 @@ import SwiftUI
 struct PostView: View {
     @ObservedObject var client: ApiClient
     @Binding var feedData: AllPosts
+    @Binding var selectedProfile: SelectedProfileData
     
     var body: some View {
         ScrollView {
@@ -26,9 +27,9 @@ struct PostView: View {
                         }
                     }
                     else if (feedData.postLiveData.showData == true) {
-                        VStack {
-                            PostPreviewView(client: client, feedData: $feedData)
-                        }
+//                        VStack {
+                        PostPreviewView(client: client, feedData: $feedData, selectedProfile: $selectedProfile)
+//                        }
                     }
                     else {
                         HStack {
@@ -39,7 +40,9 @@ struct PostView: View {
                 }
                 .sheet(isPresented: $feedData.postLiveData.showingPopover) {
                     NavigationView {
-                        PopoverPostAction(client: client, feedData: $feedData)
+                        CreatePost(client: client, feedData: $feedData.optionalBinding())
+
+//                        PopoverPostAction(client: client, feedData: $feedData)
                     }
                 }
                 .onAppear {
@@ -50,7 +53,7 @@ struct PostView: View {
                     }
                 }
                 .padding(15)
-                .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+                .background(client.themeData.mainBackground)
                 .cornerRadius(20)
                 .overlay(
                     RoundedRectangle(cornerRadius: 20)
@@ -73,3 +76,4 @@ struct PostView: View {
         .navigationTitle("Post by @\(feedData.userData?.username ?? "Unknown)")")
     }
 }
+

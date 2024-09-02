@@ -129,6 +129,12 @@ struct UserData: Decodable, Encodable, Identifiable {
 }
 
 
+struct SelectedProfileData {
+    var showProfile: Bool = false
+    var profileData: UserData?
+    var userID: String = ""
+}
+
 struct UserDataFull: Decodable, Identifiable {
     var id = UUID()
 
@@ -201,10 +207,10 @@ struct UserFollowData: Decodable, Encodable {
     let indexFollowersID: String
 }
 
-struct UserFollowDataList: Decodable, Encodable, Identifiable {
+struct UserFollowListDataPoint: Decodable, Encodable, Identifiable {
     var id = UUID()
-    let followData: UserFollowData
-    let userData: UserData
+    var followData: UserFollowData
+    var userData: UserData
     
     private enum CodingKeys: String, CodingKey {
         case followData
@@ -214,15 +220,17 @@ struct UserFollowDataList: Decodable, Encodable, Identifiable {
 
 struct UserFollowListData: Decodable, Encodable {
     let found: Bool
-    let followIndexID: String
+    let followIndexID: String?
     let prevIndexID: String?
     let nextIndexID: String?
-    let timestamp: Int64
-    let current: Bool
-    let type: Int
-    let userID: String
-    let userData: UserData
-    let amount: Int
-    let includedIndexes: [String]
-    let follows: [UserFollowData]
+    let timestamp: Int64?
+    let current: Bool?
+    let type: Int?
+    let userID: String?
+    let userData: UserData?
+    let amount: Int?
+    let includedIndexes: [String]?
+    let follows: [String]?
+    var data: [UserFollowListDataPoint]? = []
+//    let follows: [UserFollowData]
 }

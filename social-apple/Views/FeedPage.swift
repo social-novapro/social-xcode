@@ -18,6 +18,7 @@ struct FeedPage: View {
     
     @State private var selectedPostIndex: Int?
     @State var selectedPost: Bool = false
+    @State var selectedProfile: SelectedProfileData = SelectedProfileData()
     
     init(client: ApiClient, feedPosts: FeedPosts) {
         self.client = client
@@ -30,10 +31,23 @@ struct FeedPage: View {
                 if (self.feedPosts.isLoading == false) {
                     List {
                         ForEach(self.feedPosts.posts.indices, id: \.self) { index in
-                            PostFeedPreView(client: client, feedData: $feedPosts.posts[index], selectedPostIndex: $selectedPostIndex, selectedPost: $selectedPost, currentPostIndex: index)
+                            PostFeedPreView(client: client, feedData: $feedPosts.posts[index], selectedPostIndex: $selectedPostIndex, selectedPost: $selectedPost, selectedProfile: $selectedProfile, currentPostIndex: index)
                                 .listRowSeparator(.hidden)
                                 .listRowInsets(EdgeInsets())
                                 .padding(10)
+                                /*.swipeActions(allowsFullSwipe: false) {
+                                    Button {
+                                        print("Muting conversation")
+                                    } label: {
+                                        Label("Mute", systemImage: "bell.slash.fill")
+                                    }
+                                    .tint(.indigo)
+                                    Button(role: .destructive) {
+                                        print("Deleting conversation")
+                                    } label: {
+                                        Label("Delete", systemImage: "trash.fill")
+                                    }
+                                }*/
                                 .onAppear(){
                                     if (self.feedPosts.posts.last?.id == feedPosts.posts[index].id && self.feedPosts.loadingScroll == false) {
                                         client.hapticPress()
@@ -63,8 +77,11 @@ struct FeedPage: View {
             }
             .navigationDestination(isPresented: $selectedPost) {
                 if let selectedPostIndex = selectedPostIndex {
-                    PostView(client: client, feedData: $feedPosts.posts[selectedPostIndex])
+                    PostView(client: client, feedData: $feedPosts.posts[selectedPostIndex], selectedProfile: $selectedProfile)
                 }
+            }
+            .navigationDestination(isPresented: $selectedProfile.showProfile) {
+                ProfileView(client: client, userData: selectedProfile.profileData, userID: selectedProfile.userID)
             }
             .onAppear {
                 self.feedPosts.getFeed()
@@ -74,14 +91,23 @@ struct FeedPage: View {
                 FeedToolBarPage(client: client, feedPosts: feedPosts, writingPost: $writingPost, showProfile: $showProfile)
             }
             .sheet(isPresented: $writingPost) {
+                #if os(iOS)
                 NavigationView {
                     CreatePost(client: client)
                 }
+                #else
+                CreatePost(client: client)
+                #endif
+
             }
             .sheet(isPresented: $showProfile) {
+                #if os(iOS)
                 NavigationView {
                     ProfileView(client: client, userData: client.userData, userID: client.userTokens.userID)
                 }
+                #else
+                ProfileView(client: client, userData: client.userData, userID: client.userTokens.userID)
+                #endif
             }
         }
     }

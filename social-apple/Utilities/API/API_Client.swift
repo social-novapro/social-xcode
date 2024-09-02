@@ -42,6 +42,7 @@ class ApiClient: ObservableObject {
     var errorShow:Bool = false
     var errorFound:ErrorData?
     var userData: UserData?
+    var themeData: ThemeData = ThemeData(devMode: DevModeData(isEnabled: false))
     
     init() {
         let tokensFound = userTokenManager.getUserTokens()
@@ -84,7 +85,7 @@ class ApiClient: ObservableObject {
                 }
             }
         }
-        
+        self.themeData.updateThemes(devMode: self.devMode ?? DevModeData(isEnabled: false))
         self.checkServerStatus()
     }
     

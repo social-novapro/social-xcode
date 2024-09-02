@@ -36,6 +36,8 @@ func int64TimeUntilFormatter(timestamp: Int64) -> String {
     return timeFormaterUntil(timestampInMilliseconds: timeInterval)
 }
 
+//func int64Time
+
 func timeFormater(timestampInMilliseconds: TimeInterval) -> String {
     let timestampInSeconds = timestampInMilliseconds / 1000
     

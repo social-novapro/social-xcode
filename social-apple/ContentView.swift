@@ -107,9 +107,11 @@ struct compactLayoutView : View {
                 }
             }
         }
+        #if os(iOS)
         .fullScreenCover(isPresented: $client.serverOffline, content: {
             ServerStatusOffline(client: client)
         })
+        #endif
         .onChange(of: client.loggedIn, perform: {newValue in
             self.feedPosts.newClient(client: client)
             self.feedPosts.getFeed()
@@ -120,6 +122,7 @@ struct compactLayoutView : View {
                 .padding(.bottom, 25),
             alignment: .bottom
         )
+        #if os(iOS)
         .navigationViewStyle(StackNavigationViewStyle())
         .overlay(
             IncomeNotificationView(client: client)
@@ -128,6 +131,8 @@ struct compactLayoutView : View {
             alignment: .top
         )
         .navigationViewStyle(StackNavigationViewStyle())
+        #endif
+
     }
 }
 
@@ -149,6 +154,7 @@ struct regularLayoutView : View {
                 BeginPage(client: client)
             }
         }
+        #if os(iOS)
         .fullScreenCover(isPresented: $client.serverOffline, content: {
             ServerStatusOffline(client: client)
         })
@@ -163,6 +169,8 @@ struct regularLayoutView : View {
             alignment: .top
         )
         .navigationViewStyle(StackNavigationViewStyle())
+        #endif
+
     }
 }
 
@@ -172,13 +180,22 @@ struct macLayoutView : View {
     @State var horizontalSizeClass: UserInterfaceSizeClass?
 
     @ViewBuilder var body: some View {
-        VStack {
-            SideBarNavigation(client: client, feedPosts: feedPosts,  horizontalSizeClass: horizontalSizeClass)
+        NavigationView {
+            VStack {
+                SideBarNavigation(client: client, feedPosts: feedPosts,  horizontalSizeClass: horizontalSizeClass)
+            }
+            .onChange(of: client.loggedIn, perform: {newValue in
+                self.feedPosts.newClient(client: client)
+                self.feedPosts.getFeed()
+            })
+            if client.serverOffline {
+                ServerStatusOffline(client: client)
+            } else if client.loggedIn {
+                FeedPage(client: client, feedPosts: feedPosts)
+            } else {
+                BeginPage(client: client)
+            }
         }
-        .onChange(of: client.loggedIn, perform: {newValue in
-            self.feedPosts.newClient(client: client)
-            self.feedPosts.getFeed()
-        })
     }
 }
 
@@ -189,17 +206,19 @@ struct visionLayoutView : View {
 
     @ViewBuilder var body: some View {
         VStack {
-            SideBarNavigation(client: client, feedPosts: feedPosts,  horizontalSizeClass: horizontalSizeClass)
-            
-            if (client.serverOffline == true) {
-                ServerStatusOffline(client: client)
-            } else if (client.loggedIn) {
-                NavigationStack {
-                    FeedPage(client: client, feedPosts: feedPosts)
-                }
-            } else {
-                NavigationStack {
-                    BeginPage(client: client)
+            NavigationView {
+                SideBarNavigation(client: client, feedPosts: feedPosts,  horizontalSizeClass: horizontalSizeClass)
+                
+                if (client.serverOffline == true) {
+                    ServerStatusOffline(client: client)
+                } else if (client.loggedIn) {
+                    NavigationStack {
+                        FeedPage(client: client, feedPosts: feedPosts)
+                    }
+                } else {
+                    NavigationStack {
+                        BeginPage(client: client)
+                    }
                 }
             }
         }
@@ -242,7 +261,7 @@ struct IncomeNotificationView: View {
                         .stroke(Color.accentColor, lineWidth: 2)
                 )
                 .padding(22)
-                .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+                .background(client.themeData.mainBackground)
                 .onLongPressGesture {
                     self.newNotification.toggle()
                 }
@@ -272,7 +291,7 @@ struct IncomeNotificationView: View {
                         .stroke(Color.accentColor, lineWidth: 2)
                 )
                 .padding(22)
-                .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+                .background(client.themeData.mainBackground)
                 .onLongPressGesture {
                     self.newNotification.toggle()
                 }
@@ -538,5 +557,18 @@ extension Color {
         let green = Double((hex & 0x00ff00))
         let blue = Double((hex & 0x0000ff))
         self.init(.sRGB, red: red, green: green, blue: blue, opacity: opacity)
+    }
+}
+
+extension Binding {
+    func optionalBinding() -> Binding<Value?> {
+        Binding<Value?>(
+            get: { self.wrappedValue },
+            set: { newValue in
+                if let unwrappedValue = newValue {
+                    self.wrappedValue = unwrappedValue
+                }
+            }
+        )
     }
 }

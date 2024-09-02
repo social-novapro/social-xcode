@@ -40,6 +40,31 @@ class UsersApi: API_Helper {
             }
         }
     }
+    
+    func followingFollowerList(userID: String, type: Int, indexID: String? = nil) async throws -> UserFollowListData {
+        //
+        var doList:String = "following"
+        if (type == 0) {
+            doList = "following"
+        } else if (type == 1) {
+            doList = "followers"
+        }
+        
+        do {
+            print("doing \(doList)")
+            var APIUrl = baseAPIurl + "/users/\(doList)/\(userID)/"
+            if (indexID != nil) {
+                APIUrl += indexID!
+            }
+            
+            let data:UserFollowListData = try await asyncRequestData(urlString: APIUrl, httpMethod: "GET");
+//            print(data)
+            return data;
+        } catch {
+            print(error)
+            throw ErrorData(code: "Z001", msg: "Uknown", error: true)
+        }
+    }
 
     
     func edit_pinsAdd(postID: String, completion: @escaping (Result<AllPosts, Error>) -> Void) {

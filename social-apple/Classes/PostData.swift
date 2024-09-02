@@ -30,9 +30,11 @@ class PostCreation: ObservableObject {
     @Published var tempPollCreator: TempPollCreator = TempPollCreator()
     @Published var coposters: [String] = []
     @Published var possibleTags: SearchPossibleTags?
+    @Published var feedData: AllPosts?
     
-    init(client: ApiClient) {
+    init(client: ApiClient, feedData: AllPosts? = nil) {
         self.client = client
+        self.feedData = feedData
     }
     
     func replaceTag(tag: String) {
@@ -164,9 +166,20 @@ class PostCreation: ObservableObject {
         DispatchQueue.main.async {
             self.sending = true
         }
-        
+                
         // set up post content
         var postCreateContent = PostCreateContent(userID: self.client.userTokens.userID, content: self.content)
+
+        // set up reply / quote
+        
+        if (self.feedData != nil) {
+            if (self.feedData?.postLiveData.popoverAction == 1) {
+                postCreateContent.replyingPostID = self.feedData?.postData._id
+            } else if (self.feedData?.postLiveData.popoverAction == 2) {
+                postCreateContent.quoteReplyPostID = self.feedData?.postData._id
+            }
+
+        }
 
         
         // is content empty
@@ -643,7 +656,12 @@ struct PostExtraData: Observable {
      * 4 = delete post
      * 5 = edit post
      */
-    
+    var popoverAction: Int32 = 0
+    /*
+     * 0 = none
+     * 1 = reply
+     * 2 = quote
+     */
     var showingPopover: Bool = false
     var showPostPage: Bool = false
     var showingEditPopover: Bool = false
