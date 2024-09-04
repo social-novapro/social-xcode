@@ -101,9 +101,11 @@ struct CreateUserPage: View {
                 HStack {
                     Spacer()
                     Image(systemName: "line.3.horizontal.decrease.circle")
+#if !os(tvOS)
                     DatePicker(selection: $userAge, in: ...Date.now, displayedComponents: .date) {
                         Text("Select a date (must be older than 13)")
                     }
+#endif
                     Spacer()
 
                 }

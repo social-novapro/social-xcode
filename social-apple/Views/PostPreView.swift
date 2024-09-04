@@ -1173,11 +1173,13 @@ struct EditPostPopover: View {
                 
                 VStack {
                     ZStack {
+                        #if os(tvOS)
+                        TextField("content", text: $content)
+                        #else
                         TextEditor(text: $content)
 //                            .onChange(of: conent) { newValue in
 //                                postCreation.typePost(newValue: newValue)
 //                            }
-                        
                         if content.isEmpty {
                             VStack {
                                 HStack {
@@ -1191,6 +1193,7 @@ struct EditPostPopover: View {
                                 Spacer()
                             }
                         }
+                        #endif
                     }
 //                    TextEditor("Content", text: $content)
                     Button(action: {

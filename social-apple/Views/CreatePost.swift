@@ -78,6 +78,14 @@ struct CreatePost: View {
                     
                     VStack {
                         ZStack {
+                            #if os(tvOS)
+                            TextField("content", text: $postCreation.content)
+                                .onChange(of: postCreation.content) { newValue in
+                                    postCreation.typePost(newValue: newValue)
+                                }
+
+                            #else
+
                             TextEditor(text: $postCreation.content)
                                 .onChange(of: postCreation.content) { newValue in
                                     postCreation.typePost(newValue: newValue)
@@ -96,6 +104,7 @@ struct CreatePost: View {
                                     Spacer()
                                 }
                             }
+                            #endif
                         }
                         
                         Button(action: {

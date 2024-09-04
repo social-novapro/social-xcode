@@ -32,7 +32,9 @@ struct FeedPage: View {
                     List {
                         ForEach(self.feedPosts.posts.indices, id: \.self) { index in
                             PostFeedPreView(client: client, feedData: $feedPosts.posts[index], selectedPostIndex: $selectedPostIndex, selectedPost: $selectedPost, selectedProfile: $selectedProfile, currentPostIndex: index)
+                                #if !os(tvOS)
                                 .listRowSeparator(.hidden)
+                                #endif
                                 .listRowInsets(EdgeInsets())
                                 .padding(10)
                                 /*.swipeActions(allowsFullSwipe: false) {
@@ -63,7 +65,9 @@ struct FeedPage: View {
                         }
                     }
                     .listStyle(.plain)
+                    #if !os(tvOS)
                     .listRowSeparator(.hidden)
+                    #endif
                     .refreshable {
                         client.hapticPress()
                         DispatchQueue.main.async {

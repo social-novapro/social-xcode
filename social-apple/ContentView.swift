@@ -29,7 +29,7 @@ struct ContentView: View {
     
     @ViewBuilder var body: some View {
         Group {
-#if os(iOS)
+#if os(iOS) || os(tvOS)
            if horizontalSizeClass == .compact {
                compactLayoutView(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
            } else {

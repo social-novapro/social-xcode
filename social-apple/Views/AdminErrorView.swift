@@ -19,7 +19,9 @@ struct AdminErrorView: View {
                         VStack {
                             AdminErrorIssueView(client: client, issueData: $adminErrorFeed.issues[index])
                         }
+#if !os(tvOS)
                         .listRowSeparator(.hidden)
+#endif
                         .listRowInsets(EdgeInsets())
                         .padding(10)
                         .onAppear(){
@@ -36,8 +38,10 @@ struct AdminErrorView: View {
                         }
                     }
                 }
+#if !os(tvOS)
                 .listStyle(.plain)
                 .listRowSeparator(.hidden)
+#endif
                 .refreshable {
                     client.hapticPress()
                     DispatchQueue.main.async {

@@ -29,7 +29,9 @@ struct Graph: View {
                             )
                         }
                     }
+#if !os(tvOS)
                     .chartScrollableAxes(.vertical)
+#endif
                 }
             }
             else {

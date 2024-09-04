@@ -60,7 +60,9 @@ struct ProfileView : View {
                             ForEach(self.profileData.pinData.indices, id: \.self) { index in
                                 PostPreView(client: client, feedData: $profileData.pinData[index], selectedProfile: $selectedProfile)
                                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+#if !os(tvOS)
                                     .listRowSeparator(.hidden)
+#endif
                                     .listRowInsets(EdgeInsets())
                                     .padding(10)
                             }
@@ -68,7 +70,9 @@ struct ProfileView : View {
                                 .padding(.bottom, 20)
                         }
                         .listStyle(.plain)
+#if !os(tvOS)
                         .listRowSeparator(.hidden)
+#endif
 
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -80,7 +84,9 @@ struct ProfileView : View {
                             ForEach(self.profileData.postData.indices, id: \.self) { index in
                                 PostPreView(client: client, feedData: $profileData.postData[index], selectedProfile: $selectedProfile)
                                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+#if !os(tvOS)
                                     .listRowSeparator(.hidden)
+#endif
                                     .listRowInsets(EdgeInsets())
                                     .padding(10)
                             }
@@ -90,7 +96,9 @@ struct ProfileView : View {
                             .padding(50)
                         }
                         .listStyle(.plain)
+#if !os(tvOS)
                         .listRowSeparator(.hidden)
+#endif
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
@@ -167,16 +175,19 @@ struct ProfileMentionView: View {
                 ForEach(self.profileData.mentionData.indices, id: \.self) { index in
                     PostPreView(client: client, feedData: $profileData.mentionData[index], selectedProfile: $selectedProfile)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
+#if !os(tvOS)
                         .listRowSeparator(.hidden)
+#endif
                         .listRowInsets(EdgeInsets())
                         .padding(10)
                 }
                 EmptyView()
                     .padding(.bottom, 20)
             }
+#if !os(tvOS)
             .listStyle(.plain)
             .listRowSeparator(.hidden)
-
+#endif
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -483,7 +494,9 @@ struct FollowingFollowerListView: View {
                 List {
                     ForEach(self.userList!.data!.indices, id: \.self) { index in
                         FollowingFollowerProfilePreview(client: client, followDataPoint: self.userList!.data![index])
+#if !os(tvOS)
                             .listRowSeparator(.hidden)
+#endif
                             .listRowInsets(EdgeInsets())
                             .padding(10)
                             .onAppear(){
@@ -510,7 +523,9 @@ struct FollowingFollowerListView: View {
 
                 }
                 .listStyle(.plain)
+#if !os(tvOS)
                 .listRowSeparator(.hidden)
+#endif
                 .refreshable {
                     client.hapticPress()
                     DispatchQueue.main.async {
