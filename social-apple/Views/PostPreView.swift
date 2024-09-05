@@ -186,7 +186,7 @@ struct PostPreviewView: View {
 //                            print("tapped on \(word)")
 //                        }
                         Text(feedData.postData.content!)
-                            .foregroundColor(.secondary)
+//                            .foregroundColor(.secondary)
                             .lineLimit(100) // or set a specific number
                             .multilineTextAlignment(.leading) // or .center, .trailing
                     }
@@ -224,6 +224,8 @@ struct PostPreviewView: View {
                                         }
                                         Spacer()
                                     }
+                                    .foregroundColor(.secondary)
+
                                 }
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -237,7 +239,7 @@ struct PostPreviewView: View {
                                     Spacer()
                                 }
                             }
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.primary)
                             .background(client.themeData.greenBackground)
                             
                             Spacer()
@@ -283,10 +285,12 @@ struct ReplyParentPostView : View {
                 }
                 Spacer()
             }
+            .foregroundColor(.secondary)
+
             VStack {
                 HStack {
                     Text(feedData.replyData?.replyPost?.content ?? "")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.primary)
                         .lineLimit(100) // or set a specific number
                         .multilineTextAlignment(.leading) // or .center, .trailing
                     Spacer()
@@ -311,40 +315,100 @@ struct ProfilePostView: View {
     
     var body: some View {
         VStack {
-            Button(action: {
-                client.hapticPress()
-                DispatchQueue.main.async {
-                    feedData.postLiveData.isActive=true
-                    selectedProfile.showProfile = true
-                    selectedProfile.profileData = feedData.userData
-                    selectedProfile.userID = feedData.userData?._id ?? ""
-                    self.feedData.postLiveData.isSpecificPageActive.toggle()
-//                    selectedProfile = true
-                }
-                print("showing usuer?")
-            }) {
+            // TODO: move button to only username, and make coposters show up too and selectable, can provide selected profile
+//            Button(action: {
+//                client.hapticPress()
+//                DispatchQueue.main.async {
+//                    feedData.postLiveData.isActive=true
+//                    selectedProfile.showProfile = true
+//                    selectedProfile.profileData = feedData.userData
+//                    selectedProfile.userID = feedData.userData?._id ?? ""
+//                    self.feedData.postLiveData.isSpecificPageActive.toggle()
+////                    selectedProfile = true
+//                }
+//                print("showing usuer?")
+//            }) {
                 VStack {
                     HStack {
-                        Text(feedData.userData?.displayName ?? "")
-                        Text("@\(feedData.userData?.username ?? "")")
-                        if (feedData.userData?.verified == true) {
-                            Image(systemName: "checkmark.seal.fill")
+                        Button(action: {
+                            client.hapticPress()
+                            DispatchQueue.main.async {
+                                feedData.postLiveData.isActive=true
+                                selectedProfile.showProfile = true
+                                selectedProfile.profileData = feedData.userData
+                                selectedProfile.userID = feedData.userData?._id ?? ""
+                                self.feedData.postLiveData.isSpecificPageActive.toggle()
+            //                    selectedProfile = true
+                            }
+                            print("showing usuer?")
+                        }) {
+                            HStack {
+                                Text(feedData.userData?.displayName ?? "")
+                                Text("@\(feedData.userData?.username ?? "")")
+                                if (feedData.userData?.verified == true) {
+                                    Image(systemName: "checkmark.seal.fill")
+                                }
+                            }
                         }
+                        .buttonStyle(PlainButtonStyle())
                         Spacer()
+                        
+                        if ((client.userTokens.userID != feedData.userData?._id) && (feedData.extraData.followed ?? false) == false) {
+                            Button(action: {
+                                client.hapticPress()
+                                DispatchQueue.main.async {
+                                    Task {
+                                        do {
+                                            _ = try await client.users.followUser(userID: self.feedData.userData?._id ?? "unknown")
+                                            feedData.extraData.followed=true
+                                        } catch {
+                                            let foundError = error as! ErrorData
+                                            print("failed true" )
+                                            print(foundError)
+                                            if (foundError.code == "C022") {
+                                                print("already following")
+                                                feedData.extraData.followed = true
+//                                                print(feedData.extraData.followed)
+                                            }
+                                        }
+                                    }
+                                }
+                                print("following user?")
+                            }) {
+                                HStack {
+                                    Text("Follow") // only on non followed users
+                                }
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
                     }
-                    .foregroundColor(feedData.postLiveData.isOwner==true ? .accentColor : .primary)
+                    .foregroundColor(feedData.postLiveData.isOwner==true ? .accentColor : .secondary)
+                    .background(client.themeData.greenBackground)
                    
                     if (self.feedData.coposterData != nil) {
                         ForEach(self.feedData.coposterData ?? []) { coposter in
-                            HStack {
-                                Text(coposter.displayName ?? "")
-                                Text("@\(coposter.username ?? "")")
-                                if (coposter.verified == true) {
-                                    Image(systemName: "checkmark.seal.fill")
+                            Button(action: {
+                                client.hapticPress()
+                                DispatchQueue.main.async {
+                                    feedData.postLiveData.isActive=true
+                                    selectedProfile.showProfile = true
+                                    selectedProfile.profileData = coposter
+                                    selectedProfile.userID = coposter._id ?? "unknown"
+                                    self.feedData.postLiveData.isSpecificPageActive.toggle()
                                 }
-                                Spacer()
+                                print("showing usuer?")
+                            }) {
+                                HStack {
+                                    Text(coposter.displayName ?? "")
+                                    Text("@\(coposter.username ?? "")")
+                                    if (coposter.verified == true) {
+                                        Image(systemName: "checkmark.seal.fill")
+                                    }
+                                    Spacer()
+                                }
+                                .foregroundColor(coposter._id == client.userTokens.userID ? .accentColor : .secondary)
                             }
-                            .foregroundColor(coposter._id == client.userTokens.userID ? .accentColor : .primary)
+                            .buttonStyle(PlainButtonStyle())
                         }
                     }
                         
@@ -352,9 +416,9 @@ struct ProfilePostView: View {
                         Text(int64TimeFormatter(timestamp: feedData.postData.timestamp ?? 0))
                         Spacer()
                     }
-                    .foregroundColor(feedData.postLiveData.isOwner==true ? .accentColor : .primary)
-                }
-                .buttonStyle(PlainButtonStyle())
+                    .foregroundColor(feedData.postLiveData.isOwner==true ? .accentColor : .secondary)
+//                }
+//                .buttonStyle(PlainButtonStyle())
             }
             .buttonStyle(PlainButtonStyle())
             .onAppear {
@@ -480,28 +544,42 @@ struct ExpandedPostView: View {
                             client.hapticPress()
                             DispatchQueue.main.async {
                                 Task {
-                                    if (followed == true) {
+                                    if ((self.feedData.extraData.followed ?? false) == true) {
                                         do {
                                             _ = try await client.users.unFollowUser(userID: self.feedData.userData?._id ?? "")
-                                            followed = false
+                                            self.feedData.extraData.followed = false
                                         } catch let error as ErrorData {
                                             print("ErrorData: \(error.code), \(error.msg)")
                                         } catch {
                                             print("Unexpected error: \(error)")
+                                            let foundError = error as! ErrorData
+
+                                            if (foundError.code == "C026") {
+                                                print("not already following")
+                                                feedData.extraData.followed = false
+//                                                print(feedData.extraData.followed)
+                                            }
                                         }
                                     } else {
                                         do {
                                             _ = try await client.users.followUser(userID: self.feedData.userData?._id ?? "")
-                                            followed = true
+                                            self.feedData.extraData.followed = true
                                         } catch {
                                             print("failed true" )
-                                            print(error as! ErrorData)
+                                            let foundError = error as! ErrorData
+                                            
+                                            if (foundError.code == "C022") {
+                                                print("already following")
+                                                feedData.extraData.followed = true
+//                                                print(feedData.extraData.followed)
+                                            }
+
                                         }
                                     }
                                 }
                             }
                         }) {
-                            if (followed == true) {
+                            if ((self.feedData.extraData.followed ?? false) == true) {
                                 Text("Unfollow User")
                             } else {
                                 Text("Follow User")
@@ -1224,7 +1302,7 @@ struct EditPostPopover: View {
                         self.content = ""
 
                     }) {
-                        Text("Publish Post")
+                        Text("Publish Changes")
                     }
                 }
                 .padding(15)

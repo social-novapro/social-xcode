@@ -60,18 +60,19 @@ class ApiClient: ObservableObject {
         self.haptic = self.hapticModeManager.getHapticMode()
         
         // routes
-        self.auth = AuthApi(userTokensProv: userTokens)
-        self.notifications = NotificationsApi(userTokensProv: userTokens)
-        self.posts = PostsApi(userTokensProv: userTokens)
-        self.users = UsersApi(userTokensProv: userTokens)
-        self.get = GetApi(userTokensProv: userTokens)
-        self.developer = DeveloperApi(userTokensProv: userTokens)
-        self.polls = PollsApi(userTokensProv: userTokens)
-        self.anaytics = AnalyticsApi(userTokensProv: userTokens)
-        self.search = SearchApi(userTokensProv: userTokens)
-        self.admin = AdminApi(userTokensProv: userTokens)
-
         self.apiHelper = API_Helper(userTokensProv: userTokens)
+
+        self.auth = AuthApi(apiHelper: apiHelper)
+        self.notifications = NotificationsApi(apiHelper: apiHelper)
+        self.posts = PostsApi(apiHelper: apiHelper)
+        self.users = UsersApi(apiHelper: apiHelper)
+        self.get = GetApi(apiHelper: apiHelper)
+        self.developer = DeveloperApi(apiHelper: apiHelper)
+        self.polls = PollsApi(apiHelper: apiHelper)
+        self.anaytics = AnalyticsApi(apiHelper: apiHelper)
+        self.search = SearchApi(apiHelper: apiHelper)
+        self.admin = AdminApi(apiHelper: apiHelper)
+
         self.livechatWS = LiveChatWebSocket(baseURL: self.apiHelper.baseAPIurl, userTokensProv: userTokens)
 
         if (self.loggedIn == true) {
@@ -111,19 +112,17 @@ class ApiClient: ObservableObject {
             )
             
             self.userTokenManager.saveUserTokens(userTokenData: self.userTokens)
-            
-            self.auth = AuthApi(userTokensProv: self.userTokens)
-            self.notifications = NotificationsApi(userTokensProv: self.userTokens)
-            self.posts = PostsApi(userTokensProv: self.userTokens)
-            self.users = UsersApi(userTokensProv: self.userTokens)
-            self.get = GetApi(userTokensProv: self.userTokens)
-            self.developer = DeveloperApi(userTokensProv: self.userTokens)
-            self.polls = PollsApi(userTokensProv: self.userTokens)
-            self.search = SearchApi(userTokensProv: self.userTokens)
-            self.admin = AdminApi(userTokensProv: self.userTokens)
-
             self.apiHelper = API_Helper(userTokensProv: self.userTokens)
-            self.livechatWS = LiveChatWebSocket(baseURL: self.apiHelper.baseAPIurl, userTokensProv: self.userTokens)
+            self.auth = AuthApi(apiHelper: self.apiHelper)
+            self.notifications = NotificationsApi(apiHelper: self.apiHelper)
+            self.posts = PostsApi(apiHelper: self.apiHelper)
+            self.users = UsersApi(apiHelper: self.apiHelper)
+            self.get = GetApi(apiHelper: self.apiHelper)
+            self.developer = DeveloperApi(apiHelper: self.apiHelper)
+            self.polls = PollsApi(apiHelper: self.apiHelper)
+            self.anaytics = AnalyticsApi(apiHelper: self.apiHelper)
+            self.search = SearchApi(apiHelper: self.apiHelper)
+            self.admin = AdminApi(apiHelper: self.apiHelper)
             
             self.loggedIn = true
         }

@@ -7,17 +7,17 @@
 
 import Foundation
 
-class UsersApi: API_Helper {
+class UsersApi: API_Base {
     var themes: UsersThemesAPI
 
-    override init(userTokensProv: UserTokenData) {
-        self.themes = UsersThemesAPI(userTokensProv: userTokensProv)
-        super .init(userTokensProv: userTokensProv)
+    override init(apiHelper: API_Helper) {
+        self.themes = UsersThemesAPI(apiHelper: apiHelper)
+        super .init(apiHelper: apiHelper)
     }
     func getByID(userID: String, completion: @escaping (Result<UserData, Error>) -> Void) {
         print("user login request")
         let APIUrl = baseAPIurl + "/users/get/basic/" + userID
-        self.requestData(urlString: APIUrl) { (result: Result<UserData, Error>) in
+        self.apiHelper.requestData(urlString: APIUrl) { (result: Result<UserData, Error>) in
             switch result {
             case .success(let userData):
                 print("Logged in")
@@ -30,7 +30,7 @@ class UsersApi: API_Helper {
     func getUser(userID: String, completion: @escaping (Result<UserDataFull, Error>) -> Void) {
         print("user login request")
         let APIUrl = baseAPIurl + "/users/get/" + userID
-        self.requestData(urlString: APIUrl) { (result: Result<UserDataFull, Error>) in
+        self.apiHelper.requestData(urlString: APIUrl) { (result: Result<UserDataFull, Error>) in
             switch result {
             case .success(let userData):
                 print("Logged in")
@@ -57,7 +57,7 @@ class UsersApi: API_Helper {
                 APIUrl += indexID!
             }
             
-            let data:UserFollowListData = try await asyncRequestData(urlString: APIUrl, httpMethod: "GET");
+            let data:UserFollowListData = try await apiHelper.asyncRequestData(urlString: APIUrl, httpMethod: "GET");
 //            print(data)
             return data;
         } catch {
@@ -69,7 +69,7 @@ class UsersApi: API_Helper {
     
     func edit_pinsAdd(postID: String, completion: @escaping (Result<AllPosts, Error>) -> Void) {
         let APIUrl = baseAPIurl + "/users/edit/pins/" + postID
-        self.requestData(urlString: APIUrl, httpMethod: "POST") { (result: Result<AllPosts, Error>) in
+        self.apiHelper.requestData(urlString: APIUrl, httpMethod: "POST") { (result: Result<AllPosts, Error>) in
             switch result {
                 
             case .success(let pinData):
@@ -82,7 +82,7 @@ class UsersApi: API_Helper {
     
     func edit_pinsRemove(postID: String, completion: @escaping (Result<AllPosts, Error>) -> Void) {
         let APIUrl = baseAPIurl + "/users/edit/pins/" + postID
-        self.requestData(urlString: APIUrl, httpMethod: "DELETE") { (result: Result<AllPosts, Error>) in
+        self.apiHelper.requestData(urlString: APIUrl, httpMethod: "DELETE") { (result: Result<AllPosts, Error>) in
             switch result {
             case .success(let pinData):
                 completion(.success(pinData))
@@ -94,7 +94,7 @@ class UsersApi: API_Helper {
     
     func followUser(userID: String) async throws -> UserFollowData {
         do {
-            let data:UserFollowData = try await asyncRequestData(urlString: "\(baseAPIurl)/users/follow/\(userID)", httpMethod: "POST");
+            let data:UserFollowData = try await apiHelper.asyncRequestData(urlString: "\(baseAPIurl)/users/follow/\(userID)", httpMethod: "POST");
             return data;
         } catch {
             throw error
@@ -102,7 +102,7 @@ class UsersApi: API_Helper {
     }
     func unFollowUser(userID: String) async throws -> UserFollowData {
         do {
-            let data:UserFollowData = try await asyncRequestData(urlString: "\(baseAPIurl)/users/unfollow/\(userID)", httpMethod: "DELETE");
+            let data:UserFollowData = try await apiHelper.asyncRequestData(urlString: "\(baseAPIurl)/users/unfollow/\(userID)", httpMethod: "DELETE");
             return data;
         } catch {
             throw error;

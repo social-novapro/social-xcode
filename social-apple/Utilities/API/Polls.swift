@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-class PollsApi: API_Helper {
+class PollsApi: API_Base {
     func createV2(pollInput: TempPollCreator) async throws -> CreatePollRes {
         var goodOptions:Int32 = 0
         var foundOptions: [String] = []
@@ -55,7 +55,7 @@ class PollsApi: API_Helper {
         
         print("procededing")
         do {
-            let data:CreatePollRes = try await asyncRequestDataBody(urlString: APIUrl, httpMethod: "POST", httpBody: createPollReq);
+            let data:CreatePollRes = try await apiHelper.asyncRequestDataBody(urlString: APIUrl, httpMethod: "POST", httpBody: createPollReq);
             
             return data;
         } catch {
@@ -109,7 +109,7 @@ class PollsApi: API_Helper {
         let APIUrl = baseAPIurl + "/polls/create"
         
         print("procededing")
-        self.requestDataWithBody(urlString: APIUrl, httpMethod: "POST", httpBody: createPollReq) { (result: Result<CreatePollRes, Error>) in
+        self.apiHelper.requestDataWithBody(urlString: APIUrl, httpMethod: "POST", httpBody: createPollReq) { (result: Result<CreatePollRes, Error>) in
             switch result {
             case .success(let pollData):
                 completion(.success(pollData))
@@ -121,7 +121,7 @@ class PollsApi: API_Helper {
     
     func get(pollID: String, completion: @escaping (Result<UserLoginResponse, Error>) -> Void) {
         let APIUrl = baseAPIurl + "/polls/get/\(pollID)"
-        self.requestData(urlString: APIUrl) { (result: Result<UserLoginResponse, Error>) in
+        self.apiHelper.requestData(urlString: APIUrl) { (result: Result<UserLoginResponse, Error>) in
             switch result {
             case .success(let pollData):
                 completion(.success(pollData))
@@ -133,7 +133,7 @@ class PollsApi: API_Helper {
     
     func createVote(pollID: String, optionID: String, completion: @escaping (Result<VoteData, Error>) -> Void) {
         let APIUrl = baseAPIurl + "/polls/createVote/"
-        self.requestDataWithBody(urlString: APIUrl, httpMethod: "PUT", httpBody: CreateVoteReq(pollID: pollID, pollOptionID: optionID)) { (result: Result<CreateVoteRes, Error>) in
+        self.apiHelper.requestDataWithBody(urlString: APIUrl, httpMethod: "PUT", httpBody: CreateVoteReq(pollID: pollID, pollOptionID: optionID)) { (result: Result<CreateVoteRes, Error>) in
             switch result {
             case .success(let voteData):
                 var returningData:VoteData = VoteData(_id: "")
@@ -165,7 +165,7 @@ class PollsApi: API_Helper {
     func removeVote(pollID: String, optionID: String, completion: @escaping (Result<String, Error>) -> Void) {
         let APIUrl = baseAPIurl + "/polls/removeVote/"
         
-        self.requestDataWithBody(urlString: APIUrl, httpMethod: "PUT", httpBody: CreateVoteReq(pollID: pollID, pollOptionID: optionID)) { (result: Result<RemoveVoteRes, Error>) in
+        self.apiHelper.requestDataWithBody(urlString: APIUrl, httpMethod: "PUT", httpBody: CreateVoteReq(pollID: pollID, pollOptionID: optionID)) { (result: Result<RemoveVoteRes, Error>) in
             switch result {
             case .success(let voteData):
                 var returningData:String = ""

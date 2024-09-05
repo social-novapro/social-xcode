@@ -7,10 +7,10 @@
 
 import Foundation
 
-class AdminErrorsApi: API_Helper {
+class AdminErrorsApi: API_Base {
     func get(errorID: String, completion: @escaping (Result<ErrorIssueData, Error>) -> Void) {
         let APIUrl = baseAPIurl + "/admin/errors/" + errorID
-        self.requestData(urlString: APIUrl) { (result: Result<ErrorIssueData, Error>) in
+        self.apiHelper.requestData(urlString: APIUrl) { (result: Result<ErrorIssueData, Error>) in
             switch result {
             case .success(let data):
                 completion(.success(data))
@@ -22,7 +22,7 @@ class AdminErrorsApi: API_Helper {
     
     func list(completion: @escaping (Result<ErrorIndexData, Error>) -> Void) {
         let APIUrl = baseAPIurl + "/admin/errors/list/"
-        self.requestData(urlString: APIUrl) { (result: Result<ErrorIndexData, Error>) in
+        self.apiHelper.requestData(urlString: APIUrl) { (result: Result<ErrorIndexData, Error>) in
             switch result {
             case .success(let data):
                 completion(.success(data))
@@ -34,7 +34,7 @@ class AdminErrorsApi: API_Helper {
     
     func list(indexID: String, completion: @escaping (Result<ErrorIndexData, Error>) -> Void) {
         let APIUrl = baseAPIurl + "/admin/errors/list/" + indexID
-        self.requestData(urlString: APIUrl) { (result: Result<ErrorIndexData, Error>) in
+        self.apiHelper.requestData(urlString: APIUrl) { (result: Result<ErrorIndexData, Error>) in
             switch result {
             case .success(let data):
                 completion(.success(data))

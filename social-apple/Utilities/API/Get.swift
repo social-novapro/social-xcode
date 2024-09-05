@@ -7,6 +7,6 @@
 
 import Foundation
 
-class GetApi: API_Helper {
+class GetApi: API_Base {
 
 }

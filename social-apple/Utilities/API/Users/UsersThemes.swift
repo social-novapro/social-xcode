@@ -7,10 +7,10 @@
 
 import Foundation
 
-class UsersThemesAPI: API_Helper {
+class UsersThemesAPI: API_Base {
     func possible(completion: @escaping (Result<UserData, Error>) -> Void) {
         let APIUrl = baseAPIurl + "/users/profile/theme/possible"
-        self.requestData(urlString: APIUrl) { (result: Result<UserData, Error>) in
+        self.apiHelper.requestData(urlString: APIUrl) { (result: Result<UserData, Error>) in
             switch result {
             case .success(let userData):
                 print("Logged in")
@@ -23,7 +23,7 @@ class UsersThemesAPI: API_Helper {
     
     func themes(completion: @escaping (Result<UserData, Error>) -> Void) {
         let APIUrl = baseAPIurl + "/users/profile/theme/themes"
-        self.requestData(urlString: APIUrl) { (result: Result<UserData, Error>) in
+        self.apiHelper.requestData(urlString: APIUrl) { (result: Result<UserData, Error>) in
             switch result {
             case .success(let userData):
                 print("Logged in")
@@ -37,7 +37,7 @@ class UsersThemesAPI: API_Helper {
     func themes(indexID: String, completion: @escaping (Result<UserData, Error>) -> Void) {
         let APIUrl = baseAPIurl + "/users/profile/theme/themes"+indexID
         
-        self.requestData(urlString: APIUrl) { (result: Result<UserData, Error>) in
+        self.apiHelper.requestData(urlString: APIUrl) { (result: Result<UserData, Error>) in
             switch result {
             case .success(let userData):
                 print("Logged in")

@@ -18,6 +18,9 @@ class API_Helper {
     var appToken:String
     var devToken:String
     
+    var errorShow:Bool = false
+    var errorFound:ErrorData = ErrorData(code: "Z003", msg: "None", error: false)
+    
     init(userTokensProv: UserTokenData) {
         self.userTokens = userTokensProv
         self.baseAPIurl = apiData.getURL()

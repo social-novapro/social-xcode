@@ -47,7 +47,9 @@ class MyAppDelegate: UIResponder, UIApplicationDelegate {
         let userTokens = (tokensFound != nil) ? tokensFound : UserTokenData(accessToken: "", userToken: "", userID: "")
        
         let sendData = PushNotificationSend(deviceToken: token, deviceType: "iPhone", userID: userTokens?.userID ?? "empty")
-        let notificationsApi = NotificationsApi(userTokensProv: userTokens!)
+        let apiHelper = API_Helper(userTokensProv: userTokens!)
+
+        let notificationsApi = NotificationsApi(apiHelper: apiHelper)
         
         notificationsApi.registerDevice(notificationRegister: sendData) { result in
             print("done registering")

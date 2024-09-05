@@ -7,11 +7,11 @@
 
 import Foundation
 
-class PostsApi: API_Helper {
+class PostsApi: API_Base {
     func getUserFeed(userTokens: UserTokenData, completion: @escaping (Result<FeedV2Data, Error>) -> Void) {
         print("Getting all posts")
         let APIUrl = baseAPIurl + "/feeds/userFeed/v2"
-        self.requestData(urlString: APIUrl) { (result: Result<FeedV2Data, Error>) in
+        self.apiHelper.requestData(urlString: APIUrl) { (result: Result<FeedV2Data, Error>) in
             switch result {
             case .success(var allPosts):
                 let reversed:[AllPosts] = allPosts.posts.reversed()
@@ -26,7 +26,7 @@ class PostsApi: API_Helper {
     func getUserFeedIndex(userTokens: UserTokenData, index: String, completion: @escaping (Result<FeedV2Data, Error>) -> Void) {
         print("Getting all posts")
         let APIUrl = baseAPIurl + "/feeds/userFeed/v2/" + index
-        self.requestData(urlString: APIUrl) { (result: Result<FeedV2Data, Error>) in
+        self.apiHelper.requestData(urlString: APIUrl) { (result: Result<FeedV2Data, Error>) in
             switch result {
             case .success(var allPosts):
                 let reversed:[AllPosts] = allPosts.posts.reversed()
@@ -41,7 +41,7 @@ class PostsApi: API_Helper {
     func getAllPosts(userTokens: UserTokenData, completion: @escaping (Result<[AllPosts], Error>) -> Void) {
         print("Getting all posts")
         let APIUrl = baseAPIurl + "/feeds/userFeed"
-        self.requestData(urlString: APIUrl) { (result: Result<[AllPosts], Error>) in
+        self.apiHelper.requestData(urlString: APIUrl) { (result: Result<[AllPosts], Error>) in
             switch result {
             case .success(let allPosts):
                 completion(.success(allPosts.reversed()))
@@ -56,7 +56,7 @@ class PostsApi: API_Helper {
         let APIUrl = baseAPIurl + "/posts/create"
 
         do {
-            let data:PostData = try await asyncRequestDataBody(urlString: APIUrl, httpMethod: "POST", httpBody: postCreateContent);
+            let data:PostData = try await apiHelper.asyncRequestDataBody(urlString: APIUrl, httpMethod: "POST", httpBody: postCreateContent);
             print("Created Post")
 
             return data;
@@ -69,7 +69,7 @@ class PostsApi: API_Helper {
     func createPost(postCreateContent: PostCreateContent, completion: @escaping (Result<PostData, Error>) -> Void) {
         print("Creating post")
         let APIUrl = baseAPIurl + "/posts/create"
-        self.requestDataWithBody(urlString: APIUrl, httpMethod: "POST", httpBody: postCreateContent) { (result: Result<PostData, Error>) in
+        self.apiHelper.requestDataWithBody(urlString: APIUrl, httpMethod: "POST", httpBody: postCreateContent) { (result: Result<PostData, Error>) in
             switch result {
             case .success(let postData):
                 print("Created Post")
@@ -85,7 +85,7 @@ class PostsApi: API_Helper {
         print("liking post")
 
         let APIUrl = baseAPIurl + "/posts/like/\(postID)"
-        self.requestData(urlString: APIUrl, httpMethod: "PUT") { (result: Result<PostData, Error>) in
+        self.apiHelper.requestData(urlString: APIUrl, httpMethod: "PUT") { (result: Result<PostData, Error>) in
             switch result {
             case .success(let postData):
                 print("Liked Post")
@@ -100,7 +100,7 @@ class PostsApi: API_Helper {
     func unlikePost(postID: String, completion: @escaping (Result<PostData, Error>) -> Void) {
         print("unliking post")
         let APIUrl = baseAPIurl + "/posts/unlike/\(postID)"
-        self.requestData(urlString: APIUrl, httpMethod: "DELETE") { (result: Result<PostData, Error>) in
+        self.apiHelper.requestData(urlString: APIUrl, httpMethod: "DELETE") { (result: Result<PostData, Error>) in
             switch result {
             case .success(let postData):
                 print("Unliked Post")
@@ -115,7 +115,7 @@ class PostsApi: API_Helper {
     func getLikes(postID: String, completion: @escaping (Result<PostLikesRes, Error>) -> Void) {
         print("likes of post")
         let APIUrl = baseAPIurl + "/posts/likes/\(postID)"
-        self.requestData(urlString: APIUrl, httpMethod: "GET") { (result: Result<PostLikesRes, Error>) in
+        self.apiHelper.requestData(urlString: APIUrl, httpMethod: "GET") { (result: Result<PostLikesRes, Error>) in
             switch result {
             case .success(let postData):
                 print("Unliked Post")
@@ -132,7 +132,7 @@ class PostsApi: API_Helper {
     func getReplies(postID: String, completion: @escaping (Result<PostReplyRes, Error>) -> Void) {
         print("replies of post")
         let APIUrl = baseAPIurl + "/posts/replies/\(postID)"
-        self.requestData(urlString: APIUrl, httpMethod: "GET") { (result: Result<PostReplyRes, Error>) in
+        self.apiHelper.requestData(urlString: APIUrl, httpMethod: "GET") { (result: Result<PostReplyRes, Error>) in
             switch result {
             case .success(let postData):
                 print("replies Post")
@@ -148,7 +148,7 @@ class PostsApi: API_Helper {
     func getQuotes(postID: String, completion: @escaping (Result<PostQuoteRes, Error>) -> Void) {
         print("quotes of post")
         let APIUrl = baseAPIurl + "/posts/quotes/\(postID)"
-        self.requestData(urlString: APIUrl, httpMethod: "GET") { (result: Result<PostQuoteRes, Error>) in
+        self.apiHelper.requestData(urlString: APIUrl, httpMethod: "GET") { (result: Result<PostQuoteRes, Error>) in
             switch result {
             case .success(let postData):
                 print("quotes Post")
@@ -164,7 +164,7 @@ class PostsApi: API_Helper {
     func getEdits(postID: String, completion: @escaping (Result<PostEditSchema, Error>) -> Void) {
         print("edits of post")
         let APIUrl = baseAPIurl + "/posts/edits/\(postID)"
-        self.requestData(urlString: APIUrl, httpMethod: "GET") { (result: Result<PostEditSchema, Error>) in
+        self.apiHelper.requestData(urlString: APIUrl, httpMethod: "GET") { (result: Result<PostEditSchema, Error>) in
             switch result {
             case .success(let postData):
                 print("edits Post")
@@ -180,7 +180,7 @@ class PostsApi: API_Helper {
     func editPost(postID: String, newContent: String, completion: @escaping (Result<PostEditRes, Error>) -> Void) {
         print("edit post")
         let APIUrl = baseAPIurl + "/posts/edit/"
-        self.requestDataWithBody(urlString: APIUrl, httpMethod: "PUT", httpBody: PostEditReq(postID: postID, content: newContent)) { (result: Result<PostEditRes, Error>) in
+        self.apiHelper.requestDataWithBody(urlString: APIUrl, httpMethod: "PUT", httpBody: PostEditReq(postID: postID, content: newContent)) { (result: Result<PostEditRes, Error>) in
             switch result {
             case .success(let postData):
                 print("edits Post")
@@ -196,7 +196,7 @@ class PostsApi: API_Helper {
     func deletePost(postID: String, completion: @escaping (Result<PostDeleteRes, Error>) -> Void) {
         print("unliking post")
         let APIUrl = baseAPIurl + "/posts/remove/\(postID)"
-        self.requestData(urlString: APIUrl, httpMethod: "DELETE") { (result: Result<PostDeleteRes, Error>) in
+        self.apiHelper.requestData(urlString: APIUrl, httpMethod: "DELETE") { (result: Result<PostDeleteRes, Error>) in
             switch result {
             case .success(let postData):
                 print("Unliked Post")
@@ -210,7 +210,7 @@ class PostsApi: API_Helper {
     // add to bookmarks
     func savePost(bookmarkData: PostBookmarkReq, completion: @escaping (Result<PostBookmarkRes, Error>) -> Void) {
         let APIUrl = baseAPIurl + "/posts/save/"
-        self.requestDataWithBody(urlString: APIUrl, httpMethod: "POST", httpBody: bookmarkData) { (result: Result<PostBookmarkRes, Error>) in
+        self.apiHelper.requestDataWithBody(urlString: APIUrl, httpMethod: "POST", httpBody: bookmarkData) { (result: Result<PostBookmarkRes, Error>) in
             switch result {
             case .success(let postData):
                 print("Unliked Post")
@@ -224,7 +224,7 @@ class PostsApi: API_Helper {
     // remove from bookmark
     func unsavePost(bookmarkData: PostBookmarkReq, completion: @escaping (Result<PostUnbookmarkRes, Error>) -> Void) {
         let APIUrl = baseAPIurl + "/posts/unsave/"
-        self.requestDataWithBody(urlString: APIUrl, httpMethod: "DELETE", httpBody: bookmarkData) { (result: Result<PostUnbookmarkRes, Error>) in
+        self.apiHelper.requestDataWithBody(urlString: APIUrl, httpMethod: "DELETE", httpBody: bookmarkData) { (result: Result<PostUnbookmarkRes, Error>) in
             switch result {
             case .success(let postData):
                 print("Unliked Post")

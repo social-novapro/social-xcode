@@ -7,12 +7,12 @@
 
 import Foundation
 
-class AnalyticsApi: API_Helper {
+class AnalyticsApi: API_Base {
     func getAnalyticTrend(completion: @escaping (Result<[AnalyticTrendDataPoint], Error>) -> Void) {
         print("Request analytic trend")
         let APIUrl = baseAPIurl + "/get/analyticTrend"
         
-        self.requestData(urlString: APIUrl) { (result: Result<[AnalyticTrendDataPoint], Error>) in
+        self.apiHelper.requestData(urlString: APIUrl) { (result: Result<[AnalyticTrendDataPoint], Error>) in
             switch result {
             case .success(let analytic):
                 completion(.success(analytic))
@@ -26,7 +26,7 @@ class AnalyticsApi: API_Helper {
         print("Request analytic trend")
         let APIUrl = baseAPIurl + "/get/analyticTrend/\(graphType)"
         
-        self.requestData(urlString: APIUrl) { (result: Result<AnalyticFunctionDataPoint, Error>) in
+        self.apiHelper.requestData(urlString: APIUrl) { (result: Result<AnalyticFunctionDataPoint, Error>) in
             switch result {
             case .success(let analytic):
                 completion(.success(analytic))

@@ -7,13 +7,13 @@
 
 import Foundation
 
-class SearchApi: API_Helper {
+class SearchApi: API_Base {
     func searchRequest(lookup: SearchLookupData, completion: @escaping (Result<SearchFoundData, Error>) -> Void) {
         print("Request login")
         let lookupkey = ApiHeader(value: lookup.lookupkey, field: "lookupkey")
         let APIUrl = baseAPIurl + "/search/"
         
-        self.requestData(urlString: APIUrl, errorType: "withAuth", httpHeaders: [lookupkey]) { (result: Result<SearchFoundData, Error>) in
+        self.apiHelper.requestData(urlString: APIUrl, errorType: "withAuth", httpHeaders: [lookupkey]) { (result: Result<SearchFoundData, Error>) in
             switch result {
             case .success(let userLoginData):
                 completion(.success(userLoginData))
@@ -27,7 +27,7 @@ class SearchApi: API_Helper {
         print("Request login")
         let APIUrl = baseAPIurl + "/search/setting"
         
-        self.requestData(urlString: APIUrl) { (result: Result<SearchSettingResponse, Error>) in
+        self.apiHelper.requestData(urlString: APIUrl) { (result: Result<SearchSettingResponse, Error>) in
             switch result {
             case .success(let searchSettingData):
                 completion(.success(searchSettingData))
@@ -41,7 +41,7 @@ class SearchApi: API_Helper {
         print("Request login")
         let APIUrl = baseAPIurl + "/search/setting"
         
-        self.requestDataWithBody(urlString: APIUrl, httpMethod: "POST", httpBody: SearchSettingRequest(newSearch: newSearch)) { (result: Result<SearchSettingResponse, Error>) in
+        self.apiHelper.requestDataWithBody(urlString: APIUrl, httpMethod: "POST", httpBody: SearchSettingRequest(newSearch: newSearch)) { (result: Result<SearchSettingResponse, Error>) in
             switch result {
             case .success(let searchSettingData):
                 completion(.success(searchSettingData))
@@ -63,7 +63,7 @@ class SearchApi: API_Helper {
         
         let APIUrl = baseAPIurl + "/search/tags/" + searchTextReplace
         
-        self.requestData(urlString: APIUrl, httpMethod: "GET") { (result: Result<SearchPossibleTags, Error>) in
+        self.apiHelper.requestData(urlString: APIUrl, httpMethod: "GET") { (result: Result<SearchPossibleTags, Error>) in
             switch result {
             case .success(let seachTags):
                 completion(.success(seachTags))

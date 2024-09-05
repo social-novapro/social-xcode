@@ -7,11 +7,11 @@
 
 import Foundation
 
-class AdminApi: API_Helper {
+class AdminApi: API_Base {
     var errors: AdminErrorsApi
     
-    override init(userTokensProv: UserTokenData) {
-        self.errors = AdminErrorsApi(userTokensProv: userTokensProv)
-        super .init(userTokensProv: userTokensProv)
+    override init(apiHelper: API_Helper) {
+        self.errors = AdminErrorsApi(apiHelper: apiHelper)
+        super .init(apiHelper: apiHelper)
     }
 }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-class NotificationsApi: API_Helper {
+class NotificationsApi: API_Base {
     private var deviceToken:String? = UserDefaults.standard.string(forKey: "deviceToken")
 
     func getDeviceToken() -> String? {
@@ -27,7 +27,7 @@ class NotificationsApi: API_Helper {
         
         saveDeviceToken(deviceToken: notificationRegister.deviceToken)
         
-        self.requestDataWithBody(urlString: APIUrl, httpMethod: "POST", httpBody: notificationRegister) { (result: Result<PushNotificationRes, Error>) in
+        self.apiHelper.requestDataWithBody(urlString: APIUrl, httpMethod: "POST", httpBody: notificationRegister) { (result: Result<PushNotificationRes, Error>) in
             switch result {
             case .success(let response):
                 print("Registered device")
@@ -41,10 +41,10 @@ class NotificationsApi: API_Helper {
     func deregisterDevice(completion: @escaping (Result<PushNotificationRes, Error>) -> Void) {
         print("deregister device request")
         let APIUrl = baseAPIurl + "/notifications/push/deregister"
-        let depushNotifications = DePushNotificationSend(deviceToken: self.deviceToken ?? "", userID: self.userTokens.userID)
+        let depushNotifications = DePushNotificationSend(deviceToken: self.deviceToken ?? "", userID: self.apiHelper.userTokens.userID)
         
         
-        self.requestDataWithBody(urlString: APIUrl, httpMethod: "DELETE", httpBody: depushNotifications) { (result: Result<PushNotificationRes, Error>) in
+        self.apiHelper.requestDataWithBody(urlString: APIUrl, httpMethod: "DELETE", httpBody: depushNotifications) { (result: Result<PushNotificationRes, Error>) in
             switch result {
             case .success(let response):
                 print("Deregistered device")
@@ -62,7 +62,7 @@ class NotificationsApi: API_Helper {
         let APIUrl = baseAPIurl + "/notifications/push/deviceSettings"
 //        let APIUrl = "baseAPIurl" + "/notifications/push/deviceSettings"
 
-        self.requestDataWithBody(urlString: APIUrl, httpMethod: "POST", httpBody: NotificationDataDeviceTokenSend(deviceToken: self.deviceToken ?? "")) { (result: Result<[NotificationDeviceSetting], Error>) in
+        self.apiHelper.requestDataWithBody(urlString: APIUrl, httpMethod: "POST", httpBody: NotificationDataDeviceTokenSend(deviceToken: self.deviceToken ?? "")) { (result: Result<[NotificationDeviceSetting], Error>) in
             switch result {
             case .success(let response):
                 print("got device settings")
@@ -80,7 +80,7 @@ class NotificationsApi: API_Helper {
         let APIUrl = baseAPIurl + "/notifications/push/update"
         let sendBody = SubmitPushNotificationSendSetting(newSettings: [notificationSettingChange], deviceToken: self.deviceToken ?? "")
 
-        self.requestDataWithBody(urlString: APIUrl, httpMethod: "PUT", httpBody: sendBody) { (result: Result<[NotificationDeviceSetting], Error>) in
+        self.apiHelper.requestDataWithBody(urlString: APIUrl, httpMethod: "PUT", httpBody: sendBody) { (result: Result<[NotificationDeviceSetting], Error>) in
             switch result {
             case .success(let response):
                 print("put device settings")

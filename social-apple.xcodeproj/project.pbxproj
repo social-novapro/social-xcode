@@ -58,6 +58,7 @@
 		655BC0CA2B07575100949356 /* CurrentNavigationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655BC0C92B07575100949356 /* CurrentNavigationHandler.swift */; };
 		656362FD2B5892F700AF42F1 /* AccountsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656362FC2B5892F700AF42F1 /* AccountsView.swift */; };
 		657519132B54DA6400C3EC5E /* HapticPress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657519122B54DA6400C3EC5E /* HapticPress.swift */; };
+		65989CED2C88DD940039763D /* API_Base.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65989CEC2C88DD900039763D /* API_Base.swift */; };
 		659B62EA2B2BBE4800CF2FA4 /* LocalLogsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659B62E92B2BBE4800CF2FA4 /* LocalLogsHandler.swift */; };
 		659B62EC2B2BBE5600CF2FA4 /* LocalLogData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659B62EB2B2BBE5600CF2FA4 /* LocalLogData.swift */; };
 		659F02EA2C85F5320070114E /* ThemeData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659F02E92C85F5300070114E /* ThemeData.swift */; };
@@ -133,6 +134,7 @@
 		655BC0C92B07575100949356 /* CurrentNavigationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentNavigationHandler.swift; sourceTree = "<group>"; };
 		656362FC2B5892F700AF42F1 /* AccountsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsView.swift; sourceTree = "<group>"; };
 		657519122B54DA6400C3EC5E /* HapticPress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticPress.swift; sourceTree = "<group>"; };
+		65989CEC2C88DD900039763D /* API_Base.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API_Base.swift; sourceTree = "<group>"; };
 		659B62E92B2BBE4800CF2FA4 /* LocalLogsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLogsHandler.swift; sourceTree = "<group>"; };
 		659B62EB2B2BBE5600CF2FA4 /* LocalLogData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLogData.swift; sourceTree = "<group>"; };
 		659F02E92C85F5300070114E /* ThemeData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeData.swift; sourceTree = "<group>"; };
@@ -179,6 +181,7 @@
 				6516E5A82B0AE993008A84E4 /* API_Client.swift */,
 				651757E429FB8B2E00E90FBA /* API_Data.swift */,
 				6516E59C2B0AE8B9008A84E4 /* API_Helper.swift */,
+				65989CEC2C88DD900039763D /* API_Base.swift */,
 				65CA9D432BC8D9F900CB145F /* Admin */,
 				650C38362B797331002956DA /* Users */,
 				65DC094E2B30150E004B5865 /* Notifications.swift */,
@@ -463,6 +466,7 @@
 				650C38342B796FD7002956DA /* Analytics.swift in Sources */,
 				651757EC2A006D6900E90FBA /* AnalyticData.swift in Sources */,
 				65CC79352B697CE0002B5ADA /* PollsData.swift in Sources */,
+				65989CED2C88DD940039763D /* API_Base.swift in Sources */,
 				655AB60B29F0720500C61F3A /* Persistence.swift in Sources */,
 				651553D52B5785F100DF3353 /* DeveloperSettingsView.swift in Sources */,
 				655AB62529F0741200C61F3A /* LoginPage.swift in Sources */,
