@@ -9,14 +9,9 @@ import SwiftUI
 
 struct LoginPage: View {
     @ObservedObject var client: ApiClient
-    @State private var userLoginData: UserLoginResponse?
-    
-    
-    var onDone: (UserLoginResponse) -> Void
     
     @State private var username: String = ""
     @State private var password: String = ""
-    @State private var shouldNavigate: Bool = false;
     
     var body: some View {
         VStack {
@@ -63,10 +58,8 @@ struct LoginPage: View {
                         print("api rquest login:")
                         switch result {
                         case .success(let userLoginData):
-                            self.userLoginData = userLoginData
                             client.provideTokens(userLoginResponse: userLoginData)
-                            self.shouldNavigate = true
-                            onDone(userLoginData)
+                            client.changeBeginSetting(value: 0)
                         case .failure(let error):
                             print("Error: \(error.localizedDescription)")
                         }

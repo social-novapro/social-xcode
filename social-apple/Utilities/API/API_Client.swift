@@ -23,6 +23,12 @@ class ApiClient: ObservableObject {
 
     var livechatWS: LiveChatWebSocket
     var apiHelper: API_Helper
+    
+//    var feedPosts: FeedPosts
+    // will only initilize when first used
+//    lazy var feedPosts: FeedPosts = {
+//        return FeedPosts(client: self)
+//    }()
 //    @Published var feedPosts: FeedPosts
 
     @Published var loggedIn:Bool = false
@@ -31,6 +37,16 @@ class ApiClient: ObservableObject {
     @Published var devMode: DevModeData? = DevModeData(isEnabled: false)
     @Published var navigation: CurrentNavigationData? = CurrentNavigationData(selectedTab: 0, expanded: false, hidden: false)
     @Published var haptic: HapticModeData? = HapticModeData(isEnabled: true)
+    @Published var beginPageMode:Int = 0
+    @Published var loginUser:Bool = false;
+    @Published var createUser:Bool = false;
+    /*
+     * 0= none / loggedin
+     * 1= begin
+     * 2= login
+     * 3= create
+     * 4= logout
+     */
 
     var userTokenManager = UserTokenHandler()
     var devModeManager = DevModeHandler()
@@ -75,6 +91,8 @@ class ApiClient: ObservableObject {
 
         self.livechatWS = LiveChatWebSocket(baseURL: self.apiHelper.baseAPIurl, userTokensProv: userTokens)
 
+//        self.feedPosts = FeedPosts(client: self)
+        
         if (self.loggedIn == true) {
             self.users.getByID(userID: userTokens.userID) { result in
                 print("Done")
@@ -85,9 +103,34 @@ class ApiClient: ObservableObject {
                         print("Error: \(error.localizedDescription)")
                 }
             }
+        } else {
+            self.changeBeginSetting(value: 1)
         }
         self.themeData.updateThemes(devMode: self.devMode ?? DevModeData(isEnabled: false))
         self.checkServerStatus()
+    }
+    
+    func changeBeginSetting(value: Int) {
+        DispatchQueue.main.async {
+            print("changing \(self.beginPageMode) to \(value)")
+
+            self.beginPageMode = value
+            print("changing to \(value)")
+            if (value == 2) {
+                self.loginUser = true
+                self.createUser = false
+            } else if (value == 3) {
+                self.loginUser = false
+                self.createUser = true
+            } else if (value == 0) {
+                self.loggedIn = true
+                self.loginUser = false
+                self.createUser = false
+
+//            } else if (value == 1) {
+//                self.loggedIn = false
+            }
+        }
     }
     
     func hasTokens() {
@@ -105,11 +148,13 @@ class ApiClient: ObservableObject {
         /* sets up tokens */
         print("Providing tokens")
         DispatchQueue.main.async {
-                self.userTokens = UserTokenData(
+            self.userTokens = UserTokenData(
                 accessToken: userLoginResponse.accessToken,
                 userToken: userLoginResponse.userToken,
                 userID: userLoginResponse.userID
             )
+            
+            self.userData = userLoginResponse.publicData
             
             self.userTokenManager.saveUserTokens(userTokenData: self.userTokens)
             self.apiHelper = API_Helper(userTokensProv: self.userTokens)

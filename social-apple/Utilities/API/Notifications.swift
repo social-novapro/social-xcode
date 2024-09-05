@@ -10,6 +10,10 @@ import Foundation
 class NotificationsApi: API_Base {
     private var deviceToken:String? = UserDefaults.standard.string(forKey: "deviceToken")
 
+    func refreshDeviceToken() {
+        self.deviceToken = UserDefaults.standard.string(forKey: "deviceToken")
+    }
+    
     func getDeviceToken() -> String? {
         self.deviceToken = UserDefaults.standard.string(forKey: "deviceToken")
         return deviceToken
@@ -31,6 +35,7 @@ class NotificationsApi: API_Base {
             switch result {
             case .success(let response):
                 print("Registered device")
+                self.refreshDeviceToken()
                 completion(.success(response))
             case .failure(let error):
                 print("Error: \(error)")

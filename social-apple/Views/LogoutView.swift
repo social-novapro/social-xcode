@@ -36,5 +36,7 @@ struct LogoutView: View {
             }
             
         }
+        .navigationTitle("Logout")
+
     }
 }

@@ -8,12 +8,7 @@
 import SwiftUI
 
 struct CreateUserPage: View {
-    @Environment(\.managedObjectContext) private var viewContext
     @ObservedObject var client: ApiClient
-    @State private var userLoginData: UserLoginResponse?
-    
-    
-    var onDone: (UserLoginResponse) -> Void
     
     @State private var email: String = ""
     @State private var username: String = ""
@@ -23,7 +18,6 @@ struct CreateUserPage: View {
     @State private var pronouns: String = ""
     @State private var status: String = ""
     @State private var userAge: Date = Date()
-    @State private var shouldNavigate: Bool = false;
     
     var body: some View {
         VStack {
@@ -148,10 +142,8 @@ struct CreateUserPage: View {
                         print("api rquest login:")
                         switch result {
                         case .success(let userLoginData):
-                            self.userLoginData = userLoginData
                             client.provideTokens(userLoginResponse: userLoginData)
-                            self.shouldNavigate = true
-                            onDone(userLoginData)
+                            client.changeBeginSetting(value: 0)
                         case .failure(let error):
                             print("Error: \(error.localizedDescription)")
                         }

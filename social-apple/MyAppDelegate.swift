@@ -10,6 +10,8 @@ import UIKit
 import UserNotifications
 
 class MyAppDelegate: UIResponder, UIApplicationDelegate {
+    var client: ApiClient?
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         print("didFinishLaunchingWithOptions")
 
@@ -17,8 +19,9 @@ class MyAppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     // PUSH NOTIFICATIONS
-    func registerPushNotifications() {
+    func registerPushNotifications(client: ApiClient) {
         UNUserNotificationCenter.current().delegate = self
+        self.client = client
         let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
         
         UNUserNotificationCenter.current()
@@ -30,6 +33,7 @@ class MyAppDelegate: UIResponder, UIApplicationDelegate {
                 } else {
                     DispatchQueue.main.async {
                         UIApplication.shared.registerForRemoteNotifications()
+                        client.notifications.refreshDeviceToken()
                     }
                 }
             }
@@ -53,6 +57,7 @@ class MyAppDelegate: UIResponder, UIApplicationDelegate {
         
         notificationsApi.registerDevice(notificationRegister: sendData) { result in
             print("done registering")
+            self.client?.notifications.refreshDeviceToken()
         }
         
     }

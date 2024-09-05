@@ -27,7 +27,7 @@ struct ContentView: View {
         self.feedPosts.getFeed()
     }
     
-    @ViewBuilder var body: some View {
+    var body: some View {
         Group {
 #if os(iOS) || os(tvOS)
            if horizontalSizeClass == .compact {
@@ -68,7 +68,7 @@ struct compactLayoutView : View {
     @ObservedObject var feedPosts: FeedPosts
     @State var horizontalSizeClass: UserInterfaceSizeClass?
 
-    @ViewBuilder var body: some View {
+    var body: some View {
         VStack {
             if (client.loggedIn) {
                 switch client.navigation?.selectedTab {
@@ -142,23 +142,30 @@ struct regularLayoutView : View {
     @State var horizontalSizeClass: UserInterfaceSizeClass?
 
     
-    @ViewBuilder var body: some View {
+    var body: some View {
         NavigationSplitView {
             SideBarNavigation(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
         } detail: {
-            if client.serverOffline {
-                ServerStatusOffline(client: client)
-            } else if client.loggedIn {
-                FeedPage(client: client, feedPosts: feedPosts)
-            } else {
-                BeginPage(client: client)
+            Group {
+                if client.serverOffline {
+                    ServerStatusOffline(client: client)
+                } else if client.loggedIn || client.beginPageMode == 0 {
+                    FeedPage(client: client, feedPosts: feedPosts)
+                } else {
+                    BeginPage(client: client)
+                }
             }
+            .onChange(of: client.loggedIn, perform: {newValue in
+                print("changed client.loggedIn to \(newValue) group inside splitView")
+            })
+
         }
-        #if os(iOS)
+        #if os(iOS) || os(tvOS)
         .fullScreenCover(isPresented: $client.serverOffline, content: {
             ServerStatusOffline(client: client)
         })
         .onChange(of: client.loggedIn, perform: {newValue in
+            print("changed client.loggedIn to \(newValue) regularLayoutView")
             self.feedPosts.newClient(client: client)
             self.feedPosts.getFeed()
         })
@@ -327,21 +334,30 @@ struct SideBarNavigation: View {
                         NavigationLink {
                             FeedPage(client: client, feedPosts: feedPosts)
                         } label: {
-                            Text("Feed")
+                            HStack {
+                                Image(systemName: "house")
+                                Text("Feed")
+                            }
                         }
                     }
                     VStack {
                         NavigationLink {
                             LiveChatView(client: client)
                         } label: {
-                            Text("Chat")
+                            HStack {
+                                Image(systemName: "bubble.left")
+                                Text("Chat")
+                            }
                         }
                     }
                     VStack {
                         NavigationLink {
                             SearchView(client: client)
                         } label: {
-                            Text("Search Interact")
+                            HStack {
+                                Image(systemName: "magnifyingglass")
+                                Text("Search")
+                            }
                         }
                     }
                 }
@@ -350,14 +366,20 @@ struct SideBarNavigation: View {
                     NavigationLink {
                         ProfileView(client: client, userData: client.userData, userID: client.userTokens.userID)
                     } label: {
-                        Text("Profile")
+                        HStack {
+                            Image(systemName: "person")
+                            Text("Profile")
+                        }
                     }
                 }
                 VStack {
                     NavigationLink {
                         CreatePost(client: client)
                     } label: {
-                        Text("Create Post")
+                        HStack {
+                            Image(systemName: "plus.circle")
+                            Text("Create Post")
+                        }
                     }
                 }
                 
@@ -365,14 +387,20 @@ struct SideBarNavigation: View {
                     NavigationLink {
                         BasicSettings(client: client)
                     } label: {
-                        Text("Settings")
+                        HStack {
+                            Image(systemName: "gearshape")
+                            Text("Settings")
+                        }
                     }
                 }
                 VStack {
                     NavigationLink {
                         LogoutView(client: client)
                     } label: {
-                        Text("Logout")
+                        HStack {
+                            Image(systemName: "x.circle")
+                            Text("Logout")
+                        }
                     }
                 }
             }
@@ -382,7 +410,10 @@ struct SideBarNavigation: View {
                     NavigationLink {
                         BeginPage(client: client)
                     } label: {
-                        Text("Begin")
+                        HStack {
+                            Image(systemName: "book")
+                            Text("Begin")
+                        }
                     }
                 }
             }
@@ -393,15 +424,22 @@ struct SideBarNavigation: View {
                     NavigationLink {
                         DevModeView(client: client)
                     } label: {
-                        Text("DevMode")
+                        HStack {
+                            Image(systemName: "hammer")
+                            Text("DevMode")
+                        }
                     }
                 }
             }
+            
             VStack {
                 NavigationLink {
                     AboutView(client: client)
                 } label: {
-                    Text("About")
+                    HStack {
+                        Image(systemName: "info.circle")
+                        Text("About")
+                    }
                 }
             }
             /*

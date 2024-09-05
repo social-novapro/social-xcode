@@ -533,11 +533,6 @@ struct ExpandedPostView: View {
                     
                 }
                 Divider()
-                HStack {
-                    Text("Expanded action area")
-                        .underline()
-                    Spacer()
-                }
                 if (client.userTokens.userID != feedData.userData?._id ?? "") {
                     HStack {
                         Button(action: {
@@ -580,8 +575,10 @@ struct ExpandedPostView: View {
                             }
                         }) {
                             if ((self.feedData.extraData.followed ?? false) == true) {
+                                Image(systemName: "person.badge.minus")
                                 Text("Unfollow User")
                             } else {
+                                Image(systemName: "person.badge.plus")
                                 Text("Follow User")
                             }
                         }
@@ -617,8 +614,10 @@ struct ExpandedPostView: View {
                         }
                     }) {
                         if (pinnedPost == true) {
+                            Image(systemName: "pin.slash")
                             Text("Remove Pin from Profile.")
                         } else {
+                            Image(systemName: "pin")
                             Text("Pin to Profile")
                         }
                     }
@@ -652,8 +651,10 @@ struct ExpandedPostView: View {
                         }
                     }) {
                         if (savedPost == true) {
+                            Image(systemName: "bookmark.slash")
                             Text("Remove from Bookmarks")
                         } else {
+                            Image(systemName: "bookmark")
                             Text("Save to Bookmarks")
                         }
                     }
@@ -661,9 +662,11 @@ struct ExpandedPostView: View {
                     
                     Spacer()
                 }
+                if (client.devMode?.isEnabled == true) {
                 HStack {
                     Text("Copy Post Link")
                     Spacer()
+                }
                 }
                 HStack {
                     Button(action: {
@@ -672,6 +675,7 @@ struct ExpandedPostView: View {
                             feedData.postLiveData.subAction=1;
                         }
                     }) {
+                        Image(systemName: "clock")
                         Text("Check Edit History")
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -684,6 +688,7 @@ struct ExpandedPostView: View {
                             feedData.postLiveData.subAction=2;
                         }
                     }) {
+                        Image(systemName: "heart.text.square")
                         Text("Check Who Liked")
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -697,6 +702,7 @@ struct ExpandedPostView: View {
                             feedData.postLiveData.subAction=3;
                         }
                     }) {
+                        Image(systemName: "arrowshape.turn.up.left.2")
                         Text("Check Replies")
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -709,6 +715,7 @@ struct ExpandedPostView: View {
                             feedData.postLiveData.subAction=4;
                         }
                     }) {
+                        Image(systemName: "quote.bubble")
                         Text("Check Quotes")
                     }
                     .buttonStyle(PlainButtonStyle())

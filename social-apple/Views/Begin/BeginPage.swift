@@ -10,57 +10,60 @@ import CoreData
 
 struct BeginPage: View {
     @ObservedObject var client: ApiClient
-    @State var gotoother = false
-    @State var login = false;
-    @State var signup = false;
     
     var body: some View {
         NavigationStack {
             VStack {
-                if (!client.loggedIn) {
-                    Text("Welcome to Interact.")
-                    Text("You can login, or create a new account.")
-                    
-                    Button(action: {
-                        client.hapticPress()
-                        self.login = true
-                    }, label: {
-                        Text("Login")
-                            .padding(15)
-                            .cornerRadius(20)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(Color.accentColor, lineWidth: 3)
-                            )
-                    })
-                    .navigationDestination(isPresented: $login) {
-                        LoginPage(client: client, onDone: { userLoginResponseIn in
-                            print("userresponsein")
+                if (client.loggedIn == false) {
+                    if (client.beginPageMode == 2) {
+                        LoginPage(client: client)
+                    } else if (client.beginPageMode == 3) {
+                        CreateUserPage(client: client)
+                    } else {
+                        Text("Welcome to Interact.")
+                        Text("You can login, or create a new account.")
+                        
+                        Button(action: {
+                            client.hapticPress()
+                            client.changeBeginSetting(value: 2)
+                        }, label: {
+                            Text("Login")
+                                .padding(15)
+                                .cornerRadius(20)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .stroke(Color.accentColor, lineWidth: 3)
+                                )
                         })
-                    }
-                    
-                    Button(action: {
-                        client.hapticPress()
-                        self.signup = true
-                    }, label: {
-                        Text("Sign up")
-                            .padding(15)
-                            .cornerRadius(20)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(Color.accentColor, lineWidth: 3)
-                            )
-                    })
-                    .navigationDestination(isPresented: $signup) {
-                        CreateUserPage(client: client, onDone: { userLoginResponseIn in
-                            print("userresponsein")
+                        
+                        Button(action: {
+                            client.hapticPress()
+                            client.changeBeginSetting(value: 3)
+                        }, label: {
+                            Text("Sign up")
+                                .padding(15)
+                                .cornerRadius(20)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .stroke(Color.accentColor, lineWidth: 3)
+                                )
                         })
                     }
                 } else {
-                    //                UserView(client: client)
                     LogoutView(client: client)
-                    //                FeedPage(client: client, feedPosts: feedPosts)
                 }
+            }
+            .onChange(of: client.beginPageMode) { _ in
+                    print("changed client.beginPageMode \(client.beginPageMode)")
+            }
+            .onChange(of: client.loginUser) { _ in
+                print("changed client.loginUser \(client.loggedIn)")
+            }
+            .onChange(of: client.createUser) { _ in
+                print("changed client.createUser \(client.createUser)")
+            }
+            .onChange(of: client.loggedIn) { _ in
+                print("changed client.loggedin")
             }
         }
         .navigationTitle("Welcome")

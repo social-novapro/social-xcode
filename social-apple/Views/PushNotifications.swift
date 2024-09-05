@@ -26,18 +26,35 @@ struct PushNotifications: View {
             Text("Welcome to Notification Panel")
             Text("Press register to sign up for notifications! You will be able to deregister, and change what notifications to recieve!")
             Button(action: {
-                
-                appDelegate.registerPushNotifications()
+                appDelegate.registerPushNotifications(client: client)
                 self.registered = true
             }, label: {
                 Text("Register")
             })
             if (self.registered == true && self.isLoading == true) {
                 Button(action: {
-                    getDeviceSettings()
+                    client.notifications.refreshDeviceToken()
+                    client.notifications.getDeviceSettings() { result in
+                        print("get device settings")
+                        
+                        switch result {
+                        case .success(let foundResults):
+                            self.deviceSettings = foundResults
+                            self.registered = true
+                            print("Done")
+                            self.isLoading = false
+                        case .failure(let error):
+                            print("Error: \(error.localizedDescription)")
+                        }
+                    }
+
                 }, label: {
                     Text("Click here to show settings")
                 })
+                .onAppear() {
+                    self.client.notifications.refreshDeviceToken()
+                    self.getDeviceSettings()
+                }
             }
             Button(action: {
                 client.notifications.deregisterDevice() { result in
