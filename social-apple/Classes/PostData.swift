@@ -15,7 +15,7 @@ struct PublishPollData: Decodable, Encodable {
 }
 
 class PostCreation: ObservableObject {
-    var client: ApiClient
+    var client: Client
     @Published var content: String = ""
 
     private var publishPollData: PublishPollData = PublishPollData(pollID: nil, sentPoll: false, pollPossibleFailed: false)
@@ -32,7 +32,7 @@ class PostCreation: ObservableObject {
     @Published var possibleTags: SearchPossibleTags?
     @Published var feedData: AllPosts?
     
-    init(client: ApiClient, feedData: AllPosts? = nil) {
+    init(client: Client, feedData: AllPosts? = nil) {
         self.client = client
         self.feedData = feedData
     }
@@ -51,15 +51,6 @@ class PostCreation: ObservableObject {
         var newWords: [String] = words
         newWords.removeLast()
 
-        
-// because api doesnt add @ automatically
-// undo because i did it on the frontend of the app
-
-//        var addTag = tag
-//        if (!tag.starts(with: "#")) {
-//            addTag = "@" + tag
-//        }
-        
         newWords.append("\(tag) ")
         let newContent = newWords.joined(separator: " ")
         DispatchQueue.main.async {
@@ -98,7 +89,7 @@ class PostCreation: ObservableObject {
 
 //        if (currentWord.starts(with: "@"))
 
-        client.search.searchTagSuggestion(searchText: currentWord) { result in
+        client.api.search.searchTagSuggestion(searchText: currentWord) { result in
             switch result {
             case .success(let results):
                 DispatchQueue.main.async {
@@ -118,7 +109,7 @@ class PostCreation: ObservableObject {
             print("2- poll added yes")
             do {
                 print("2- setting poll")
-                let newPoll = try await self.client.polls.createV2(pollInput: self.tempPollCreator)
+                let newPoll = try await self.client.api.polls.createV2(pollInput: self.tempPollCreator)
                 print("4- made poll")
                 print(newPoll)
                 
@@ -235,7 +226,7 @@ class PostCreation: ObservableObject {
             
         // publish post
         do {
-            let newPost = try await self.client.posts.createPostV2(postCreateContent: postCreateContent)
+            let newPost = try await self.client.api.posts.createPostV2(postCreateContent: postCreateContent)
             print(newPost)
             
             DispatchQueue.main.async {
@@ -265,28 +256,29 @@ class PostCreation: ObservableObject {
 
 
 class FeedPosts: ObservableObject {
-//    @ObservedObject var client: ApiClient
-    var client: ApiClient
+    var client: Client
 
+//    var api
     @Published var feed: FeedV2Data = FeedV2Data(amount: 0, posts: [])
     @Published var posts: [AllPosts] = []
     @Published var loadingScroll: Bool = false
     @Published @MainActor var isLoading: Bool = true
     @Published var gotFeed: Bool = false
 
-    init(client: ApiClient) {
+    init(client: Client) {
         self.client = client
     }
 
-    func newClient(client: ApiClient) {
+    func newClient(client: Client) {
         self.client = client
     }
+    
     func getFeed() {
         DispatchQueue.main.async {
             if (self.gotFeed==true) {
                 return
             }
-            self.client.posts.getUserFeed(userTokens: self.client.userTokens) { result in
+            self.client.api.posts.getUserFeed(userTokens: self.client.userTokens) { result in
                 print("allpost request")
                 
                 switch result {
@@ -333,7 +325,7 @@ class FeedPosts: ObservableObject {
     
     func refreshFeed() -> Void {
         DispatchQueue.main.async {
-            self.client.posts.getUserFeed(userTokens: self.client.userTokens) { result in
+            self.client.api.posts.getUserFeed(userTokens: self.client.userTokens) { result in
                 self.client.hapticPress()
                 
                 switch result {
@@ -351,7 +343,7 @@ class FeedPosts: ObservableObject {
     
     func nextIndex() -> Void {
         DispatchQueue.main.async {
-            self.client.posts.getUserFeedIndex(userTokens: self.client.userTokens, index: self.feed.prevIndexID ?? "") { result in
+            self.client.api.posts.getUserFeedIndex(userTokens: self.client.userTokens, index: self.feed.prevIndexID ?? "") { result in
                 self.client.hapticPress()
                 
                 switch result {

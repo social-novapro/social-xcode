@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PostView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @Binding var feedData: AllPosts
     @Binding var selectedProfile: SelectedProfileData
     

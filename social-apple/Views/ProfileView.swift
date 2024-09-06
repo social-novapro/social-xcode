@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ProfileView : View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @ObservedObject var profileData: ProfileViewClass
     @State var userData: UserData?
     @State var userID: String?
@@ -17,15 +17,11 @@ struct ProfileView : View {
     @State var userFollowerList: UserFollowListData?
     @State var selectedFollowList = 0
 
-    init (client: ApiClient, userData: UserData?, userID: String?) {
+    init (client: Client, userData: UserData?, userID: String?) {
         self.client = client
         self.userData = userData
         self.userID = userID
         self.profileData = ProfileViewClass(client: client, userData: userData ?? nil, userID: userID)
-
-//        Task
-//        print(userID)
-        print("TOSHOW PROFILE")
     }
     
     var body: some View {
@@ -136,13 +132,13 @@ struct ProfileView : View {
 
             Task {
                 do {
-                    userFollowingList = try await client.users.followingFollowerList(userID: userID ?? "", type: 0)
+                    userFollowingList = try await client.api.users.followingFollowerList(userID: userID ?? "", type: 0)
                 } catch {
                     print("Failed to get following list: \(error.localizedDescription)")
                 }
                 // omg had to seperate cause it fails when missing a list
                 do {
-                    userFollowerList = try await client.users.followingFollowerList(userID: userID ?? "", type: 1)
+                    userFollowerList = try await client.api.users.followingFollowerList(userID: userID ?? "", type: 1)
 
                 } catch {
                     print("Failed get follower list: \(error.localizedDescription)")
@@ -157,11 +153,11 @@ struct ProfileView : View {
 }
 
 struct ProfileMentionView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @ObservedObject var profileData: ProfileViewClass
     @State var selectedProfile: SelectedProfileData = SelectedProfileData()
 
-    init(client: ApiClient, profileData: ProfileViewClass) {
+    init(client: Client, profileData: ProfileViewClass) {
         self.client = client
         self.profileData = profileData
         print(profileData)
@@ -194,10 +190,10 @@ struct ProfileMentionView: View {
 }
 
 struct ProfileUserDataView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @ObservedObject var profileData: ProfileViewClass
 
-    init(client: ApiClient, profileData: ProfileViewClass) {
+    init(client: Client, profileData: ProfileViewClass) {
         self.client = client
         self.profileData = profileData
         print(profileData)
@@ -230,7 +226,7 @@ struct ProfileUserDataView: View {
                             Task {
                                 if (profileData.followed == true) {
                                     do {
-                                        _ = try await client.users.unFollowUser(userID: self.profileData.userData?._id ?? "")
+                                        _ = try await client.api.users.unFollowUser(userID: self.profileData.userData?._id ?? "")
                                         profileData.followed = false
                                     } catch let error as ErrorData {
                                         print("ErrorData: \(error.code), \(error.msg)")
@@ -240,7 +236,7 @@ struct ProfileUserDataView: View {
                                 } else {
                                     do {
                                         //self.profileData.userDataFull?.extraData?.followed
-                                        _ = try await client.users.followUser(userID: self.profileData.userData?._id ?? "")
+                                        _ = try await client.api.users.followUser(userID: self.profileData.userData?._id ?? "")
                                         profileData.followed = true
                                     } catch {
                                         print("failed true" )
@@ -308,7 +304,7 @@ struct ProfileUserDataView: View {
 }
 
 struct BadgeCardView : View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @State var badgeData: BadgeData
 
     var body: some View {
@@ -348,7 +344,7 @@ struct BadgeCardView : View {
 
 
 struct FollowingFollowerView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @State var userID: String? = ""
     
     @Binding var userFollowingList: UserFollowListData?
@@ -395,7 +391,7 @@ struct FollowingFollowerView: View {
 }
 
 struct FollowingFollowerProfilePreview: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @State var followDataPoint: UserFollowListDataPoint
     
     var body: some View {
@@ -441,7 +437,7 @@ struct FollowingFollowerProfilePreview: View {
                         Task {
                             if (followDataPoint.userData.followed == true) {
                                 do {
-                                    _ = try await client.users.unFollowUser(userID: self.followDataPoint.userData._id ?? "")
+                                    _ = try await client.api.users.unFollowUser(userID: self.followDataPoint.userData._id ?? "")
                                     followDataPoint.userData.followed = false
                                 } catch let error as ErrorData {
                                     print("ErrorData: \(error.code), \(error.msg)")
@@ -450,7 +446,7 @@ struct FollowingFollowerProfilePreview: View {
                                 }
                             } else {
                                 do {
-                                    _ = try await client.users.followUser(userID: self.followDataPoint.userData._id ?? "")
+                                    _ = try await client.api.users.followUser(userID: self.followDataPoint.userData._id ?? "")
                                     followDataPoint.userData.followed = true
                                 } catch {
                                     print("failed true" )
@@ -484,7 +480,7 @@ struct FollowingFollowerProfilePreview: View {
     }
 }
 struct FollowingFollowerListView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @Binding var userList: UserFollowListData?
     @Binding var selectedFollowList: Int
 
@@ -500,24 +496,10 @@ struct FollowingFollowerListView: View {
                             .listRowInsets(EdgeInsets())
                             .padding(10)
                             .onAppear(){
-                                //                                    if (self.feedPosts.posts.last?.id == feedPosts.posts[index].id && self.feedPosts.loadingScroll == false) {
                                 client.hapticPress()
-                                //                                        self.feedPosts.loadingScroll = true
-                                
-                                //                                        if (self.feedPosts.feed.prevIndexID != nil) {
-                                //                                            DispatchQueue.main.async {
-                                ////                                                feedPosts.nextIndex()
-                                //                                            }
-                                //                                        }
                             }
 
                     }
-                    //                        ForEach (userFollowList?.data ?? []) { data in
-                    //                    FollowingFollowerProfile(user: user, index: index)
-                    //                            Text(data.userData.username ?? "")
-                    //                                .padding(.bottom, 10)
-                    //                        }
-                    
                     EmptyView()
                         .padding(.bottom, 40)
 
@@ -530,8 +512,6 @@ struct FollowingFollowerListView: View {
                     client.hapticPress()
                     DispatchQueue.main.async {
                         print("refreshing")
-//                        print(userList?.type)
-                        //                            feedPosts.refreshFeed()
                     }
                 }
             } else {

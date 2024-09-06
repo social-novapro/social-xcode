@@ -22,7 +22,6 @@ class PollsApi: API_Base {
         
         if (goodOptions <= 1) {
             throw ErrorData(code: "Z001", msg: "Uknown", error: true)
-//            return Fail(error: NSError(domain: "com.example.error", code: 0, userInfo: nil)).eraseToAnyPublisher()
         }
         
         var createPollReq = CreatePollReq(pollName: pollInput.pollQuestion, optionAmount: goodOptions, option_1: foundOptions[0], option_2: foundOptions[1])
@@ -179,15 +178,4 @@ class PollsApi: API_Base {
             }
         }
     }
-
-    /*
-     router.use('/create', create);
-     router.use('/get', get);
-     router.use('/createVote', createVote);
-     router.use('/removeVote' , removeVote);
-     router.use('/edit', edit);
-     router.use('/delete', deleteRoute);
-     router.use('/addOptions', appOptions);
-     router.use('/userVote', userVote)
-     */
 }

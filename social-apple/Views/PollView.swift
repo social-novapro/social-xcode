@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PollView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @Binding var feedData: AllPosts
     
     @State var pollData: PollData
@@ -41,7 +41,7 @@ struct PollView: View {
 }
 
 struct PollOptionView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @Binding var feedData: AllPosts
     @Binding var pollData: PollData
     @Binding var voteOption: String?
@@ -62,15 +62,11 @@ struct PollOptionView: View {
                 voting = true
                 
                 if (option._id == voteOption) {
-                    client.polls.removeVote(pollID: feedData.pollData?._id ?? "XX", optionID: option._id) { result in
+                    client.api.polls.removeVote(pollID: feedData.pollData?._id ?? "XX", optionID: option._id) { result in
                         switch result {
                         case .success(let unvoted):
                             if (voteOption == unvoted) {
                                 voteOption = nil
-                                //var i = 0;
-                               //ForEach( feedData.pollData?.pollOptions  ?? []) { option in
-                                    //i=i+1;
-                               // }
                                 feedData.voteData = nil
                             }
                             client.hapticPress()
@@ -81,7 +77,7 @@ struct PollOptionView: View {
                         }
                     }
                 } else {
-                    client.polls.createVote(pollID: feedData.pollData?._id ?? "XX", optionID: option._id) { result in
+                    client.api.polls.createVote(pollID: feedData.pollData?._id ?? "XX", optionID: option._id) { result in
                         switch result {
                         case .success(let newVoteData):
                             voteOption = newVoteData.pollOptionID
@@ -126,7 +122,7 @@ struct PollOptionView: View {
 }
 
 struct PollCreatorView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @Binding var tempPollCreator: TempPollCreator
     
     var body: some View {

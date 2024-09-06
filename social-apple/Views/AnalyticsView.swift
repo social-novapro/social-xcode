@@ -9,7 +9,7 @@ import SwiftUI
 import Charts
 
 struct AnalyticsView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @State var doneLoading: Bool = false
     @State var analytics: [AnalyticTrendDataPoint]?
     @State var graphIsShown:Bool = false
@@ -85,7 +85,7 @@ struct AnalyticsView: View {
             }
         }
         .onAppear {
-            client.anaytics.getAnalyticTrend() { result in
+            client.api.anaytics.getAnalyticTrend() { result in
                 print("analytic request")
                 switch result {
                 case .success(let analytics):

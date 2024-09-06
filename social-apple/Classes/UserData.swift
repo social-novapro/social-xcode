@@ -8,7 +8,7 @@
 import Foundation
 
 class ProfileViewClass: ObservableObject {
-    var client: ApiClient
+    var client: Client
     @Published var userID: String
     @Published var userData: UserData?
     
@@ -22,32 +22,10 @@ class ProfileViewClass: ObservableObject {
     @Published var doneLoading: Bool = false
     @Published var possibleFail: Bool = false
 
-    init(client: ApiClient, userData: UserData?, userID: String?) {
+    init(client: Client, userData: UserData?, userID: String?) {
         self.client = client
         self.userID = userID ?? client.userTokens.userID
         self.userData = userData ?? nil
-
-//        client.users.getUser(userID: userID ?? client.userTokens.userID) { result in
-//            switch result {
-//            case .success(let results):
-//                DispatchQueue.main.async {
-//                    self.userDataFull = results;
-//                    self.userData = results.userData;
-//                    self.postData = results.postData;
-//                    self.pinData = results.pinData;
-//                    self.badgeData = results.badgeData ?? []
-//                    self.doneLoading = true
-//                    self.possibleFail = false
-//                }
-//                print(results)
-//            case .failure(let error):
-//                print("Error: \(error.localizedDescription)")
-//            }
-//        }
-//        
-//        DispatchQueue.main.async {
-//            self.possibleFail = true;
-//        }
     }
     
     func provBasic(userData: UserData) {
@@ -55,7 +33,7 @@ class ProfileViewClass: ObservableObject {
     }
     
     func ready() {
-        client.users.getUser(userID: self.userID) { result in
+        client.api.users.getUser(userID: self.userID) { result in
             switch result {
             case .success(let results):
                 print("Updating results")

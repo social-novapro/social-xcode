@@ -8,12 +8,6 @@
 import Foundation
 
 
-
-//var found = {
-//    usersFound,
-//    postsFound
-//};
-
 struct HapticModeData: Decodable, Encodable {
     var isEnabled: Bool
 }

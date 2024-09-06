@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct CreateUserPage: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     
     @State private var email: String = ""
     @State private var username: String = ""
@@ -138,7 +138,7 @@ struct CreateUserPage: View {
                     print("button pressed")
                     let userLogin = UserCreateData(email: email, username: username, password: password, displayName: displayName, description: description, pronouns: pronouns, status: status, userAge: dateTimeFormatterInt64(date: userAge))
                     print("userlogin, LoginPage")
-                    client.auth.userCreateRequest(userCreate: userLogin) { result in
+                    client.api.auth.userCreateRequest(userCreate: userLogin) { result in
                         print("api rquest login:")
                         switch result {
                         case .success(let userLoginData):

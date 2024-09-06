@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AccountsView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     
 
     var body: some View {

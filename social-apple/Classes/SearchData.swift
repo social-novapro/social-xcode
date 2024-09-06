@@ -8,12 +8,12 @@
 import Foundation
 
 class SearchClass: ObservableObject {
-    var client: ApiClient
+    var client: Client
     @Published var searchText: String = ""
     @Published var searchResults: SearchFoundData = SearchFoundData()
     @Published var foundData: Bool = false
 
-    init(client: ApiClient) {
+    init(client: Client) {
         self.client = client
     }
             
@@ -25,7 +25,7 @@ class SearchClass: ObservableObject {
             return;
         }
         
-        client.search.searchRequest(lookup: SearchLookupData(lookupkey: newValue)) { result in
+        client.api.search.searchRequest(lookup: SearchLookupData(lookupkey: newValue)) { result in
             switch result {
             case .success(let results):
                 if (newValue != self.searchText) {
@@ -41,7 +41,6 @@ class SearchClass: ObservableObject {
                 print("Error: \(error.localizedDescription)")
             }
         }
-        
     }
 }
 

@@ -12,6 +12,7 @@ struct PushNotificationSend: Decodable, Encodable {
     let deviceType: String
     let userID: String
 }
+
 struct DePushNotificationSend: Encodable {
     let deviceToken: String
     let userID: String
@@ -65,5 +66,4 @@ struct SubmitPushNotificationNewSetting: Encodable {
 struct SubmitPushNotificationSendSetting: Encodable {
     let newSettings: [SubmitPushNotificationNewSetting]
     let deviceToken: String
-
 }

@@ -70,7 +70,6 @@ func timeFormater(timestampInMilliseconds: TimeInterval) -> String {
     }
 
     let finalString = "\(dateString) - \(timeAgoString) ago"
-//    print(finalString)
     return finalString
 }
 

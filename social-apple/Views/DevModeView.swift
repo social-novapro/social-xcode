@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct DevModeView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
 
     @State var userTokenManager = UserTokenHandler()
     @State var devModeManager = DevModeHandler()

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct DeveloperSettingsView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @State var developerData: DeveloperResponseData?
     @State var loading: Bool = true
     @State var newApplications: [AppTokenData] = []
@@ -66,7 +66,7 @@ struct DeveloperSettingsView: View {
         }
         .navigationTitle("Developer Settings")
         .onAppear {
-            client.developer.getDeveloperData() { result in
+            client.api.developer.getDeveloperData() { result in
                 print("api rquest login:")
                 switch result {
                 case .success(let newData):
@@ -82,7 +82,7 @@ struct DeveloperSettingsView: View {
 
 
 struct GenerateAppView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @Binding var newApplications: [AppTokenData]
     @State var newApplicationName: String = ""
     @State var developerToken: String
@@ -126,7 +126,7 @@ struct GenerateAppView: View {
                         
                         newApplicationName=""
                         
-                        client.developer.newAppToken(newAppToken: newTokenReq) { result in
+                        client.api.developer.newAppToken(newAppToken: newTokenReq) { result in
                             switch result {
                             case .success(let appData):
                                 print("Generated Token")
@@ -162,7 +162,7 @@ struct GenerateAppView: View {
 }
 
 struct DeveloperTokenView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @State var developerToken: DeveloperTokenData
     @State var copied: Bool = false
 
@@ -219,7 +219,7 @@ struct DeveloperTokenView: View {
 }
 
 struct AccountStatusView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @Binding var developerData: DeveloperResponseData?
 
 
@@ -261,7 +261,7 @@ struct AccountStatusView: View {
 }
 
 struct AppTokenView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @State var appToken: AppTokenData
     @State var copied: Bool = false
     
@@ -320,7 +320,7 @@ struct AppTokenView: View {
 }
 
 struct AccessTokenView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @State var accessToken: AppAccessesData
 
     var body: some View {

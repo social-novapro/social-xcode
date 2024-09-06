@@ -8,8 +8,7 @@
 import Foundation
 
 class AdminErrorFeed: ObservableObject {
-//    @ObservedObject var client: ApiClient
-    let client: ApiClient
+    let client: Client
 
     @Published var errorIndex: ErrorIndexData = ErrorIndexData(indexID: "", timestamp: 0, foundIssues: [])
     @Published var issues: [ErrorIssueData] = []
@@ -17,7 +16,7 @@ class AdminErrorFeed: ObservableObject {
     @Published @MainActor var isLoading: Bool = true
     @Published var gotFeed: Bool = false
 
-    init(client: ApiClient) {
+    init(client: Client) {
         self.client = client
     }
 
@@ -26,7 +25,7 @@ class AdminErrorFeed: ObservableObject {
             if (self.gotFeed==true) {
                 return
             }
-            self.client.admin.errors.list() { result in
+            self.client.api.admin.errors.list() { result in
                 print("allpost request")
                 
                 switch result {
@@ -72,7 +71,7 @@ class AdminErrorFeed: ObservableObject {
     
     func refreshFeed() -> Void {
         DispatchQueue.main.async {
-            self.client.admin.errors.list() { result in
+            self.client.api.admin.errors.list() { result in
                 self.client.hapticPress()
                 
                 switch result {
@@ -90,7 +89,7 @@ class AdminErrorFeed: ObservableObject {
     
     func nextIndex() -> Void {
         DispatchQueue.main.async {
-            self.client.admin.errors.list(indexID: self.errorIndex.prevIndexID ?? "") { result in
+            self.client.api.admin.errors.list(indexID: self.errorIndex.prevIndexID ?? "") { result in
                 self.client.hapticPress()
                 
                 switch result {

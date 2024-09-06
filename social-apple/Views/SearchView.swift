@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct SearchView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @ObservedObject var searchClass: SearchClass
     
-    init(client: ApiClient) {
+    init(client: Client) {
         self.client = client;
         self.searchClass = SearchClass(client: client)
     }
@@ -34,7 +34,6 @@ struct SearchView: View {
                                 FancyText(text: "Related Hashtags")
                             }
                             ForEach ($searchClass.searchResults.hashtagsFound ?? []) { $tag in
-    //                            TagsPreview(client: client, tagPotential: $tag)
                                 FancyText(text: tag.tag)
                             }
                             // exported out cause xcode complains a lot
@@ -68,7 +67,7 @@ struct SearchView: View {
 }
 
 struct SearchHashtagResultsView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @ObservedObject var searchClass: SearchClass
 
     var body: some View {
@@ -85,7 +84,7 @@ struct SearchHashtagResultsView: View {
 }
 
 struct SearchPostResultsView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @ObservedObject var searchClass: SearchClass
 
     var body: some View {
@@ -96,7 +95,7 @@ struct SearchPostResultsView: View {
 }
 
 struct postSearchPreview: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @Binding var feedData: AllPosts
     @State var showingPost:Bool = false
     @State var selectedProfile:SelectedProfileData = SelectedProfileData()
@@ -211,21 +210,8 @@ struct postSearchPreview: View {
     }
 }
 
-/*
- struct TagsPreview: View {
-    @ObservedObject var client: ApiClient
-    @Binding var tagPotential: TagPotentialData
-    
-    var body: some View {
-        VStack {
-            FancyText(text: tagPotential.tag)
-        }
-    }
-}
- */
-
 struct userPreview: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @State var userData: UserData
     @State var profileShowing: Bool = false
     

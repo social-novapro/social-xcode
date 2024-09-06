@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PushNotifications: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     #if os(iOS)
     @UIApplicationDelegateAdaptor private var appDelegate: MyAppDelegate
     #endif
@@ -17,7 +17,6 @@ struct PushNotifications: View {
 
     @State var changed: Bool = false
     @State var registered: Bool = false
-//    @State var possibleSettings: [NotificationPossibleOptions]
     
     var body: some View {
         #if os(iOS)
@@ -33,8 +32,8 @@ struct PushNotifications: View {
             })
             if (self.registered == true && self.isLoading == true) {
                 Button(action: {
-                    client.notifications.refreshDeviceToken()
-                    client.notifications.getDeviceSettings() { result in
+                    client.api.notifications.refreshDeviceToken()
+                    client.api.notifications.getDeviceSettings() { result in
                         print("get device settings")
                         
                         switch result {
@@ -52,12 +51,12 @@ struct PushNotifications: View {
                     Text("Click here to show settings")
                 })
                 .onAppear() {
-                    self.client.notifications.refreshDeviceToken()
+                    self.client.api.notifications.refreshDeviceToken()
                     self.getDeviceSettings()
                 }
             }
             Button(action: {
-                client.notifications.deregisterDevice() { result in
+                client.api.notifications.deregisterDevice() { result in
                     print (result)
                     self.isLoading = true
                     self.registered = false
@@ -102,7 +101,7 @@ struct PushNotifications: View {
     }
     
     func getDeviceSettings() {
-        client.notifications.getDeviceSettings() { result in
+        client.api.notifications.getDeviceSettings() { result in
             print("get device settings")
             
             switch result {
@@ -119,7 +118,7 @@ struct PushNotifications: View {
 }
 
 struct ChildNotificationDevice: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @State var deviceSettingIn: NotificationDeviceSetting
     @State var isActive: Bool = false
     @State var loading: Bool = false
@@ -168,7 +167,7 @@ struct ChildNotificationDevice: View {
             self.saved = false
             let newSetting = SubmitPushNotificationNewSetting(value: newValue, name: deviceSettingIn.name)
             
-            client.notifications.putDeviceSettings(notificationSettingChange: newSetting) { result in
+            client.api.notifications.putDeviceSettings(notificationSettingChange: newSetting) { result in
                 switch result {
                 case .success(_):
                     self.saved = true

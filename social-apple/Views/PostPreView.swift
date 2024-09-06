@@ -9,7 +9,7 @@ import SwiftUI
 
 
 struct PostPreView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @Binding var feedData: AllPosts
     @Binding var selectedProfile: SelectedProfileData
     
@@ -73,7 +73,7 @@ struct PostPreView: View {
 }
 
 struct PostFeedPreView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @Binding var feedData: AllPosts
 
     @Binding var selectedPostIndex: Int?
@@ -137,7 +137,7 @@ struct PostFeedPreView: View {
 }
 
 struct PostPreviewView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @Binding var feedData: AllPosts
     @Binding var selectedProfile: SelectedProfileData
 
@@ -272,7 +272,7 @@ struct PostPreviewView: View {
 }
 
 struct ReplyParentPostView : View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @Binding var feedData: AllPosts
 
     var body : some View {
@@ -308,26 +308,13 @@ struct ReplyParentPostView : View {
 }
 
 struct ProfilePostView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @Binding var feedData: AllPosts
 
     @Binding var selectedProfile: SelectedProfileData
     
     var body: some View {
         VStack {
-            // TODO: move button to only username, and make coposters show up too and selectable, can provide selected profile
-//            Button(action: {
-//                client.hapticPress()
-//                DispatchQueue.main.async {
-//                    feedData.postLiveData.isActive=true
-//                    selectedProfile.showProfile = true
-//                    selectedProfile.profileData = feedData.userData
-//                    selectedProfile.userID = feedData.userData?._id ?? ""
-//                    self.feedData.postLiveData.isSpecificPageActive.toggle()
-////                    selectedProfile = true
-//                }
-//                print("showing usuer?")
-//            }) {
                 VStack {
                     HStack {
                         Button(action: {
@@ -359,7 +346,7 @@ struct ProfilePostView: View {
                                 DispatchQueue.main.async {
                                     Task {
                                         do {
-                                            _ = try await client.users.followUser(userID: self.feedData.userData?._id ?? "unknown")
+                                            _ = try await client.api.users.followUser(userID: self.feedData.userData?._id ?? "unknown")
                                             feedData.extraData.followed=true
                                         } catch {
                                             let foundError = error as! ErrorData
@@ -417,17 +404,10 @@ struct ProfilePostView: View {
                         Spacer()
                     }
                     .foregroundColor(feedData.postLiveData.isOwner==true ? .accentColor : .secondary)
-//                }
-//                .buttonStyle(PlainButtonStyle())
             }
-            .buttonStyle(PlainButtonStyle())
             .onAppear {
                 print(self.feedData.coposterData ?? "none")
             }
-            // TODO: MOVE TO FEEDPAGE WITH NAVIGIATIONSTACK, WHERE POST SHOWING IS
-//            .navigationDestination(isPresented: $profileShowing) {
-//                ProfileView(client: client, userData: feedData.userData ?? nil, userID: feedData.userData?._id ?? nil)
-//            }
         }
     }
 }
@@ -509,7 +489,7 @@ struct DevModePostView: View {
 }
 
 struct ExpandedPostView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @Binding var feedData: AllPosts
 
     @State var savedPost: Bool?
@@ -541,7 +521,7 @@ struct ExpandedPostView: View {
                                 Task {
                                     if ((self.feedData.extraData.followed ?? false) == true) {
                                         do {
-                                            _ = try await client.users.unFollowUser(userID: self.feedData.userData?._id ?? "")
+                                            _ = try await client.api.users.unFollowUser(userID: self.feedData.userData?._id ?? "")
                                             self.feedData.extraData.followed = false
                                         } catch let error as ErrorData {
                                             print("ErrorData: \(error.code), \(error.msg)")
@@ -557,7 +537,7 @@ struct ExpandedPostView: View {
                                         }
                                     } else {
                                         do {
-                                            _ = try await client.users.followUser(userID: self.feedData.userData?._id ?? "")
+                                            _ = try await client.api.users.followUser(userID: self.feedData.userData?._id ?? "")
                                             self.feedData.extraData.followed = true
                                         } catch {
                                             print("failed true" )
@@ -592,7 +572,7 @@ struct ExpandedPostView: View {
                         client.hapticPress()
 
                         if (pinnedPost == true) {
-                            client.users.edit_pinsRemove(postID: self.feedData.postData._id) { result in
+                            client.api.users.edit_pinsRemove(postID: self.feedData.postData._id) { result in
                                 switch result {
                                 case .success(_):
                                     self.pinnedPost = false
@@ -602,7 +582,7 @@ struct ExpandedPostView: View {
                                 }
                             }
                         } else {
-                            client.users.edit_pinsAdd(postID: self.feedData.postData._id) { result in
+                            client.api.users.edit_pinsAdd(postID: self.feedData.postData._id) { result in
                                 switch result {
                                 case .success(_):
                                     self.pinnedPost = true
@@ -629,7 +609,7 @@ struct ExpandedPostView: View {
                         client.hapticPress()
                         let bookmarkData = PostBookmarkReq(postID: self.feedData.postData._id)
                         if (savedPost == true) {
-                            client.posts.unsavePost(bookmarkData: bookmarkData) { result in
+                            client.api.posts.unsavePost(bookmarkData: bookmarkData) { result in
                                 switch result {
                                 case .success(_):
                                     self.savedPost = false
@@ -639,7 +619,7 @@ struct ExpandedPostView: View {
                                 }
                             }
                         } else {
-                            client.posts.savePost(bookmarkData: bookmarkData) { result in
+                            client.api.posts.savePost(bookmarkData: bookmarkData) { result in
                                 switch result {
                                 case .success(_):
                                     self.savedPost = true
@@ -743,7 +723,7 @@ struct ExpandedPostView: View {
 }
 
 struct SubExpandedPostView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @Binding var feedData: AllPosts
 
     var body: some View {
@@ -812,7 +792,7 @@ struct CrapPostView: View {
 }
 
 struct PostViewEditHistory: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @State var postID: String
     @State var isLoading: Bool = true
     @State var failed: Bool = false
@@ -841,7 +821,7 @@ struct PostViewEditHistory: View {
             }
         }
         .onAppear {
-            client.posts.getEdits(postID: postID) { result in
+            client.api.posts.getEdits(postID: postID) { result in
                 switch result {
                 case .success(let edits):
                     self.edits = edits
@@ -858,7 +838,7 @@ struct PostViewEditHistory: View {
 }
 
 struct PostViewLiked: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @State var postID: String
     @State var isLoading: Bool = true
     @State var failed: Bool = false
@@ -887,7 +867,7 @@ struct PostViewLiked: View {
             }
         }
         .onAppear {
-            client.posts.getLikes(postID: postID) { result in
+            client.api.posts.getLikes(postID: postID) { result in
                 switch result {
                 case .success(let likes):
                     self.likes = likes
@@ -907,7 +887,7 @@ struct PostViewLiked: View {
 }
 
 struct PostViewReplies: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @State var postID: String
     @State var isLoading: Bool = true
     @State var failed: Bool = false
@@ -933,7 +913,7 @@ struct PostViewReplies: View {
             }
         }
         .onAppear {
-            client.posts.getReplies(postID: postID) { result in
+            client.api.posts.getReplies(postID: postID) { result in
                 switch result {
                 case .success(let replies):
                     self.replies = replies
@@ -953,7 +933,7 @@ struct PostViewReplies: View {
 }
 
 struct PostViewQuotes: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @State var postID: String
     @State var isLoading: Bool = true
     @State var failed: Bool = false
@@ -979,7 +959,7 @@ struct PostViewQuotes: View {
             }
         }
         .onAppear {
-            client.posts.getQuotes(postID: postID) { result in
+            client.api.posts.getQuotes(postID: postID) { result in
                 switch result {
                 case .success(let quotes):
                     self.quotes = quotes
@@ -998,7 +978,7 @@ struct PostViewQuotes: View {
 }
 
 struct PostActionButtons: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @Binding var feedData: AllPosts
     @State var deletePostConfirm: Bool = false;
 
@@ -1008,7 +988,7 @@ struct PostActionButtons: View {
                 Button(action: {
                     client.hapticPress()
                     if (self.feedData.extraData.liked == true) {
-                        client.posts.unlikePost(postID: feedData.postData._id) { result in
+                        client.api.posts.unlikePost(postID: feedData.postData._id) { result in
                             switch result {
                             case .success(let newPostData):
                                 DispatchQueue.main.async {
@@ -1020,7 +1000,7 @@ struct PostActionButtons: View {
                             }
                         }
                     } else {
-                        client.posts.likePost(postID: feedData.postData._id) { result in
+                        client.api.posts.likePost(postID: feedData.postData._id) { result in
                             switch result {
                             case .success(let newPostData):
                                 DispatchQueue.main.async {
@@ -1173,7 +1153,7 @@ struct PostActionButtons: View {
                             print("pretend delete")
                             self.deletePostConfirm = false
                             
-                            client.posts.deletePost(postID: feedData.postData._id) { result in
+                            client.api.posts.deletePost(postID: feedData.postData._id) { result in
                                 print("api rquest login:")
                                 switch result {
                                 case .success(let res):
@@ -1209,7 +1189,7 @@ struct PostActionButtons: View {
 }
 
 struct EditPostPopover: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @Binding var feedData: AllPosts
     
     @State var content: String
@@ -1262,9 +1242,7 @@ struct EditPostPopover: View {
                         TextField("content", text: $content)
                         #else
                         TextEditor(text: $content)
-//                            .onChange(of: conent) { newValue in
-//                                postCreation.typePost(newValue: newValue)
-//                            }
+
                         if content.isEmpty {
                             VStack {
                                 HStack {
@@ -1280,7 +1258,7 @@ struct EditPostPopover: View {
                         }
                         #endif
                     }
-//                    TextEditor("Content", text: $content)
+
                     Button(action: {
                         client.hapticPress()
                         print("button pressed")
@@ -1291,7 +1269,7 @@ struct EditPostPopover: View {
                             return;
                         }
                         
-                        client.posts.editPost(postID: self.feedData.postData._id, newContent: content) { result in
+                        client.api.posts.editPost(postID: self.feedData.postData._id, newContent: content) { result in
                             print("api rquest login:")
                             switch result {
                             case .success(let newPost):
@@ -1327,7 +1305,7 @@ struct EditPostPopover: View {
 }
 
 struct PopoverPostAction: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @Binding var feedData: AllPosts
 
     @State var newPost:PostData?
@@ -1398,7 +1376,7 @@ struct PopoverPostAction: View {
                     self.content = ""
                     self.sending = true
                     
-                    client.posts.createPost(postCreateContent: postCreateContent) { result in
+                    client.api.posts.createPost(postCreateContent: postCreateContent) { result in
                         print("api rquest login:")
                         switch result {
                         case .success(let newPost):
@@ -1429,7 +1407,7 @@ struct PopoverPostAction: View {
 }
 
 struct BasicPostView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @Binding var feedData: AllPosts
 
     var body: some View {

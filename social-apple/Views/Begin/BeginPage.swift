@@ -9,7 +9,7 @@ import SwiftUI
 import CoreData
 
 struct BeginPage: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     
     var body: some View {
         NavigationStack {

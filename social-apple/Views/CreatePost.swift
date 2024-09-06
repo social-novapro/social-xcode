@@ -8,16 +8,11 @@
 import SwiftUI
 
 struct CreatePost: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @ObservedObject var postCreation: PostCreation
     @Binding var feedData: AllPosts?
 
-//    init (client: ApiClient) {
-//        self.client = client
-//        self.postCreation = PostCreation(client: client)
-//    }
-//    
-    init (client: ApiClient, feedData: Binding<AllPosts?> = .constant(nil)) {
+    init (client: Client, feedData: Binding<AllPosts?> = .constant(nil)) {
         self.client = client
         _feedData = feedData
         self.postCreation = PostCreation(client: client, feedData: feedData.wrappedValue)
@@ -131,9 +126,6 @@ struct CreatePost: View {
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(Color.accentColor, lineWidth: 3)
                     )
-//                    VStack {
-//                        TagSuggestionsView(client: client, postCreation: postCreation)
-//                    }
                     VStack {
                         HStack {
                             Text("Options")
@@ -149,17 +141,6 @@ struct CreatePost: View {
                                     Text("\(postCreation.pollAdded==true ? "Remove" : "Add") Poll")
                                 }
                             }
-                            /*
-                            Spacer()
-                            Button(action: {
-                                postCreation.coposterAdded.toggle()
-                            }) {
-                                HStack {
-                                    Image(systemName: "person.2")
-                                    Text("\(postCreation.coposterAdded==true ? "Remove" : "Add") Coposters")
-                                }
-                            }
-                             */
                         }
                     }
                     .padding(15)
@@ -214,7 +195,7 @@ struct CreatePost: View {
 }
 
 struct TagSuggestionsView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @ObservedObject var postCreation: PostCreation
     
     var body: some View {
@@ -266,7 +247,7 @@ struct FancyText : View {
 }
 
 struct TagSuggestionView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @ObservedObject var postCreation: PostCreation
     @State var suggestion: String
     
@@ -281,7 +262,7 @@ struct TagSuggestionView: View {
 }
 
 struct CoposterCreatorView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @Binding var coposters: [String]
     
     var body: some View {

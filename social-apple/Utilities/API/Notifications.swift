@@ -65,7 +65,6 @@ class NotificationsApi: API_Base {
             return
         }
         let APIUrl = baseAPIurl + "/notifications/push/deviceSettings"
-//        let APIUrl = "baseAPIurl" + "/notifications/push/deviceSettings"
 
         self.apiHelper.requestDataWithBody(urlString: APIUrl, httpMethod: "POST", httpBody: NotificationDataDeviceTokenSend(deviceToken: self.deviceToken ?? "")) { (result: Result<[NotificationDeviceSetting], Error>) in
             switch result {

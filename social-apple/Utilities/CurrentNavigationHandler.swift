@@ -72,6 +72,7 @@ class CurrentNavigationHandler {
             return CurrentNavigationData(selectedTab: 0, expanded: false)
         }
     }
+    
     func deleteCurrentNavigation() {
         let context = persistentContainer.viewContext
             

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ServerStatusOffline: View {
-    @ObservedObject var client:ApiClient
+    @ObservedObject var client: Client
     @State var checkingStatus: Bool = false
     @State var stillOffline: Bool = false
     

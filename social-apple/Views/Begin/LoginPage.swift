@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LoginPage: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     
     @State private var username: String = ""
     @State private var password: String = ""
@@ -54,7 +54,7 @@ struct LoginPage: View {
                     print("button pressed")
                     let userLogin = UserLoginData(username: username, password: password)
                     print("userlogin, LoginPage")
-                    client.auth.userLoginRequest(userLogin: userLogin) { result in
+                    client.api.auth.userLoginRequest(userLogin: userLogin) { result in
                         print("api rquest login:")
                         switch result {
                         case .success(let userLoginData):

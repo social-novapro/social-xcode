@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AdminErrorView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @ObservedObject var adminErrorFeed: AdminErrorFeed
     
     var body: some View {
@@ -62,7 +62,7 @@ struct AdminErrorView: View {
 }
 
 struct AdminErrorIssueView : View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @Binding var issueData: ErrorIssueData
     
     var body: some View {
@@ -97,7 +97,7 @@ struct AdminErrorIssueView : View {
 }
 
 struct AdminErrorIssueSubData : View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @Binding var issueData: ErrorIssueData
 
     var body: some View {

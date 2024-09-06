@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LogoutView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @State private var isLoggingOut = false
 
     var body: some View {

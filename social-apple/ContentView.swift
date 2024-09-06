@@ -9,17 +9,8 @@ import SwiftUI
 import CoreData
 
 struct ContentView: View {
-    @StateObject var client = ApiClient()
-    @ObservedObject var feedPosts: FeedPosts = FeedPosts(client: ApiClient())
-
-    /*
-     takes over 
-     - userTokenManager
-     - userLoginresponse
-     - userTokens
-     - userTokensLoaded (maybe)
-     */
-
+    @StateObject var client = Client()
+    @ObservedObject var feedPosts: FeedPosts = FeedPosts(client: Client())
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
     init() {
@@ -64,7 +55,7 @@ extension View {
 
 
 struct compactLayoutView : View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @ObservedObject var feedPosts: FeedPosts
     @State var horizontalSizeClass: UserInterfaceSizeClass?
 
@@ -137,7 +128,7 @@ struct compactLayoutView : View {
 }
 
 struct regularLayoutView : View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @ObservedObject var feedPosts: FeedPosts
     @State var horizontalSizeClass: UserInterfaceSizeClass?
 
@@ -182,7 +173,7 @@ struct regularLayoutView : View {
 }
 
 struct macLayoutView : View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @ObservedObject var feedPosts: FeedPosts
     @State var horizontalSizeClass: UserInterfaceSizeClass?
 
@@ -207,7 +198,7 @@ struct macLayoutView : View {
 }
 
 struct visionLayoutView : View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @ObservedObject var feedPosts: FeedPosts
     @State var horizontalSizeClass: UserInterfaceSizeClass?
 
@@ -233,7 +224,7 @@ struct visionLayoutView : View {
 }
 
 struct IncomeNotificationView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @State var expand = false
     @State var newNotification = false
     @State var notificationBody = ""
@@ -243,11 +234,11 @@ struct IncomeNotificationView: View {
 
     var body: some View {
         VStack {
-            if self.client.errorShow==true {
+            if self.client.api.errorShow==true {
                 HStack (alignment: .center) {
                     VStack {
-                        Text("\(client.errorFound?.code ?? "Unknown Error Code")")
-                        Text("\(client.errorFound?.msg ?? "An error occured")")
+                        Text("\(client.api.errorFound?.code ?? "Unknown Error Code")")
+                        Text("\(client.api.errorFound?.msg ?? "An error occured")")
                     }
                     
                     Button(action: {
@@ -321,7 +312,7 @@ struct IncomeNotificationView: View {
 }
 
 struct SideBarNavigation: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @ObservedObject var feedPosts: FeedPosts
     @State var horizontalSizeClass: UserInterfaceSizeClass?
 
@@ -464,7 +455,7 @@ struct SideBarNavigation: View {
 }
 
 struct AppTabNavigation: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
 //    @State var expand = false
 
     var body: some View {

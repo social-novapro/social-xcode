@@ -16,5 +16,3 @@ struct ThemeExportedIndex: Decodable {
 //    var users: UserData
     // how tf do i access this 
 }
-
-

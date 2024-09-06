@@ -9,7 +9,7 @@ import SwiftUI
 
 
 struct AboutView: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
 
     var body: some View {
         ScrollView {

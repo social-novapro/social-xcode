@@ -83,6 +83,7 @@ class DevModeHandler {
             print("Error deleting devmode data: \(error.localizedDescription)")
         }
     }
+    
     func swapMode() -> DevModeData {
         let current:DevModeData = self.getDevMode()
         if (current.isEnabled == false) {

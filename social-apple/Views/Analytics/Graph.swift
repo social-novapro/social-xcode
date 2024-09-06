@@ -10,7 +10,7 @@ import Charts
 
 @available(macOS 14.0, *)
 struct Graph: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @State var graphType:Int64? = nil
     @State var analytics: [AnalyticTrendDataPoint]?
     @State var functionData: AnalyticFunctionDataPoint?
@@ -39,7 +39,7 @@ struct Graph: View {
             }
         }
         .onAppear {
-            client.anaytics.getAnalyticFunction(graphType: graphType ?? 1) { result in
+            client.api.anaytics.getAnalyticFunction(graphType: graphType ?? 1) { result in
                 print("analytic request")
                 print (result)
                 switch result {

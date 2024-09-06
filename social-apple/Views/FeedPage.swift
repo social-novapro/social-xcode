@@ -8,19 +8,18 @@
 import SwiftUI
 
 struct FeedPage: View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @ObservedObject var feedPosts: FeedPosts
 
     @State var userData: UserData?
     @State var writingPost: Bool = false
     @State var showProfile: Bool = false
     
-    
     @State private var selectedPostIndex: Int?
     @State var selectedPost: Bool = false
     @State var selectedProfile: SelectedProfileData = SelectedProfileData()
     
-    init(client: ApiClient, feedPosts: FeedPosts) {
+    init(client: Client, feedPosts: FeedPosts) {
         self.client = client
         self.feedPosts = feedPosts
     }
@@ -118,7 +117,7 @@ struct FeedPage: View {
 }
 
 struct FeedToolBarPage : View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @ObservedObject var feedPosts: FeedPosts
     @Binding var writingPost: Bool
     @Binding var showProfile: Bool

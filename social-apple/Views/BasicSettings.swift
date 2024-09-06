@@ -8,15 +8,15 @@
 import SwiftUI
 
 struct BasicSettings: View {
-    @ObservedObject var client: ApiClient
-    @State var adminErrorFeed: AdminErrorFeed = AdminErrorFeed(client: ApiClient())
+    @ObservedObject var client: Client
+    @State var adminErrorFeed: AdminErrorFeed = AdminErrorFeed(client: Client())
 
     @State var enabledDevMode:Bool
     @State var enabledHaptic:Bool
     @State var subSettings:Bool = false;
     @State var settingsTab:Int64 = 0;
     
-    init(client: ApiClient) {
+    init(client: Client) {
         self.client = client;
         self.enabledDevMode = client.devMode?.isEnabled ?? false;
         self.enabledHaptic = client.haptic?.isEnabled ?? true;
@@ -206,7 +206,7 @@ struct BasicSettings: View {
 
 
 struct SearchSettingPage : View {
-    @ObservedObject var client: ApiClient
+    @ObservedObject var client: Client
     @State var searchSetting: SearchSettingResponse?
     @State var ready: Bool = false;
     @State var currentSetting: String? = "v1"
@@ -216,7 +216,7 @@ struct SearchSettingPage : View {
             if (self.ready == false) {
                 Text("Loading...")
                     .onAppear(perform: {
-                        client.search.searchSetting() { result in
+                        client.api.search.searchSetting() { result in
                             print("search setting request")
                             switch result {
                             case .success(let results):
@@ -250,7 +250,7 @@ struct SearchSettingPage : View {
 
                         ForEach (self.searchSetting?.possibleSearch ?? []) { searchType in
                             Button(action: {
-                                client.search.changeSearchSetting(newSearch: searchType.name) { result in
+                                client.api.search.changeSearchSetting(newSearch: searchType.name) { result in
                                     print("change setting")
                                     switch result {
                                     case .success(let results):
