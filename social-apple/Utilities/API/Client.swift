@@ -37,7 +37,8 @@ class Client: ObservableObject {
     var themeData: ThemeData = ThemeData(devMode: DevModeData(isEnabled: false))
 
     
-    var api: ApiClient
+    @Published var api: ApiClient
+//    @Published var apiHelper: API_Helper
     
     init() {
         let tokensFound = userTokenManager.getUserTokens()
@@ -49,12 +50,15 @@ class Client: ObservableObject {
             self.loggedIn = false
         }
         
-        self.api = ApiClient(userTokens: self.userTokens)
+        let apiHelper = API_Helper(userTokensProv: self.userTokens)
+        self.api = ApiClient(apiHelper: apiHelper)
 
         // other navigation
         self.devMode = self.devModeManager.getDevMode()
         self.navigation = self.navigationManager.getCurrentNavigation()
         self.haptic = self.hapticModeManager.getHapticMode()
+        
+//        self.api.apiHelper.provideError(error: ErrorData(code: "Z004", msg: "Testing error from client", error: true))
         
         if (self.loggedIn == true) {
             self.api.users.getByID(userID: userTokens.userID) { result in
@@ -158,5 +162,13 @@ class Client: ObservableObject {
         }
 
         task.resume()
+    }
+    
+    func triggerError() {
+        self.api.apiHelper.provideError(error: ErrorData(code: "Z999", msg: "Triggered error from frontend", error: true))
+    }
+    
+    func dismissError() {
+        self.api.apiHelper.dismissError()
     }
 }

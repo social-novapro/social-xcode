@@ -234,4 +234,10 @@ class PostsApi: API_Base {
             }
         }
     }
+    
+    // coposts - aprove
+    
+    // coposts - decline
+    
+    // coposts - requests
 }

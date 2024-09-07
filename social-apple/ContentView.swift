@@ -234,16 +234,16 @@ struct IncomeNotificationView: View {
 
     var body: some View {
         VStack {
-            if self.client.api.errorShow==true {
+            if self.client.api.apiHelper.errorShow {
                 HStack (alignment: .center) {
                     VStack {
-                        Text("\(client.api.errorFound?.code ?? "Unknown Error Code")")
-                        Text("\(client.api.errorFound?.msg ?? "An error occured")")
+                        Text("\(client.api.apiHelper.errorFound.code)")
+                        Text("\(client.api.apiHelper.errorFound.msg)")
                     }
                     
                     Button(action: {
-                        self.newNotification = false
-                        self.notificationBody = ""
+                        self.client.dismissError()
+                        print("pressed dismiss")
                     }, label: {
                         Image(systemName: "x.circle")
                             .font(.system(size: 22))
@@ -263,7 +263,23 @@ struct IncomeNotificationView: View {
                 .onLongPressGesture {
                     self.newNotification.toggle()
                 }
-            }
+            } /*else {
+                VStack {
+                    Text("\(client.api.apiHelper.errorFound.code)")
+                    Text("\(client.api.apiHelper.errorFound.msg)")
+                }
+                
+                Button(action: {
+                    self.client.triggerError()
+                    print("pressed error")
+                }, label: {
+                    Image(systemName: "plus.circle")
+                        .font(.system(size: 22))
+                })
+            }*/
+//            .onChange(of: self.client.api.apiHelper.errorShow) { _ in
+//                print("chang")
+//            }
 #if os(iOS)
             if self.newNotification==true {
                 HStack (alignment: .center) {
@@ -291,7 +307,8 @@ struct IncomeNotificationView: View {
                 .padding(22)
                 .background(client.themeData.mainBackground)
                 .onLongPressGesture {
-                    self.newNotification.toggle()
+                    self.newNotification = false
+                    self.notificationBody = ""
                 }
             }
     #endif

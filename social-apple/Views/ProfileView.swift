@@ -338,7 +338,6 @@ struct BadgeCardView : View {
             RoundedRectangle(cornerRadius: 20)
                 .stroke(Color.gray, lineWidth: 3)
         )
-//        .padding(15)
     }
 }
 
@@ -379,10 +378,8 @@ struct FollowingFollowerView: View {
                     
                 }
                 if (selectedFollowList == 0) {
-//                    Text("Following")
                     FollowingFollowerListView(client: client, userList: $userFollowingList, selectedFollowList: $selectedFollowList)
                 } else if (selectedFollowList == 1) {
-//                    Text("Followers")
                     FollowingFollowerListView(client: client, userList: $userFollowerList, selectedFollowList: $selectedFollowList)
                 }
             }

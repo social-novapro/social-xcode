@@ -59,9 +59,7 @@ class PollsApi: API_Base {
             return data;
         } catch {
             throw ErrorData(code: "Z001", msg: "Uknown", error: true)
-
         }
-//        return asyncRequestDataBody(urlString: APIUrl, errorType: "normal", httpMethod: "POST", httpBody: createPollReq)
     }
     
     func create(pollInput: TempPollCreator, completion: @escaping (Result<CreatePollRes, Error>) -> Void) {

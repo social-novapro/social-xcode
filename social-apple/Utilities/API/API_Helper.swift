@@ -8,7 +8,7 @@
 import Foundation
 //import Combine/
 
-class API_Helper {
+class API_Helper: ObservableObject {
     var userTokenManager = UserTokenHandler()
     var apiData = API_Data()
     var userTokens:UserTokenData
@@ -18,8 +18,9 @@ class API_Helper {
     var appToken:String
     var devToken:String
     
-    var errorShow:Bool = false
-    var errorFound:ErrorData = ErrorData(code: "Z003", msg: "None", error: false)
+    @Published var errorShow:Bool = false
+    @Published var errorFound:ErrorData = ErrorData(code: "Z003", msg: "None", error: false)
+    var errorTime:Date = Date()
     
     init(userTokensProv: UserTokenData) {
         self.userTokens = userTokensProv
@@ -28,6 +29,29 @@ class API_Helper {
         self.devToken = apiData.getDevToken()
         print ("dev \(devToken), app \(appToken), env \(baseAPIurl)")
         print("userTokens: init API_Helper")
+        
+    }
+    
+    func provideError(error: ErrorData) {
+        DispatchQueue.main.async {
+            print("error providing")
+            self.errorShow = true
+            self.errorFound = error
+            self.errorTime = Date()
+        }
+/*
+        DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
+            self.errorShow = false
+        }
+ */
+    }
+    
+    func dismissError() {
+        DispatchQueue.main.async {
+            print("error dismising")
+            self.errorShow = false
+            self.errorFound = ErrorData(code: "Z000", msg: "None", error: false)
+        }
     }
     
     func decodeData() {
@@ -59,6 +83,8 @@ class API_Helper {
             request.addValue(header.value, forHTTPHeaderField: header.field)
         }
         
+//        provideError(error: ErrorData(code: "Z005", msg: "This is a test", error: true))
+
         // Execute the request
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
@@ -69,17 +95,18 @@ class API_Helper {
 
             if 200..<300 ~= httpResponse.statusCode {
                 let decodedData = try JSONDecoder().decode(T.self, from: data)
-                    return decodedData
-                } else {
-                    // Log the raw error response for debugging
-                    if let errorString = String(data: data, encoding: .utf8) {
-                        print("Error response string: \(errorString)")
-                    }
-
-                    // Decode the error response
-                    let errorData = try JSONDecoder().decode(ErrorData.self, from: data)
-                    throw errorData
+                return decodedData
+            } else {
+                // Log the raw error response for debugging
+                if let errorString = String(data: data, encoding: .utf8) {
+                    print("Error response string: \(errorString)")
                 }
+
+                // Decode the error response
+                let errorData = try JSONDecoder().decode(ErrorData.self, from: data)
+                provideError(error: errorData)
+                throw errorData
+            }
         } catch {
             throw error
         }
@@ -122,20 +149,30 @@ class API_Helper {
         }
 
         // Execute the request
-        let (data, response) = try await URLSession.shared.data(for: request)
-           
-        // Check HTTP status code
-        guard let httpResponse = response as? HTTPURLResponse, 200..<300 ~= httpResponse.statusCode else {
-            throw ErrorData(code: "Z001", msg: "Invalid response status", error: true)
-        }
-           
-        // Decode the response
         do {
-            let decodedData = try JSONDecoder().decode(T.self, from: data)
-            return decodedData
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            // Check HTTP status code
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw ErrorData(code: "Z003", msg: "Invalid response", error: true)
+            }
+
+            if 200..<300 ~= httpResponse.statusCode {
+                let decodedData = try JSONDecoder().decode(T.self, from: data)
+                return decodedData
+            } else {
+                // Log the raw error response for debugging
+                if let errorString = String(data: data, encoding: .utf8) {
+                    print("Error response string: \(errorString)")
+                }
+
+                // Decode the error response
+                let errorData = try JSONDecoder().decode(ErrorData.self, from: data)
+                provideError(error: errorData)
+                throw errorData
+            }
         } catch {
-            print("Error: \(error)")
-            throw ErrorData(code: "Z001", msg: "Failed to decode response", error: true)
+            throw error
         }
     }
     

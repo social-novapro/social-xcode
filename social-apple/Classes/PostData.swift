@@ -175,9 +175,11 @@ class PostCreation: ObservableObject {
         
         // is content empty
         if (self.content == "") {
-            self.failed = true
-            self.errorMsg = "Please enter post content."
-            
+            DispatchQueue.main.async {
+                self.failed = true
+                self.errorMsg = "Please enter post content."
+                
+            }
             throw ErrorData(code: "Z001", msg: "Uknown", error: true)
         }
         

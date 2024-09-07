@@ -22,11 +22,11 @@ class ApiClient: ObservableObject {
     var admin: AdminApi
 
     var livechatWS: LiveChatWebSocket
-    var apiHelper: API_Helper
+    @Published var apiHelper: API_Helper
     var userTokens: UserTokenData
 
-    @Published var errorShow:Bool = false
-    @Published var errorFound:ErrorData?
+//    @Published var errorShow:Bool = false
+//    @Published var errorFound:ErrorData?
     
     convenience init() {
 //        self.userTokens = userTokens
@@ -39,14 +39,17 @@ class ApiClient: ObservableObject {
             provideTokens = tokensFound!
         }
         
-        self.init(userTokens: provideTokens)
+        let apiHelper = API_Helper(userTokensProv: provideTokens)
+
+        self.init(apiHelper: apiHelper)
     }
     
-    init(userTokens: UserTokenData) {
-        self.userTokens = userTokens
+    init(apiHelper: API_Helper) {
+//        self.userTokens = userTokens
+        self.apiHelper = apiHelper
         
         // routes
-        self.apiHelper = API_Helper(userTokensProv: userTokens)
+//        let apiHelper = API_Helper(userTokensProv: userTokens)
 
         self.auth = AuthApi(apiHelper: apiHelper)
         self.notifications = NotificationsApi(apiHelper: apiHelper)
@@ -58,8 +61,11 @@ class ApiClient: ObservableObject {
         self.anaytics = AnalyticsApi(apiHelper: apiHelper)
         self.search = SearchApi(apiHelper: apiHelper)
         self.admin = AdminApi(apiHelper: apiHelper)
+        self.userTokens = apiHelper.userTokens
 
-        self.livechatWS = LiveChatWebSocket(baseURL: self.apiHelper.baseAPIurl, userTokensProv: userTokens)
+        self.livechatWS = LiveChatWebSocket(baseURL: apiHelper.baseAPIurl, userTokensProv: userTokens)
+//        self.apiHelper.errorShow = true
+//        self.apiHelper.provideError(error: ErrorData(code: "Z00677", msg: "wtf", error: true))
     }
     
     func updateUserTokens(userTokens: UserTokenData) {
