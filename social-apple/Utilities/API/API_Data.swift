@@ -8,7 +8,7 @@
 import Foundation
 
 class API_Data {
-    private let prodMode:Bool = false;
+    private let prodMode:Bool = true;
     
     func getURL() -> String {
         if (prodMode != true) {
@@ -19,6 +19,7 @@ class API_Data {
         }
     }
     
+    // in production cases, do not leave tokens in the file
     func getAppToken() -> String {
         if (prodMode != true) {
             return "235e9cce-88c0-44e8-94c5-76bc615659a6"
