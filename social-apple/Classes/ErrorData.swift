@@ -41,3 +41,20 @@ struct ApiHeader: Decodable {
     let value: String
     let field: String
 }
+
+struct ErrorUserEdit: Identifiable, Encodable, Decodable, Error {
+    var id = UUID()
+    
+    var field: String
+    
+    var code: String
+    var msg: String
+    var error: Bool
+    
+    init (field: String, code: String, msg: String, error: Bool) {
+        self.field = field
+        self.code = code
+        self.msg = msg
+        self.error = error
+    }
+}

@@ -36,6 +36,7 @@ class Client: ObservableObject {
     var userData: UserData?
     var themeData: ThemeData = ThemeData(devMode: DevModeData(isEnabled: false))
 
+    @Published var cache = CacheManager();
     
     @Published var api: ApiClient
 //    @Published var apiHelper: API_Helper

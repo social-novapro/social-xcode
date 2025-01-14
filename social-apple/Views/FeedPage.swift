@@ -83,8 +83,11 @@ struct FeedPage: View {
                     PostView(client: client, feedData: $feedPosts.posts[selectedPostIndex], selectedProfile: $selectedProfile)
                 }
             }
-            .navigationDestination(isPresented: $selectedProfile.showProfile) {
-                ProfileView(client: client, userData: selectedProfile.profileData, userID: selectedProfile.userID)
+            .sheet(isPresented: $selectedProfile.showProfile) {
+                NavigationView {
+                    
+                    ProfileView(client: client, userData: selectedProfile.profileData, userID: selectedProfile.userID)
+                }
             }
             .onAppear {
                 self.feedPosts.getFeed()

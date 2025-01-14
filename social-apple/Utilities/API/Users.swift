@@ -100,9 +100,28 @@ class UsersApi: API_Base {
             throw error
         }
     }
+    
     func unFollowUser(userID: String) async throws -> UserFollowData {
         do {
             let data:UserFollowData = try await apiHelper.asyncRequestData(urlString: "\(baseAPIurl)/users/unfollow/\(userID)", httpMethod: "DELETE");
+            return data;
+        } catch {
+            throw error;
+        }
+    }
+    func getUserEdit() async throws -> [UserEditChangeResponse] {
+        do {
+            let data:[UserEditChangeResponse] = try await apiHelper.asyncRequestData(urlString: "\(baseAPIurl)/users/update", httpMethod: "GET");
+            return data;
+        } catch {
+            throw error;
+        }
+    }
+    
+    func userEdit(userEditReq: [HttpReqKeyValue]) async throws -> UserEditResponse {
+        do {
+            let data:UserEditResponse = try await apiHelper.asyncRequestDataKeyMap(urlString: "\(baseAPIurl)/users/update", httpMethod: "POST", httpKeyMap: userEditReq)
+            print(data)
             return data;
         } catch {
             throw error;

@@ -7,6 +7,12 @@
 
 import Foundation
 
+//class ProfileUserEditClass: ObservableObject {
+//    @Published var change: UserEditChangeResponse
+//    
+//    
+//}
+
 class ProfileViewClass: ObservableObject {
     var client: Client
     @Published var userID: String
@@ -21,18 +27,30 @@ class ProfileViewClass: ObservableObject {
     
     @Published var doneLoading: Bool = false
     @Published var possibleFail: Bool = false
+    @Published var isClient: Bool = false
 
     init(client: Client, userData: UserData?, userID: String?) {
         self.client = client
         self.userID = userID ?? client.userTokens.userID
         self.userData = userData ?? nil
+        if (userData?._id == client.userTokens.userID) {
+            isClient = true;
+        } else {
+            isClient = false;
+        }
     }
     
     func provBasic(userData: UserData) {
         self.userData = userData
+        if (userData._id == client.userTokens.userID) {
+            isClient = true;
+        } else {
+            isClient = false;
+        }
     }
     
     func ready() {
+        // check cache
         client.api.users.getUser(userID: self.userID) { result in
             switch result {
             case .success(let results):
@@ -210,5 +228,83 @@ struct UserFollowListData: Decodable, Encodable {
     let includedIndexes: [String]?
     let follows: [String]?
     var data: [UserFollowListDataPoint]? = []
-//    let follows: [UserFollowData]
+}
+
+struct UserEditNoUpdateResponse: Encodable, Decodable {
+    let field: String
+    let value: String
+}
+
+struct UserEditAcceptedResponse: Identifiable, Encodable, Decodable {
+    var id = UUID()
+    let field: String
+    let value: String
+    let prevValueString: String?
+    let newValueString: String?
+    let prevValueDate: Int64?
+    let newValueDate: Int64?
+    
+    private enum CodingKeys: String, CodingKey {
+        case field
+        case value
+        case prevValueString
+        case newValueString
+        case prevValueDate
+        case newValueDate
+    }
+}
+
+struct UserEditChangeResponse: Identifiable, Encodable, Decodable {
+    var id = UUID()
+    var title: String
+    var description: String
+    var dbName: String
+    var required: Bool
+    var type: String
+    var currentValueString: String?
+    var currentValueDate: Int64?
+    var newValueString: String = ""
+    var newValueDate: Date = Date()
+    var updated: Bool = false
+    
+    private enum CodingKeys: String, CodingKey {
+        case title
+        case description
+        case dbName
+        case required
+        case type
+        case currentValueString
+        case currentValueDate
+    }
+}
+
+struct GetUserEditResponse: Encodable, Decodable {
+    let oldData: [UserEditChangeResponse]
+
+}
+struct UserEditResponse: Encodable, Decodable {
+    let success: Bool
+    let partialSuccess: Bool
+    var invalidFields: [ErrorUserEdit]
+    var fails: [ErrorUserEdit]
+    var noUpdates: [UserEditNoUpdateResponse]
+    var acceptedChanges: [UserEditAcceptedResponse]
+    let oldData: [UserEditChangeResponse]
+    let newData: [UserEditChangeResponse]
+    
+    private enum CodingKeys: String, CodingKey {
+        case success
+        case partialSuccess
+        case invalidFields
+        case fails
+        case noUpdates
+        case acceptedChanges
+        case oldData
+        case newData
+    }
+}
+
+struct HttpReqKeyValue: Encodable, Decodable {
+    let key: String
+    let value: String
 }

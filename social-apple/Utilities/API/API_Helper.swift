@@ -39,11 +39,11 @@ class API_Helper: ObservableObject {
             self.errorFound = error
             self.errorTime = Date()
         }
-/*
-        DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
-            self.errorShow = false
-        }
- */
+        /*
+         DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
+         self.errorShow = false
+         }
+         */
     }
     
     func dismissError() {
@@ -70,6 +70,61 @@ class API_Helper: ObservableObject {
         //create a new urlRequest passing the url
         var request = URLRequest(url: url!)
         request.httpMethod = httpMethod
+        
+        // headers
+        request.addValue(appToken, forHTTPHeaderField: "apptoken")
+        request.addValue(devToken, forHTTPHeaderField: "devtoken")
+        request.addValue(self.userTokens.accessToken, forHTTPHeaderField: "accesstoken")
+        request.addValue(self.userTokens.userToken, forHTTPHeaderField: "usertoken")
+        request.addValue(self.userTokens.userID, forHTTPHeaderField: "userid")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        for header in httpHeaders {
+            request.addValue(header.value, forHTTPHeaderField: header.field)
+        }
+        
+        //        provideError(error: ErrorData(code: "Z005", msg: "This is a test", error: true))
+        
+        // Execute the request
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw ErrorData(code: "Z003", msg: "Invalid response", error: true)
+            }
+            
+            if 200..<300 ~= httpResponse.statusCode {
+                let decodedData = try JSONDecoder().decode(T.self, from: data)
+                return decodedData
+            } else {
+                // Log the raw error response for debugging
+                if let errorString = String(data: data, encoding: .utf8) {
+                    print("Error response string: \(errorString)")
+                }
+                
+                // Decode the error response
+                let errorData = try JSONDecoder().decode(ErrorData.self, from: data)
+                provideError(error: errorData)
+                throw errorData
+            }
+        } catch {
+            throw error
+        }
+    }
+    
+    func asyncRequestDataKeyMap<T: Codable>(
+        urlString: String,
+        errorType: String = "normal",
+        httpHeaders: [ApiHeader]=[],
+        httpMethod: String = "GET",
+        httpKeyMap: [HttpReqKeyValue] = []
+    ) async throws -> T {
+        //create the new url
+        let url = URL(string: urlString)
+        
+        //create a new urlRequest passing the url
+        var request = URLRequest(url: url!)
+        request.httpMethod = httpMethod
 
         // headers
         request.addValue(appToken, forHTTPHeaderField: "apptoken")
@@ -83,12 +138,30 @@ class API_Helper: ObservableObject {
             request.addValue(header.value, forHTTPHeaderField: header.field)
         }
         
-//        provideError(error: ErrorData(code: "Z005", msg: "This is a test", error: true))
+        // Encode the body dynamically
+        var keyMap: [String: Any] = [:]
 
+        for data in httpKeyMap {
+            keyMap[data.key] = data.value
+        }
+//        let bodyComponents = keyMap.map { key, value in
+//            "\(key)=\(value)"
+//        }
+
+//        let bodyString = bodyComponents.joined(separator: "&")
+//        request.httpBody = bodyString.data(using: .utf8)
+        
+        request.httpBody = try JSONSerialization.data(withJSONObject: keyMap, options: .prettyPrinted)
+
+//        print(request.httpBody)
+
+        
+             
         // Execute the request
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
             
+            // Check HTTP status code
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw ErrorData(code: "Z003", msg: "Invalid response", error: true)
             }
@@ -117,7 +190,7 @@ class API_Helper: ObservableObject {
         errorType: String = "normal",
         httpHeaders: [ApiHeader]=[],
         httpMethod: String = "GET",
-        httpBody: B
+        httpBody: B?
     ) async throws -> T {
         //create the new url
         let url = URL(string: urlString)
@@ -142,7 +215,6 @@ class API_Helper: ObservableObject {
         do {
             let encoder = JSONEncoder()
             encoder.outputFormatting = .prettyPrinted
-
             request.httpBody = try encoder.encode(httpBody)
         } catch {
             throw ErrorData(code: "Z001", msg: "Uknown", error: true)
