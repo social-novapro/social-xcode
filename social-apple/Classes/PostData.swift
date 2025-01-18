@@ -19,6 +19,8 @@ class PostCreation: ObservableObject {
     @Published var content: String = ""
 
     private var publishPollData: PublishPollData = PublishPollData(pollID: nil, sentPoll: false, pollPossibleFailed: false)
+    let maxCharacters: Int = 512
+
     @Published var newPost: PostData?
     @Published var newPoll: PollData?
     @Published var sending: Bool = false
@@ -28,13 +30,21 @@ class PostCreation: ObservableObject {
     @Published var pollAdded: Bool = false
     @Published var coposterAdded: Bool = false
     @Published var tempPollCreator: TempPollCreator = TempPollCreator()
-    @Published var coposters: [String] = []
+    @Published var coposters: [CoposterStorageItem] = []
     @Published var possibleTags: SearchPossibleTags?
+//    @published
+    @Published var possibleCoposters: SearchPossibleTags?
     @Published var feedData: AllPosts?
-    
+    @Published var remainingCharacters: Int = 0;
+    @Published var remainingCharactersCG: CGFloat = 0;
+    @Published var coposterSearch: String = ""
+
+    private var backupContent: String = "";
+
     init(client: Client, feedData: AllPosts? = nil) {
         self.client = client
         self.feedData = feedData
+        self.remainingCharacters = maxCharacters;
     }
     
     func replaceTag(tag: String) {
@@ -53,16 +63,73 @@ class PostCreation: ObservableObject {
 
         newWords.append("\(tag) ")
         let newContent = newWords.joined(separator: " ")
+        
         DispatchQueue.main.async {
             self.content = newContent
             self.possibleTags = nil;
         }
     }
     
+    func calcRemainingCharacters() {
+        DispatchQueue.main.async {
+            self.remainingCharacters = self.maxCharacters - self.content.count
+            self.remainingCharactersCG = CGFloat(self.maxCharacters - self.remainingCharacters) / CGFloat(self.maxCharacters)
+            print(self.remainingCharacters)
+        }
+    }
+    
+    func addCoposter(username: String, userID: String) {
+        DispatchQueue.main.async {
+            self.coposterSearch = "";
+            self.coposters.append(CoposterStorageItem(username: username, userID: userID));
+            self.possibleCoposters?.users = [];
+            self.possibleCoposters?.hashtags = [];
+        }
+    }
+    
+    func removeCoposter(coposterRemove: CoposterStorageItem) {
+        for (index, value) in coposters.enumerated() {
+            if (value.id == coposterRemove.id) {
+                self.coposters.remove(at: index);
+            }
+        }
+    }
+    
+    func typeCopost(text: String) {
+        if (text == "") {
+            DispatchQueue.main.async {
+                self.coposterSearch = "";
+            }
+        }
+        
+        var searchTerm = text;
+        if (searchTerm.starts(with: "@")) {
+            searchTerm = text.replacingOccurrences(of: "@", with: "0");
+        } else {
+            searchTerm = "0"+text;
+        }
+        
+        client.api.search.searchTagSuggestion(searchText: searchTerm) { result in
+            switch result {
+            case .success(let results):
+                DispatchQueue.main.async {
+                    self.possibleCoposters = results;
+                    print(results)
+                }
+                break;
+            case .failure(let error):
+                print(error)
+                print("Error: \(error.localizedDescription)")
+            }
+        }
+
+    }
+    
     func typePost(newValue: String) {
         if (newValue == "") {
             DispatchQueue.main.async {
                 self.possibleTags = nil;
+               // self.calcRemainingCharacters();
                 return
             }
         }
@@ -137,7 +204,17 @@ class PostCreation: ObservableObject {
         }
     }
     
+    func recoverPostFromFail() {
+        DispatchQueue.main.async {
+            self.content = self.backupContent;
+        }
+    }
+    
     func sendPost() async throws -> PostData {
+        DispatchQueue.main.async {
+            self.backupContent = self.content
+        }
+        
         // if previously press send
         if (self.failed == false && self.sending) {
             throw ErrorData(code: "Z001", msg: "Uknown", error: true)
@@ -162,16 +239,13 @@ class PostCreation: ObservableObject {
         var postCreateContent = PostCreateContent(userID: self.client.userTokens.userID, content: self.content)
 
         // set up reply / quote
-        
         if (self.feedData != nil) {
             if (self.feedData?.postLiveData.popoverAction == 1) {
                 postCreateContent.replyingPostID = self.feedData?.postData._id
             } else if (self.feedData?.postLiveData.popoverAction == 2) {
                 postCreateContent.quoteReplyPostID = self.feedData?.postData._id
             }
-
         }
-
         
         // is content empty
         if (self.content == "") {
@@ -179,6 +253,16 @@ class PostCreation: ObservableObject {
                 self.failed = true
                 self.errorMsg = "Please enter post content."
                 
+            }
+            throw ErrorData(code: "Z001", msg: "Uknown", error: true)
+        }
+        // make sure not to long
+        calcRemainingCharacters();
+
+        if (self.remainingCharacters < 0) {
+            DispatchQueue.main.async {
+                self.failed = true
+                self.errorMsg = "Message is to long."
             }
             throw ErrorData(code: "Z001", msg: "Uknown", error: true)
         }
@@ -190,6 +274,15 @@ class PostCreation: ObservableObject {
             } catch {
                 print("failed to do after")
                 throw ErrorData(code: "Z001", msg: "Uknown", error: true)
+            }
+        }
+        
+        var coposterArr:[String] = []
+        var foundCoposterAdded: Bool = false
+        if (self.coposterAdded) {
+            for coposter in self.coposters {
+                coposterArr.append(coposter.userID)
+                foundCoposterAdded = true;
             }
         }
             
@@ -223,6 +316,10 @@ class PostCreation: ObservableObject {
             print("linked poll to post")
         }
         
+        if (foundCoposterAdded) {
+            postCreateContent.coposters = coposterArr
+        }
+        
         print(self.publishPollData.pollID ?? "")
         print(self.newPoll ?? "")
             
@@ -237,6 +334,8 @@ class PostCreation: ObservableObject {
                 self.client.hapticPress()
                 // clears poll data
                 self.pollAdded = false
+                self.coposterAdded = false;
+                self.coposters = []
                 self.tempPollCreator = TempPollCreator()
                 self.failed = false
                 self.sending = false
@@ -266,6 +365,9 @@ class FeedPosts: ObservableObject {
     @Published var loadingScroll: Bool = false
     @Published @MainActor var isLoading: Bool = true
     @Published var gotFeed: Bool = false
+    
+    @Published var copostRequests: [CopostRequestsData] = []
+    @Published var copostsFound: Bool = false
 
     init(client: Client) {
         self.client = client
@@ -294,9 +396,25 @@ class FeedPosts: ObservableObject {
                     }
 
                     print("Feed refreshed successfully.")
-
                 case .failure(let error):
                     print("Error: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    func getCopostRequests() {
+        DispatchQueue.main.async {
+            Task {
+                do {
+                    self.copostRequests = try await self.client.api.posts.copostsRequests()
+                    self.copostsFound = true
+                } catch let error as ErrorData {
+                    print("ErrorData: \(error.code), \(error.msg)")
+                    self.copostsFound = false
+                } catch {
+                    print("Unexpected error: \(error)")
+                    self.copostsFound = false
                 }
             }
         }
@@ -469,6 +587,17 @@ struct TagData:Decodable, Encodable {
     var indexID: String
     var userID: String
     var postID: String
+}
+
+struct CoposterStorageItem: Identifiable {
+    var id = UUID()
+    var username: String
+    var userID: String
+    
+    private enum CodingKeys: String, CodingKey {
+        case username
+        case userID
+    }
 }
 
 struct QuoteData: Decodable, Encodable {
@@ -701,3 +830,57 @@ struct TagFoundData : Identifiable, Decodable {
         case posts
     }
 }
+
+//interactPostCoSchema = mongoose.Schema({
+//    _id: reqString, // uuid
+//    userID: reqString,
+//    postID: reqString,
+//    timestamp: reqNum,
+//    deletedPost: reqBool, // if post is deleted
+//    declined: reqBool, // if user declined
+//    approved: reqBool, // if user approved
+//    approvedTimestamp: nonreqNum, // timestamp user approved
+//
+struct CopostRequestData: Identifiable, Encodable, Decodable {
+    var id = UUID()
+    var _id: String
+    var userID: String
+    var postID: String
+    var timestamp: Int64
+    var deletedPost: Bool
+    var declined: Bool
+    var approved: Bool
+    var approvedTimestamp: Int64?
+    
+    private enum CodingKeys: String, CodingKey {
+        case _id
+        case userID
+        case postID
+        case timestamp
+        case deletedPost
+        case declined
+        case approved
+        case approvedTimestamp
+    }
+}
+
+/*
+ request: copost,
+ post: foundPost,
+ user: foundUser ? foundUser : null
+ */
+
+struct CopostRequestsData: Identifiable, Encodable, Decodable {
+    var id = UUID()
+    var request: CopostRequestData
+    var post: PostData
+    var user: UserData?
+    var dismissed: Bool = false
+    
+    private enum CodingKeys: String, CodingKey {
+        case request
+        case post
+        case user
+    }
+}
+

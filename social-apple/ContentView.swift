@@ -29,7 +29,7 @@ struct ContentView: View {
            }
 #elseif os(macOS)
             macLayoutView(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
-            
+
 #elseif os(visionOS)
             visionLayoutView(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
 
@@ -228,13 +228,14 @@ struct IncomeNotificationView: View {
     @State var expand = false
     @State var newNotification = false
     @State var notificationBody = ""
+    
     #if os(iOS)
     @UIApplicationDelegateAdaptor private var appDelegate: MyAppDelegate
     #endif
 
     var body: some View {
         VStack {
-            if self.client.api.apiHelper.errorShow {
+            if $client.api.apiHelper.errorShow.wrappedValue == true {
                 HStack (alignment: .center) {
                     VStack {
                         Text("\(client.api.apiHelper.errorFound.code)")
@@ -242,7 +243,10 @@ struct IncomeNotificationView: View {
                     }
                     
                     Button(action: {
-                        self.client.dismissError()
+                        DispatchQueue.main.async {
+                            self.client.dismissError()
+                            $client.api.apiHelper.errorShow.wrappedValue = false
+                        }
                         print("pressed dismiss")
                     }, label: {
                         Image(systemName: "x.circle")
@@ -261,7 +265,9 @@ struct IncomeNotificationView: View {
                 .padding(22)
                 .background(client.themeData.mainBackground)
                 .onLongPressGesture {
-                    self.newNotification.toggle()
+                    DispatchQueue.main.async {
+                        self.client.dismissError()
+                    }
                 }
             } /*else {
                 VStack {
@@ -616,5 +622,11 @@ extension Binding {
                 }
             }
         )
+    }
+}
+
+extension Binding {
+     func toUnwrapped<T>(defaultValue: T) -> Binding<T> where Value == Optional<T>  {
+        Binding<T>(get: { self.wrappedValue ?? defaultValue }, set: { self.wrappedValue = $0 })
     }
 }

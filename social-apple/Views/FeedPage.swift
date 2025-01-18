@@ -28,7 +28,25 @@ struct FeedPage: View {
         NavigationStack {
             VStack {
                 if (self.feedPosts.isLoading == false) {
+                    // FIX - BUG WHEN CLOSING REQUESTS THEN SCROLLING 
+                    if (self.feedPosts.copostsFound) {
+                        CopostRequestsHyper(client: client, feedPosts: feedPosts)
+                            .padding(10)
+                    }
+                    
                     List {
+//                        if (self.feedPosts.copostsFound) {
+//                            CopostRequestView(client: client, feedPosts: feedPosts)
+//                                #if !os(tvOS)
+//                                .listRowSeparator(.hidden)
+//                                #endif
+//                                .listRowInsets(EdgeInsets())
+//                                .padding(10)
+//                                .onTapGesture(perform: {
+//                                    
+//                                })
+//                        }
+
                         ForEach(self.feedPosts.posts.indices, id: \.self) { index in
                             PostFeedPreView(client: client, feedData: $feedPosts.posts[index], selectedPostIndex: $selectedPostIndex, selectedPost: $selectedPost, selectedProfile: $selectedProfile, currentPostIndex: index)
                                 #if !os(tvOS)
@@ -52,6 +70,7 @@ struct FeedPage: View {
                                 .onAppear(){
                                     if (self.feedPosts.posts.last?.id == feedPosts.posts[index].id && self.feedPosts.loadingScroll == false) {
                                         client.hapticPress()
+                                        
                                         self.feedPosts.loadingScroll = true
                                         
                                         if (self.feedPosts.feed.prevIndexID != nil) {
@@ -70,7 +89,8 @@ struct FeedPage: View {
                     .refreshable {
                         client.hapticPress()
                         DispatchQueue.main.async {
-                            feedPosts.refreshFeed()
+                            self.feedPosts.refreshFeed()
+                            self.feedPosts.getCopostRequests()
                         }
                     }
                 }
@@ -85,12 +105,12 @@ struct FeedPage: View {
             }
             .sheet(isPresented: $selectedProfile.showProfile) {
                 NavigationView {
-                    
                     ProfileView(client: client, userData: selectedProfile.profileData, userID: selectedProfile.userID)
                 }
             }
             .onAppear {
                 self.feedPosts.getFeed()
+                self.feedPosts.getCopostRequests()
             }
             .navigationTitle("Feed")
             .toolbar {

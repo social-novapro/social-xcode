@@ -72,6 +72,26 @@ struct CreatePost: View {
                     }
                     
                     VStack {
+                        if (postCreation.remainingCharacters < 100) {
+                            HStack {
+                                Text("Remaining Characters \(postCreation.remainingCharacters) of \(postCreation.maxCharacters)")
+                                Spacer()
+                                ZStack {
+                                    Circle()
+                                        .stroke(lineWidth: 4)
+                                        .opacity(0.1)
+                                        .foregroundStyle(Color.accentColor)
+
+                                    Circle()
+                                        .trim(from: 0.0, to: abs(postCreation.remainingCharactersCG))
+                                        .stroke(style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                                        .foregroundStyle(Color.red)
+                                }
+                                .frame(width: 20, height: 20)
+
+                            }
+                        }
+                        
                         ZStack {
                             #if os(tvOS)
                             TextField("content", text: $postCreation.content)
@@ -84,6 +104,7 @@ struct CreatePost: View {
                             TextEditor(text: $postCreation.content)
                                 .onChange(of: postCreation.content) { newValue in
                                     postCreation.typePost(newValue: newValue)
+                                    postCreation.calcRemainingCharacters();
                                 }
                             
                             if postCreation.content.isEmpty {
@@ -110,6 +131,7 @@ struct CreatePost: View {
                                         print(result) // Handle successful result
                                     } catch {
                                         // Handle error
+                                        postCreation.recoverPostFromFail()
                                         print("Failed to send post: \(error.localizedDescription)")
                                     }
                                 }
@@ -139,6 +161,17 @@ struct CreatePost: View {
                                 HStack {
                                     Image(systemName: "checklist")
                                     Text("\(postCreation.pollAdded==true ? "Remove" : "Add") Poll")
+                                }
+                            }
+                        }
+                        Divider()
+                        HStack {
+                            Button(action: {
+                                postCreation.coposterAdded.toggle()
+                            }) {
+                                HStack {
+                                    Image(systemName: "person.2")
+                                    Text("\(postCreation.coposterAdded==true ? "Remove" : "Add") Coposters")
                                 }
                             }
                         }
@@ -183,7 +216,8 @@ struct CreatePost: View {
                                     .stroke(Color.accentColor, lineWidth: 3)
                             )
                         } else {
-                            PollCreatorView(client: client, tempPollCreator: $postCreation.tempPollCreator)
+                            CoposterCreatorView(client: client, postCreation: postCreation)
+//                            PollCreatorView(client: client, tempPollCreator: $postCreation.tempPollCreator)
                         }
                     }
                 }
@@ -210,6 +244,7 @@ struct TagSuggestionsView: View {
                         }
                     }
                 }
+                
                 if let users = possibleTags.users {
                     if (users.count > 0) {
                         FancyText(text: "Suggested User Tags:")
@@ -226,6 +261,7 @@ struct TagSuggestionsView: View {
 
 struct FancyText : View {
     @State var text: String
+    
     var body: some View {
         VStack {
             HStack {
@@ -250,12 +286,72 @@ struct TagSuggestionView: View {
     @ObservedObject var client: Client
     @ObservedObject var postCreation: PostCreation
     @State var suggestion: String
+    @State var provUserId: String = ""
+    @State var suggestType: Int = 0
+    /*
+     0=hastags/usertag
+     1=coposter
+     */
     
     var body: some View {
         VStack {
             FancyText(text: suggestion)
             .onTapGesture {
-                postCreation.replaceTag(tag: suggestion)
+                if (suggestType == 0) {
+                    postCreation.replaceTag(tag: suggestion)
+                } else if (suggestType == 1) {
+                    postCreation.addCoposter(username: suggestion, userID: provUserId);
+                }
+            }
+        }
+    }
+}
+
+struct AddedCopostersSuggestionView: View {
+    @ObservedObject var client: Client
+    @ObservedObject var postCreation: PostCreation
+
+    var body: some View {
+        VStack {
+            ForEach(postCreation.coposters) { coposter in
+//                FancyText(text: coposter.username)
+                VStack {
+                    HStack {
+                        Spacer()
+                        VStack {
+                            Text(coposter.username)
+                        }
+                        Spacer()
+                        Image(systemName: "person.badge.minus")
+                        .onTapGesture {
+                            postCreation.removeCoposter(coposterRemove: coposter)
+                        }
+
+                    }
+                }
+                .padding(15)
+                .cornerRadius(20)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.accentColor, lineWidth: 3)
+                )
+            }
+            if (postCreation.coposters.isEmpty) {
+                VStack {
+                    HStack {
+                        Spacer()
+                        VStack {
+                            Text("No Coposters Added")
+                        }
+                        Spacer()
+                    }
+                }
+                .padding(15)
+                .cornerRadius(20)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.accentColor, lineWidth: 3)
+                )
             }
         }
     }
@@ -263,17 +359,80 @@ struct TagSuggestionView: View {
 
 struct CoposterCreatorView: View {
     @ObservedObject var client: Client
-    @Binding var coposters: [String]
+    @ObservedObject var postCreation: PostCreation
     
     var body: some View {
         VStack {
-            Text("Adding")
+            VStack {
+                ZStack {
+//                    #if os(tvOS)
+//                    TextField("Coposter", text: $coposterSearch)
+//                        .onChange(of: postCreation.content) { newValue in
+//                            postCreation.typePost(newValue: newValue)
+//                        }
+//
+//                    #else
+
+                    TextField("Coposter", text: $postCreation.coposterSearch)
+                        .onChange(of: postCreation.coposterSearch) { newValue in
+                            postCreation.typeCopost(text: newValue)
+                        }
+                    
+//                    if postCreation.coposterSearch.isEmpty {
+//                        VStack {
+//                            HStack {
+//                                Text("Coposter")
+//                                    .foregroundStyle(.tertiary)
+//                                    .padding(.top, 8)
+//                                    .padding(.leading, 5)
+//                                
+//                                Spacer()
+//                            }
+//                            Spacer()
+//                        }
+//                    }
+//                    #endif
+                }
+            }
+            .padding(15)
+            .cornerRadius(20)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.accentColor, lineWidth: 3)
+            )
+            
         }
-        .padding(15)
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.accentColor, lineWidth: 3)
-        )
+        
+        CoposterSuggestionViewArea(client: client, postCreation: postCreation)
+    }
+}
+
+struct CoposterSuggestionViewArea: View {
+    @ObservedObject var client: Client
+    @ObservedObject var postCreation: PostCreation
+
+    var body: some View {
+        VStack {
+            AddedCopostersSuggestionView(client: client, postCreation: postCreation)
+            
+            if let possibleCoposters = postCreation.possibleCoposters {
+                if let users = possibleCoposters.users {
+                    if (users.count > 0) {
+                        VStack {
+                            FancyText(text: "Suggested Coposters:")
+                            ForEach(users) { user in
+                                TagSuggestionView(client: client, postCreation: postCreation, suggestion: "@\( user.user.username ?? "")", provUserId: user.user._id ?? "", suggestType: 1)
+                            }
+                        }
+                        .padding(15)
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.accentColor, lineWidth: 3)
+                        )
+                    }
+                }
+            }
+        }
     }
 }

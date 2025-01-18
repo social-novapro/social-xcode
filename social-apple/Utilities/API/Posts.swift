@@ -235,9 +235,38 @@ class PostsApi: API_Base {
         }
     }
     
-    // coposts - aprove
+    // coposts - approve
+    func copostsApprove(requestID: String) async throws -> CopostRequestData {
+        do {
+            let data:CopostRequestData = try await apiHelper.asyncRequestData(urlString: "\(baseAPIurl)/posts/coposts/approve/\(requestID)", httpMethod: "POST")
+            print(data)
+            return data;
+        } catch {
+            throw error;
+        }
+    }
+
     
     // coposts - decline
-    
+    func copostsDecline(requestID: String) async throws -> CopostRequestData {
+        do {
+            let data:CopostRequestData = try await apiHelper.asyncRequestData(urlString: "\(baseAPIurl)/posts/coposts/decline/\(requestID)", httpMethod: "DELETE")
+            print(data)
+            return data;
+        } catch {
+            throw error;
+        }
+    }
+
     // coposts - requests
+    func copostsRequests() async throws -> [CopostRequestsData] {
+        do {
+            let data:[CopostRequestsData] = try await apiHelper.asyncRequestData(urlString: "\(baseAPIurl)/posts/coposts/requests/", httpMethod: "GET")
+            print(data)
+            return data;
+        } catch {
+            throw error;
+        }
+    }
+
 }
