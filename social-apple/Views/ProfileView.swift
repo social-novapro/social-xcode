@@ -85,6 +85,13 @@ struct ProfileView : View {
 #endif
                                     .listRowInsets(EdgeInsets())
                                     .padding(10)
+                                
+                                    .onAppear(){
+                                        if (self.profileData.postData.last?.id == profileData.postData[index].id) {
+                                            print("showing bottom")
+                                            self.profileData.nextUserPostsIndex()
+                                        }
+                                    }
                             }
                             VStack {
                                 

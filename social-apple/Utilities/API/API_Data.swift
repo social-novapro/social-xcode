@@ -8,7 +8,7 @@
 import Foundation
 
 class API_Data {
-    private let prodMode:Bool = true;
+    private let prodMode:Bool = false;
     
     func getURL() -> String {
         if (prodMode != true) {

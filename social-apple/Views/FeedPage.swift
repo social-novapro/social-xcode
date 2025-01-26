@@ -90,7 +90,7 @@ struct FeedPage: View {
                         client.hapticPress()
                         DispatchQueue.main.async {
                             self.feedPosts.refreshFeed()
-                            self.feedPosts.getCopostRequests()
+//                            self.feedPosts.getCopostRequests()
                         }
                     }
                 }
@@ -110,7 +110,7 @@ struct FeedPage: View {
             }
             .onAppear {
                 self.feedPosts.getFeed()
-                self.feedPosts.getCopostRequests()
+//                self.feedPosts.getCopostRequests()
             }
             .navigationTitle("Feed")
             .toolbar {

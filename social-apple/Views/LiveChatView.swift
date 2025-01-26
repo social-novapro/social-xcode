@@ -5,6 +5,7 @@
 //  Created by Daniel Kravec on 2023-11-16.
 //
 
+// https://stackoverflow.com/questions/75648488/how-to-automatically-scroll-in-swiftui-view-if-a-new-item-appears
 import SwiftUI
 
 struct SendLiveChatView: View {

@@ -58,7 +58,7 @@ class API_Helper: ObservableObject {
         
     }
     
-    func asyncRequestData<T: Codable> (
+    func asyncRequestData<T: Decodable> (
         urlString: String,
         errorType: String = "normal",
         httpHeaders: [ApiHeader]=[],

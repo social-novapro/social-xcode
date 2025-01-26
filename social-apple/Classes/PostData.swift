@@ -400,6 +400,7 @@ class FeedPosts: ObservableObject {
                     print("Error: \(error.localizedDescription)")
                 }
             }
+            self.getCopostRequests();
         }
     }
     

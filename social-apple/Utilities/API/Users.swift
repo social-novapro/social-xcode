@@ -41,6 +41,18 @@ class UsersApi: API_Base {
         }
     }
     
+    func getNextUserPostIndex(indexID: String) async throws -> UserIndexDataRes {
+        do {
+            let APIUrl = baseAPIurl + "/users/get/userPosts/" + indexID
+            
+            let data:UserIndexDataRes = try await apiHelper.asyncRequestData(urlString: APIUrl, httpMethod: "GET");
+            return data;
+        } catch {
+            print(error)
+            throw ErrorData(code: "Z001", msg: "Uknown", error: true)
+        }
+    }
+    
     func followingFollowerList(userID: String, type: Int, indexID: String? = nil) async throws -> UserFollowListData {
         //
         var doList:String = "following"
