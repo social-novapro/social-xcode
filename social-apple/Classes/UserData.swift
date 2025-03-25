@@ -164,6 +164,7 @@ struct UserData: Decodable, Encodable, Identifiable {
     var username: String? = nil
     var verified: Bool? = nil
     var followed: Bool? = nil
+    var profileURL: String? = nil
     
     private enum CodingKeys: String, CodingKey {
         case _id
@@ -185,6 +186,7 @@ struct UserData: Decodable, Encodable, Identifiable {
         case username
         case verified
         case followed
+        case profileURL
     }
 }
 

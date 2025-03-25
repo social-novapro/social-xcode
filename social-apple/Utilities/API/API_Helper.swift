@@ -112,6 +112,95 @@ class API_Helper: ObservableObject {
         }
     }
     
+    func asyncRequestFileUpload<T: Decodable>(
+        urlString: String,
+        fileURL: URL,
+        fileFieldName: String = "file",
+        errorType: String = "normal",
+        httpHeaders: [ApiHeader] = [],
+        httpMethod: String = "POST"
+    ) async throws -> T {
+        // Create the new URL
+        guard let url = URL(string: urlString) else {
+            throw ErrorData(code: "Z001", msg: "Invalid URL", error: true)
+        }
+
+        // Generate a unique boundary
+        let boundary = UUID().uuidString
+
+        // Create the URLRequest and set the HTTP method
+        var request = URLRequest(url: url)
+        request.httpMethod = httpMethod
+
+        // Headers
+        request.addValue(appToken, forHTTPHeaderField: "apptoken")
+        request.addValue(devToken, forHTTPHeaderField: "devtoken")
+        request.addValue(self.userTokens.accessToken, forHTTPHeaderField: "accesstoken")
+        request.addValue(self.userTokens.userToken, forHTTPHeaderField: "usertoken")
+        request.addValue(self.userTokens.userID, forHTTPHeaderField: "userid")
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+
+        // Add custom headers
+        for header in httpHeaders {
+            request.addValue(header.value, forHTTPHeaderField: header.field)
+        }
+
+        // Prepare multipart form data
+        var body = Data()
+        let lineBreak = "\r\n"
+
+        do {
+            // Try to read the file data
+            let fileData = try Data(contentsOf: fileURL)
+            
+            // Append the file data to the request body
+            body.append("--\(boundary)\(lineBreak)".data(using: .utf8)!) // Boundary header
+            body.append("Content-Disposition: form-data; name=\"\(fileFieldName)\"; filename=\"\(fileURL.lastPathComponent)\"\(lineBreak)".data(using: .utf8)!)
+            body.append("Content-Type: application/octet-stream\(lineBreak)\(lineBreak)".data(using: .utf8)!)
+            body.append(fileData) // Append the actual file data
+            body.append(lineBreak.data(using: .utf8)!) // Add line break after file data
+
+            // Close the boundary properly
+            body.append("--\(boundary)--\(lineBreak)".data(using: .utf8)!)
+        } catch {
+            throw ErrorData(code: "Z002", msg: "File error: \(error.localizedDescription)", error: true)
+        }
+
+        // Set the body
+        request.httpBody = body
+
+        // Add content-length header (optional, but can help with some servers)
+        request.setValue("\(body.count)", forHTTPHeaderField: "Content-Length")
+
+        // Execute the request
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw ErrorData(code: "Z003", msg: "Invalid response", error: true)
+            }
+
+            if 200..<300 ~= httpResponse.statusCode {
+                let decodedData = try JSONDecoder().decode(T.self, from: data)
+                return decodedData
+            } else {
+                // Log the raw error response for debugging
+                if let errorString = String(data: data, encoding: .utf8) {
+                    print("Error response string: \(errorString)")
+                }
+
+                // Decode the error response
+                let errorData = try JSONDecoder().decode(ErrorData.self, from: data)
+                provideError(error: errorData)
+                throw errorData
+            }
+        } catch {
+            throw error
+        }
+    }
+
+
+    
     func asyncRequestDataKeyMap<T: Codable>(
         urlString: String,
         errorType: String = "normal",

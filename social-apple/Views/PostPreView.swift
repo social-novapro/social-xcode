@@ -290,6 +290,12 @@ struct PostPreviewView: View {
                             pollData: feedData.pollData ?? PollData(_id: ""), voteOption: feedData.voteData?.pollOptionID ?? "")
                     }
                 }
+                VStack {
+                    if (feedData.postData.attachments != nil && feedData.postData.attachments?.count ?? 0>0) {
+                        Divider()
+                        AttachmentView(client: client, attachments: $feedData.postData.attachments)
+                    }
+                }
             }
             
             Spacer()
@@ -351,8 +357,36 @@ struct ProfilePostView: View {
     @Binding var selectedProfile: SelectedProfileData
     
     var body: some View {
-        VStack {
+        HStack {
+            if (feedData.userData?.profileURL != nil) {
                 VStack {
+                    AsyncImage(url: URL(string: feedData.userData?.profileURL ?? "")) { phase in
+                        switch phase {
+                        case .empty:
+                            ProgressView()
+                                .frame(width: 30, height: 30)
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 30, height: 30)
+                                .clipShape(Circle())
+                                .clipped()
+                        case .failure:
+                            Image(systemName: "photo")
+                                .clipped()
+                                .frame(width: 30, height: 30)
+                        @unknown default:
+                            EmptyView()
+                        }
+                    }
+                    .clipShape(Circle()) // Make the profile image circular
+                    .padding(.trailing, 8) // Add space between the image and text
+
+                }
+            }
+                VStack {
+            
                     HStack {
                         Button(action: {
                             client.hapticPress()

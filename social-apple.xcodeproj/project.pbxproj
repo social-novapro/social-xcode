@@ -73,6 +73,9 @@
 		65CA9D492BC8DE9B00CB145F /* AdminErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA9D482BC8DE9B00CB145F /* AdminErrorView.swift */; };
 		65CC79332B697C44002B5ADA /* Polls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CC79322B697C44002B5ADA /* Polls.swift */; };
 		65CC79352B697CE0002B5ADA /* PollsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CC79342B697CE0002B5ADA /* PollsData.swift */; };
+		65CED5EA2D92782E007A2755 /* MediaUploadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CED5E92D927824007A2755 /* MediaUploadView.swift */; };
+		65CED5EE2D927966007A2755 /* Files.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CED5ED2D927961007A2755 /* Files.swift */; };
+		65CED5F02D927AFB007A2755 /* FilesData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CED5EF2D927AF7007A2755 /* FilesData.swift */; };
 		65DA82BB2B1D2041008509E2 /* CreateUserPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DA82BA2B1D2041008509E2 /* CreateUserPage.swift */; };
 		65DC09472B300EE1004B5865 /* MyAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DC09462B300EE1004B5865 /* MyAppDelegate.swift */; };
 		65DC094B2B301477004B5865 /* PushNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DC094A2B301477004B5865 /* PushNotifications.swift */; };
@@ -151,6 +154,9 @@
 		65CA9D482BC8DE9B00CB145F /* AdminErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminErrorView.swift; sourceTree = "<group>"; };
 		65CC79322B697C44002B5ADA /* Polls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Polls.swift; sourceTree = "<group>"; };
 		65CC79342B697CE0002B5ADA /* PollsData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollsData.swift; sourceTree = "<group>"; };
+		65CED5E92D927824007A2755 /* MediaUploadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaUploadView.swift; sourceTree = "<group>"; };
+		65CED5ED2D927961007A2755 /* Files.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Files.swift; sourceTree = "<group>"; };
+		65CED5EF2D927AF7007A2755 /* FilesData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilesData.swift; sourceTree = "<group>"; };
 		65DA82BA2B1D2041008509E2 /* CreateUserPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserPage.swift; sourceTree = "<group>"; };
 		65DC09462B300EE1004B5865 /* MyAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyAppDelegate.swift; sourceTree = "<group>"; };
 		65DC094A2B301477004B5865 /* PushNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotifications.swift; sourceTree = "<group>"; };
@@ -190,6 +196,7 @@
 				65CA9D432BC8D9F900CB145F /* Admin */,
 				650C38362B797331002956DA /* Users */,
 				65DC094E2B30150E004B5865 /* Notifications.swift */,
+				65CED5ED2D927961007A2755 /* Files.swift */,
 				6516E5A02B0AE935008A84E4 /* Users.swift */,
 				6516E5AC2B0AF2D3008A84E4 /* Posts.swift */,
 				6516E59E2B0AE8CC008A84E4 /* Auth.swift */,
@@ -274,6 +281,7 @@
 			isa = PBXGroup;
 			children = (
 				65502EA92B51E379005D4201 /* BasicData.swift */,
+				65CED5EF2D927AF7007A2755 /* FilesData.swift */,
 				655BC0C12B07565100949356 /* LiveChatData.swift */,
 				655AB62029F0728A00C61F3A /* UserData.swift */,
 				655AB62729F0778300C61F3A /* UserLoginData.swift */,
@@ -302,6 +310,7 @@
 				6503515929F2F663005C4253 /* LogoutView.swift */,
 				6503515D29F474A9005C4253 /* AboutView.swift */,
 				651757DB29FA254500E90FBA /* CreatePost.swift */,
+				65CED5E92D927824007A2755 /* MediaUploadView.swift */,
 				651757E229FB889900E90FBA /* DevModeView.swift */,
 				655BC0C72B0756D000949356 /* PollView.swift */,
 				651757E72A006D3E00E90FBA /* AnalyticsView.swift */,
@@ -426,6 +435,8 @@
 				6526E87A2B54E2B80072E33E /* HapticModeHandler.swift in Sources */,
 				6503514D29F1F84C005C4253 /* PostPreView.swift in Sources */,
 				6516E59D2B0AE8B9008A84E4 /* API_Helper.swift in Sources */,
+				65CED5EA2D92782E007A2755 /* MediaUploadView.swift in Sources */,
+				65CED5EE2D927966007A2755 /* Files.swift in Sources */,
 				6516E5AD2B0AF2D3008A84E4 /* Posts.swift in Sources */,
 				651757E82A006D3E00E90FBA /* AnalyticsView.swift in Sources */,
 				65502EA62B51CCD4005D4201 /* SearchView.swift in Sources */,
@@ -443,6 +454,7 @@
 				6516E5A92B0AE993008A84E4 /* API_Client.swift in Sources */,
 				65297ECE2BC34D980070C958 /* Search.swift in Sources */,
 				659B62EC2B2BBE5600CF2FA4 /* LocalLogData.swift in Sources */,
+				65CED5F02D927AFB007A2755 /* FilesData.swift in Sources */,
 				655AB60929F0720500C61F3A /* social_appleApp.swift in Sources */,
 				65CA9D422BC8D9DF00CB145F /* AdminData.swift in Sources */,
 				65DC094F2B30150E004B5865 /* Notifications.swift in Sources */,

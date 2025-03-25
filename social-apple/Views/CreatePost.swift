@@ -167,6 +167,17 @@ struct CreatePost: View {
                         Divider()
                         HStack {
                             Button(action: {
+                                postCreation.mediaAdded.toggle()
+                            }) {
+                                HStack {
+                                    Image(systemName: "photo.artframe")
+                                    Text("\(postCreation.mediaAdded==true ? "Remove" : "Add") Media")
+                                }
+                            }
+                        }
+                        Divider()
+                        HStack {
+                            Button(action: {
                                 postCreation.coposterAdded.toggle()
                             }) {
                                 HStack {
@@ -182,8 +193,13 @@ struct CreatePost: View {
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(Color.accentColor, lineWidth: 3)
                     )
+                    
                     if (postCreation.possibleTags != nil) {
                         TagSuggestionsView(client: client, postCreation: postCreation)
+                    }
+                    
+                    if (postCreation.mediaAdded) {
+                        MediaUploadView(client: client, postCreation: postCreation)
                     }
 
                     if (postCreation.pollAdded) {

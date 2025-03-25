@@ -29,9 +29,11 @@ class PostCreation: ObservableObject {
     @Published var failed: Bool = false
     @Published var pollAdded: Bool = false
     @Published var coposterAdded: Bool = false
+    @Published var mediaAdded: Bool = false
     @Published var tempPollCreator: TempPollCreator = TempPollCreator()
     @Published var coposters: [CoposterStorageItem] = []
     @Published var possibleTags: SearchPossibleTags?
+    @Published var foundFiles: [URL] = [];
 //    @published
     @Published var possibleCoposters: SearchPossibleTags?
     @Published var feedData: AllPosts?
@@ -123,6 +125,15 @@ class PostCreation: ObservableObject {
             }
         }
 
+    }
+    
+    func addToPostContent(text: String) {
+        if (text == "") {
+            return;
+        }
+        DispatchQueue.main.async {
+            self.content += text+" ";
+        }
     }
     
     func typePost(newValue: String) {
@@ -579,7 +590,8 @@ struct PostData: Decodable, Encodable, Identifiable {
     var isQuote: Bool? = nil
     var hasPoll: Bool? = nil
     var indexID: String? = nil
-    
+    var attachments: [AttachmentData]? = nil;
+
     var quoteReplyID: String? = nil
     var replyingPostID: String? = nil
     var quoteReplyPostID: String? = nil
@@ -601,6 +613,7 @@ struct PostData: Decodable, Encodable, Identifiable {
         case isQuote
         case hasPoll
         case indexID
+        case attachments
 
         case quoteReplyID
         case replyingPostID
@@ -657,6 +670,25 @@ struct AllPosts: Observable, Decodable, Identifiable, Equatable {
         case coposterData
         case tagData
         case extraData
+    }
+}
+
+struct AttachmentData: Decodable, Encodable, Identifiable {
+    var id = UUID()
+    var _id: String
+    var index: String
+    var type: String
+    var host: String?
+    var url: String
+    var vuid: String?
+    
+    private enum CodingKeys: String, CodingKey {
+        case _id
+        case index
+        case type
+        case host
+        case url
+        case vuid
     }
 }
 
