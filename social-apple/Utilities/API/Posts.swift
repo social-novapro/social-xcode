@@ -129,34 +129,30 @@ class PostsApi: API_Base {
     
     
     // get post replies
-    func getReplies(postID: String, completion: @escaping (Result<PostReplyRes, Error>) -> Void) {
+    func getReplies(postID: String) async throws -> PostReplyResV2 {
         print("replies of post")
-        let APIUrl = baseAPIurl + "/posts/replies/\(postID)"
-        self.apiHelper.requestData(urlString: APIUrl, httpMethod: "GET") { (result: Result<PostReplyRes, Error>) in
-            switch result {
-            case .success(let postData):
-                print("replies Post")
-                completion(.success(postData))
-            case .failure(let error):
-                completion(.failure(error))
-                print("Error: \(error)")
-            }
+        let APIUrl = baseAPIurl + "/posts/replies/full/\(postID)"
+        
+        do {
+            let data:PostReplyResV2 = try await apiHelper.asyncRequestData(urlString: APIUrl, httpMethod: "GET");
+            return data;
+        } catch {
+            print(error)
+            throw ErrorData(code: "Z001", msg: "Uknown", error: true)
         }
     }
     
     // get post replies
-    func getQuotes(postID: String, completion: @escaping (Result<PostQuoteRes, Error>) -> Void) {
+    func getQuotes(postID: String) async throws -> PostQuoteResV2 {
         print("quotes of post")
-        let APIUrl = baseAPIurl + "/posts/quotes/\(postID)"
-        self.apiHelper.requestData(urlString: APIUrl, httpMethod: "GET") { (result: Result<PostQuoteRes, Error>) in
-            switch result {
-            case .success(let postData):
-                print("quotes Post")
-                completion(.success(postData))
-            case .failure(let error):
-                completion(.failure(error))
-                print("Error: \(error)")
-            }
+        let APIUrl = baseAPIurl + "/posts/quotes/full/\(postID)"
+        
+        do {
+            let data:PostQuoteResV2 = try await apiHelper.asyncRequestData(urlString: APIUrl, httpMethod: "GET");
+            return data;
+        } catch {
+            print(error)
+            throw ErrorData(code: "Z001", msg: "Uknown", error: true)
         }
     }
     

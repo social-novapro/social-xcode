@@ -12,6 +12,16 @@ struct PostView: View {
     @Binding var feedData: AllPosts
     @Binding var selectedProfile: SelectedProfileData
     
+    @ObservedObject var postActiveData: PostActiveData
+
+    init (client: Client, feedData: Binding<AllPosts>, selectedProfile: Binding<SelectedProfileData>) {
+        self.client = client;
+        self._feedData = feedData;
+        self._selectedProfile = selectedProfile;
+        
+        self._postActiveData = .init(wrappedValue: PostActiveData(client: client, postData: feedData.wrappedValue))
+    }
+    
     var body: some View {
         ScrollView {
             VStack {
@@ -66,8 +76,16 @@ struct PostView: View {
                 
                 if (self.feedData.postData.totalReplies ?? 0 > 0) {
                     VStack {
-                        PostViewReplies(client: client, postID: self.feedData.postData._id)
+                        PostViewReplies(client: client, postActiveData: postActiveData, postID: self.feedData.postData._id)
+//                            .onAppear() {
+//                                print("showing replie area")
+//                            }
                     }
+                    .onAppear {
+                        print("replies from post view")
+                        postActiveData.getReplies()
+                    }
+
                 }
                 Spacer()
             }

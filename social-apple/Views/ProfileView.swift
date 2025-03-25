@@ -562,7 +562,7 @@ struct EditProfileView : View {
                                 let responseEdit = try await client.api.users.userEdit(userEditReq: userEditReq)
                                 
                                 self.editingResults = responseEdit
-                                print(editingResults ?? "none")
+                                print(editingResults ?? "none edit profile view")
                                 
 
                             }

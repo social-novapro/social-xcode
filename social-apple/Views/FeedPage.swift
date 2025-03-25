@@ -10,6 +10,7 @@ import SwiftUI
 struct FeedPage: View {
     @ObservedObject var client: Client
     @ObservedObject var feedPosts: FeedPosts
+//    @ObservedObject var postActiveData: PostActiveData
 
     @State var userData: UserData?
     @State var writingPost: Bool = false
@@ -22,6 +23,7 @@ struct FeedPage: View {
     init(client: Client, feedPosts: FeedPosts) {
         self.client = client
         self.feedPosts = feedPosts
+//        self._postActiveData = .init(wrappedValue: PostActiveData(client: client, postData: feedData.wrappedValue))
     }
     
     var body: some View {
@@ -35,18 +37,6 @@ struct FeedPage: View {
                     }
                     
                     List {
-//                        if (self.feedPosts.copostsFound) {
-//                            CopostRequestView(client: client, feedPosts: feedPosts)
-//                                #if !os(tvOS)
-//                                .listRowSeparator(.hidden)
-//                                #endif
-//                                .listRowInsets(EdgeInsets())
-//                                .padding(10)
-//                                .onTapGesture(perform: {
-//                                    
-//                                })
-//                        }
-
                         ForEach(self.feedPosts.posts.indices, id: \.self) { index in
                             PostFeedPreView(client: client, feedData: $feedPosts.posts[index], selectedPostIndex: $selectedPostIndex, selectedPost: $selectedPost, selectedProfile: $selectedProfile, currentPostIndex: index)
                                 #if !os(tvOS)
@@ -54,6 +44,7 @@ struct FeedPage: View {
                                 #endif
                                 .listRowInsets(EdgeInsets())
                                 .padding(10)
+//                                .onpress
                                 /*.swipeActions(allowsFullSwipe: false) {
                                     Button {
                                         print("Muting conversation")

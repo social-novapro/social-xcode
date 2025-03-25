@@ -10,8 +10,31 @@ import SwiftUI
 
 struct PostPreView: View {
     @ObservedObject var client: Client
+    @ObservedObject var postActiveData: PostActiveData
     @Binding var feedData: AllPosts
     @Binding var selectedProfile: SelectedProfileData
+    
+//    @ObservedObject var postActiveData: PostActiveData
+
+    init (client: Client, feedData: Binding<AllPosts>, selectedProfile: Binding<SelectedProfileData>) {
+        self.client = client;
+        self._feedData = feedData;
+        self._selectedProfile = selectedProfile;
+        
+        self._postActiveData = .init(wrappedValue: PostActiveData(client: client, postData: feedData.wrappedValue))
+        
+        print("post pre view getting init \(feedData.postData._id)")
+    }
+    
+    
+    init (client: Client, postActiveData: ObservedObject<PostActiveData>, feedData: Binding<AllPosts>, selectedProfile: Binding<SelectedProfileData>) {
+        self.client = client;
+        self._feedData = feedData;
+        self._selectedProfile = selectedProfile;
+        self._postActiveData = postActiveData
+        print("post pre view getting init \(feedData.postData._id)")
+
+    }
     
     var body: some View {
         if (self.feedData.postLiveData.activeAction==3) {
@@ -74,12 +97,26 @@ struct PostPreView: View {
 
 struct PostFeedPreView: View {
     @ObservedObject var client: Client
-    @Binding var feedData: AllPosts
+    @ObservedObject var postActiveData: PostActiveData
 
+    @Binding var feedData: AllPosts
     @Binding var selectedPostIndex: Int?
     @Binding var selectedPost: Bool
     @Binding var selectedProfile: SelectedProfileData
     @State var currentPostIndex: Int
+    
+    init (client: Client, feedData: Binding<AllPosts>, selectedPostIndex: Binding<Int?>, selectedPost: Binding<Bool>, selectedProfile: Binding<SelectedProfileData>, currentPostIndex: Int) {
+        
+        self.client = client;
+        self._feedData = feedData;
+        self._selectedPostIndex = selectedPostIndex;
+        self._selectedPost = selectedPost;
+        self._selectedProfile = selectedProfile;
+        self.currentPostIndex = currentPostIndex;
+        
+        
+        self._postActiveData = .init(wrappedValue: PostActiveData(client: client, postData: feedData.wrappedValue))
+    }
     
     var body: some View {
         if (self.feedData.postLiveData.activeAction==3) {
@@ -131,7 +168,7 @@ struct PostFeedPreView: View {
                     .stroke(Color.gray, lineWidth: 3)
             )
         if (self.feedData.postLiveData.actionExpanded == true) {
-            ExpandedPostView(client: client, feedData: $feedData)
+            ExpandedPostView(client: client, postActiveData: postActiveData, feedData: $feedData)
         }
     }
 }
@@ -406,7 +443,7 @@ struct ProfilePostView: View {
                     .foregroundColor(feedData.postLiveData.isOwner==true ? .accentColor : .secondary)
             }
             .onAppear {
-                print(self.feedData.coposterData ?? "none")
+                print(self.feedData.coposterData ?? "none profile post view")
             }
         }
     }
@@ -490,11 +527,31 @@ struct DevModePostView: View {
 
 struct ExpandedPostView: View {
     @ObservedObject var client: Client
+    @ObservedObject var postActiveData: PostActiveData
     @Binding var feedData: AllPosts
 
     @State var savedPost: Bool?
     @State var pinnedPost: Bool?
     @State var followed: Bool?
+//    @State var showSub:
+    
+    init (client: Client, feedData: Binding<AllPosts>) {
+        self.client = client;
+        self._feedData = feedData;
+        
+        self._postActiveData = .init(wrappedValue: PostActiveData(client: client, postData: feedData.wrappedValue))
+        print("expanded post view init \(feedData.postData._id)")
+    }
+    
+    
+    init (client: Client, postActiveData: PostActiveData, feedData: Binding<AllPosts>) {
+        self.client = client;
+        self._feedData = feedData;
+        
+        self._postActiveData = .init(wrappedValue: PostActiveData(client: client, postData: feedData.wrappedValue))
+        print("expanded post view init \(feedData.postData._id)")
+    }
+    
     
     var body : some View {
         VStack {
@@ -710,8 +767,11 @@ struct ExpandedPostView: View {
                     .stroke(Color.gray, lineWidth: 3)
             )
             
+//            .onChange(of: feedData.postLiveData.subAction) {
+//                if
+//            }
             if (feedData.postLiveData.subAction != 0) {
-                SubExpandedPostView(client: client, feedData: $feedData)
+                SubExpandedPostView(client: client, postActiveData: postActiveData, feedData: $feedData)
             }
         }
         .onAppear {
@@ -724,8 +784,17 @@ struct ExpandedPostView: View {
 
 struct SubExpandedPostView: View {
     @ObservedObject var client: Client
+    @ObservedObject var postActiveData: PostActiveData
     @Binding var feedData: AllPosts
 
+//    init (client: Client, postActiveData: PostActiveData, feedData: Binding<AllPosts>) {
+//        self.client = client
+//        self.postActiveData = postActiveData
+//        self._feedData = feedData
+//        
+//        print("INIT SUBEXPANDEDPOST \(feedData.postLiveData.subAction.wrappedValue)")
+//    }
+//        .oninit
     var body: some View {
         VStack {
             HStack {
@@ -747,10 +816,17 @@ struct SubExpandedPostView: View {
                 PostViewLiked(client: client, postID: feedData.postData._id)
             } else if (feedData.postLiveData.subAction == 3) {
                 Text("Replies")
-                PostViewReplies(client: client, postID: feedData.postData._id)
+                PostViewReplies(client: client, postActiveData: postActiveData, postID: feedData.postData._id)
+                    .onAppear {
+                        print("replies shown maybe")
+                    }
+                
             } else if (feedData.postLiveData.subAction == 4) {
                 Text("Quotes")
-                PostViewQuotes(client: client, postID: feedData.postData._id)
+                PostViewQuotes(client: client, postActiveData: postActiveData, postID: feedData.postData._id)
+                    .onAppear {
+                        print("quotes shown maybe")
+                    }
             }
         }
         .padding(15)
@@ -888,19 +964,30 @@ struct PostViewLiked: View {
 
 struct PostViewReplies: View {
     @ObservedObject var client: Client
+    @ObservedObject var postActiveData: PostActiveData
+    
     @State var postID: String
     @State var isLoading: Bool = true
     @State var failed: Bool = false
 
-    @State var replies: PostReplyRes?
-
+    init(client: Client, postActiveData: PostActiveData, postID: String) {
+        self.client = client;
+        self.postActiveData = postActiveData
+        self.postID = postID
+        
+        postActiveData.getReplies()
+    }
+    
     var body : some View {
         VStack {
-            if (isLoading != true) {
-                ForEach(self.replies?.replies ?? []) { reply in
-                    CrapPostView(postData: reply)
+            if (postActiveData.loadingReplies != true || postActiveData.doneReplies == true) {
+                ForEach ($postActiveData.replies.replies ?? []) { $reply in
+                    postSearchPreview(client: client, feedData: $reply)
                 }
-            } else if (failed==true) {
+                .onAppear() {
+                    print($postActiveData.replies.wrappedValue)
+                }
+            } else if (postActiveData.failedReplies==true) {
                 HStack {
                     Text("Post has no replies.")
                     Spacer()
@@ -912,41 +999,39 @@ struct PostViewReplies: View {
                 }
             }
         }
-        .onAppear {
-            client.api.posts.getReplies(postID: postID) { result in
-                switch result {
-                case .success(let replies):
-                    self.replies = replies
-                    print("Done")
-                    self.isLoading = false
-                case .failure(let error):
-                    failed=true
-                    print("Error: \(error.localizedDescription)")
-                }
-            }
-            
-            if (isLoading == false) {
-                failed = true
-            }
+        .onChange(of: postActiveData.loadingReplies) {_ in
+            print("changed")
+            print($postActiveData.replies.replies ?? [])
         }
     }
 }
 
 struct PostViewQuotes: View {
     @ObservedObject var client: Client
+    @ObservedObject var postActiveData: PostActiveData
+    
     @State var postID: String
     @State var isLoading: Bool = true
     @State var failed: Bool = false
 
-    @State var quotes: PostQuoteRes?
+    init(client: Client, postActiveData: PostActiveData, postID: String) {
+        self.client = client;
+        self.postActiveData = postActiveData
+        self.postID = postID
 
+        postActiveData.getQuotes()
+    }
+    
     var body : some View {
         VStack {
-            if (isLoading != true) {
-                ForEach(self.quotes?.quotes ?? []) { quote in
-                    CrapPostView(postData: quote)
+            if (postActiveData.loadingQuotes != true || postActiveData.doneQuotes == true) {
+                ForEach($postActiveData.quotes.quotes ?? []) { $quote in
+                    postSearchPreview(client: client, feedData: $quote)
                 }
-            } else if (failed==true) {
+                .onAppear() {
+                    print($postActiveData.replies.wrappedValue)
+                }
+            } else if (postActiveData.failedQuotes==true) {
                 HStack {
                     Text("Post has no quotes.")
                     Spacer()
@@ -958,21 +1043,9 @@ struct PostViewQuotes: View {
                 }
             }
         }
-        .onAppear {
-            client.api.posts.getQuotes(postID: postID) { result in
-                switch result {
-                case .success(let quotes):
-                    self.quotes = quotes
-                    print("Done")
-                    self.isLoading = false
-                case .failure(let error):
-                    failed=true
-                    print("Error: \(error.localizedDescription)")
-                }
-                if (isLoading == false) {
-                    failed = true
-                }
-            }
+        .onChange(of: postActiveData.loadingQuotes) {_ in
+            print("changed")
+            print($postActiveData.quotes.quotes ?? [])
         }
     }
 }

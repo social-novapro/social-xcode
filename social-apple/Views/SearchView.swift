@@ -201,7 +201,7 @@ struct postSearchPreview: View {
         .cornerRadius(20)
         .overlay(
             RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.accentColor, lineWidth: 3)
+                .stroke(Color.secondary, lineWidth: 3)
         )
         
         if (self.feedData.postLiveData.actionExpanded == true) {

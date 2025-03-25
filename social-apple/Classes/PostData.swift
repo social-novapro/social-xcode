@@ -482,6 +482,85 @@ class FeedPosts: ObservableObject {
     }
 }
 
+class PostActiveData: ObservableObject {
+    var client: Client
+
+    @Published var post: AllPosts
+    @Published var replies: PostReplyResV2 = PostReplyResV2()
+    @Published var quotes: PostQuoteResV2 = PostQuoteResV2()
+    
+    @Published var doneReplies = false
+    @Published var loadingReplies = false
+    @Published var failedReplies = false
+    
+    @Published var doneQuotes = false
+    @Published var loadingQuotes = false
+    @Published var failedQuotes = false
+    
+    init(client: Client, postData: AllPosts) {
+        self.client = client
+        self.post = postData
+    }
+    
+    func getReplies() {
+        DispatchQueue.main.async {
+            self.client.hapticPress()
+            if (self.loadingReplies || self.doneReplies) { print("already loading replies"); return }
+            
+            self.loadingReplies = true
+
+            if (self.post.postData.totalReplies ?? 0 == 0) { self.failedReplies=true; print("no replies"); return }
+            if (self.replies.replies!.count == self.post.postData.totalReplies ?? 0) { self.failedReplies=false; print("equal count replies"); return }
+            print("got past")
+            
+            self.loadingReplies = true
+            
+            Task{
+                do {
+                    self.replies = try await self.client.api.posts.getReplies(postID: self.post.postData._id)
+                    self.failedReplies = false
+                    self.loadingReplies = false
+                    self.doneReplies = true
+                    self.client.hapticPress()
+                    print("done loading")
+                } catch {
+                    print("Failed: \(error.localizedDescription)")
+                    self.failedReplies = true
+                    return;
+                }
+            }
+        }
+    }
+    
+    func getQuotes() {
+        DispatchQueue.main.async {
+            self.client.hapticPress()
+            if (self.doneQuotes || self.loadingQuotes) { print("already loading quotes"); return }
+            self.loadingQuotes = true
+
+            if (self.post.postData.totalQuotes ?? 0 == 0) { self.failedQuotes=true; print("no quotes"); return }
+            if (self.quotes.quotes!.count == self.post.postData.totalQuotes ?? 0) { self.failedQuotes=false; print("equal count quotes"); return }
+
+            self.loadingQuotes = true
+            
+            Task{
+                do {
+                    self.quotes = try await self.client.api.posts.getQuotes(postID: self.post.postData._id)
+                    self.failedQuotes = false
+                    self.loadingQuotes = false
+                    self.doneQuotes = true
+                    self.client.hapticPress()
+                } catch {
+                    print("Failed: \(error.localizedDescription)")
+                    self.failedQuotes = true
+                    return;
+                }
+            }
+        }
+    }
+    
+}
+
 struct PostData: Decodable, Encodable, Identifiable {
     var id = UUID()
     var _id: String
@@ -563,6 +642,7 @@ struct AllPosts: Observable, Decodable, Identifiable, Equatable {
     var tagData: [TagData]? = nil
     var extraData: ExtraData
     var postLiveData: PostExtraData = PostExtraData()
+//    var postActiveData: PostActiveData
     var contentArgs: [String] = []
     
     
@@ -691,16 +771,16 @@ struct PostPeopleLikedRes: Decodable, Identifiable {
     }
 }
 
-struct PostQuoteRes: Decodable {
-    var post: PostData
-    var quoteIndex: PostSubIndexesSchema
-    var quotes: [PostData]
+struct PostQuoteResV2: Decodable {
+    var post: PostData?
+    var quoteIndex: PostSubIndexesSchema?
+    var quotes: [AllPosts]? = []
 }
 
-struct PostReplyRes: Decodable {
-    var post: PostData
-    var replyIndex: PostSubIndexesSchema
-    var replies: [PostData]
+struct PostReplyResV2: Decodable {
+    var post: PostData?
+    var replyIndex: PostSubIndexesSchema?
+    var replies: [AllPosts]? = []
 }
 
 struct PostSubIndexesSchema: Decodable {
