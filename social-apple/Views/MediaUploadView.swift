@@ -72,7 +72,10 @@ struct MediaUploadView: View {
     @ObservedObject var postCreation: PostCreation
     
     @State private var selectedItem: PhotosPickerItem?
+#if !os(macOS)
+
     @State private var selectedImage: UIImage?
+#endif
     @State private var selectedVideoURL: URL?
     @State private var selectedFileURL: URL?
 

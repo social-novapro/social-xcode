@@ -21,11 +21,16 @@ struct ProfileView : View {
         self.client = client
         self.userData = userData
         self.userID = userID
-        self.profileData = ProfileViewClass(client: client, userData: userData ?? nil, userID: userID)
+        self.profileData = ProfileViewClass(client: client, userData: userData, userID: userID)
     }
     
     var body: some View {
         VStack {
+            #if true
+            VStack {
+                Text("Text")
+            }
+            #else
             if (self.profileData.doneLoading) {
                 TabView {
                     VStack {
@@ -131,6 +136,8 @@ struct ProfileView : View {
                     Text("Loading")
                 }
             }
+#endif
+
         }
         .onAppear() {
             if (self.userData != nil) {
@@ -156,6 +163,7 @@ struct ProfileView : View {
             print("showing)")
         }
         .navigationTitle("Profile of @" + (profileData.userData?.username ?? "unknown"))
+        
     }
 }
 
@@ -839,3 +847,4 @@ struct FollowingFollowerListView: View {
         }
     }
 }
+
