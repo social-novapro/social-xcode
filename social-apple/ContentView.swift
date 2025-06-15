@@ -22,7 +22,13 @@ struct ContentView: View {
         Group {
 #if os(iOS) || os(tvOS)
            if horizontalSizeClass == .compact {
-               compactLayoutView(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
+               if #available(iOS 26, *) {
+                   compactLayoutViewLiquidGlass(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
+
+               } else {
+                   compactLayoutView(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
+
+               }
            } else {
                regularLayoutView(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
 
@@ -53,6 +59,54 @@ extension View {
     }
 }
 
+
+
+struct compactLayoutViewLiquidGlass : View {
+    @ObservedObject var client: Client
+    @ObservedObject var feedPosts: FeedPosts
+    @State var horizontalSizeClass: UserInterfaceSizeClass?
+    @State var localSelected:Int = 0
+    @State var searchText = ""
+    
+    var body: some View {
+        VStack {
+            if #available(iOS 26, *) {
+                
+                if (client.loggedIn) {
+                    TabView(selection: $localSelected) {
+                        Tab("Home", systemImage: "house", value: 0) {
+                            FeedPage(client: client, feedPosts: feedPosts)
+                        }
+                        
+                        Tab("System", systemImage: "archivebox", value: 2) {
+                            NavigationStack {
+                                SideBarNavigation(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
+                            }
+                        }
+                        if (client.devMode?.isEnabled == true) {
+                            
+                            Tab("Debug", systemImage: "hammer", value: 3) {
+                                SideBarNavigation(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
+                                
+                            }
+                        }
+                        Tab("Live Chat", systemImage: "bubble.left", value: 4) {
+                            LiveChatView(client: client)
+                        }
+                        Tab("Search", systemImage: "magnifyingglass", value: 5, role: .search) {
+                            SearchView(client: client)
+                        }
+                    }
+                } else {
+                    NavigationStack {
+                        BeginPage(client: client)
+                    }
+                }
+            }
+        }
+
+    }
+}
 
 struct compactLayoutView : View {
     @ObservedObject var client: Client
@@ -108,7 +162,7 @@ struct compactLayoutView : View {
             self.feedPosts.getFeed()
         })
         .overlay(
-            AppTabNavigation(client: client)
+            AppTabNavigation(client: client, localSelected: Int(client.navigation?.selectedTab ?? 0))
                 .frame(height: 50)
                 .padding(.bottom, 25),
             alignment: .bottom
@@ -480,7 +534,8 @@ struct SideBarNavigation: View {
 struct AppTabNavigation: View {
     @ObservedObject var client: Client
 //    @State var expand = false
-
+    @State var localSelected:Int = 0
+    
     var body: some View {
         VStack {
             HStack (alignment: .center) {
@@ -488,24 +543,24 @@ struct AppTabNavigation: View {
                     EmptyView()
                 }
                 else {
-//                    CustomTabView(client: client)
-//                    .if( #available(iOS 15.4.1, *)) {
-//                        .
-//                    }
-//                    .padding(.vertical, client.navigation?.expanded ?? false ? 10 : 10)
-//                    .padding(.horizontal, client.navigation?.expanded ?? false ? 10 : 8)
-//                    .background(.regularMaterial)
                     if #available(iOS 26, *) {
-                        if ((client.navigation?.expanded) != nil) {
-                            Spacer(minLength: 0)
+                        TabView(selection: $localSelected) {
+                            Tab("Home", systemImage: "house", value: 0) {
+                            }
+                            Tab("Search", systemImage: "magnifyingglass", value: 5, role: .search) {
+                                NavigationStack {
+                                    
+                                }
+                            }
+                            Tab("System", systemImage: "archivebox", value: 2) {
+                            }
+                            if (client.devMode?.isEnabled == true) {
+                                Tab("Debug", systemImage: "hammer", value: 3) {
+                                }
+                            }
+                            Tab("Live Chat", systemImage: "bubble.left", value: 4) {
+                            }
                         }
-                        CustomTabView(client: client)
-                            .padding(.vertical, client.navigation?.expanded ?? false ? 10 : 10)
-                            .padding(.horizontal, client.navigation?.expanded ?? false ? 10 : 8)
-//                            .background(.regularMaterial)
-                            .glassEffect(.regular, in: Capsule(), isEnabled: true)
-                            .padding(22)
-//                        .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
                     } else {
                         CustomTabView(client: client)
                         .padding(.vertical, client.navigation?.expanded ?? false ? 10 : 10)
@@ -522,7 +577,10 @@ struct AppTabNavigation: View {
                 }
             }
         }
-//        Spacer()
+        .onChange(of: localSelected, perform: {newvalue in
+            client.hapticPress()
+            client.navigation = client.navigationManager.switchTab(newTab: Int16(newvalue))
+        })
     }
 }
 
