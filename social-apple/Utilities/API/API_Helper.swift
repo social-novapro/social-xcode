@@ -424,7 +424,7 @@ class API_Helper: ObservableObject {
         }
     }
     
-    func taskRequest<T: Decodable>(
+    func taskRequest<T: Decodable & Sendable>(
         request: URLRequest,
         errorType: String,
         completion: @escaping (Result<T, Error>) -> Void

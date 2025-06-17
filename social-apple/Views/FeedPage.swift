@@ -160,6 +160,8 @@ struct FeedToolBarPage : View {
                 }
             })
             .buttonStyle(.plain)
+        }
+        HStack {
             Button(action: {
                 client.hapticPress()
                 self.showProfile = true;

@@ -26,11 +26,6 @@ struct ProfileView : View {
     
     var body: some View {
         VStack {
-            #if true
-            VStack {
-                Text("Text")
-            }
-            #else
             if (self.profileData.doneLoading) {
                 TabView {
                     VStack {
@@ -136,9 +131,10 @@ struct ProfileView : View {
                     Text("Loading")
                 }
             }
-#endif
+//#endif
 
         }
+        .navigationTitle("Profile of @" + (profileData.userData?.username ?? "unknown"))
         .onAppear() {
             if (self.userData != nil) {
                 profileData.provBasic(userData: userData!)
@@ -162,8 +158,6 @@ struct ProfileView : View {
             profileData.ready()
             print("showing)")
         }
-        .navigationTitle("Profile of @" + (profileData.userData?.username ?? "unknown"))
-        
     }
 }
 

@@ -65,7 +65,7 @@ struct compactLayoutViewLiquidGlass : View {
     @ObservedObject var client: Client
     @ObservedObject var feedPosts: FeedPosts
     @State var horizontalSizeClass: UserInterfaceSizeClass?
-    @State var localSelected:Int = 0
+    @State var localSelected:Int16 = 0
     @State var searchText = ""
     
     var body: some View {
@@ -73,29 +73,37 @@ struct compactLayoutViewLiquidGlass : View {
             if #available(iOS 26, *) {
                 
                 if (client.loggedIn) {
+//                    NavigationStack {
+
                     TabView(selection: $localSelected) {
                         Tab("Home", systemImage: "house", value: 0) {
-                            FeedPage(client: client, feedPosts: feedPosts)
+                            NavigationStack {
+                                FeedPage(client: client, feedPosts: feedPosts)
+                            }
                         }
-                        
                         Tab("System", systemImage: "archivebox", value: 2) {
                             NavigationStack {
                                 SideBarNavigation(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
                             }
                         }
                         if (client.devMode?.isEnabled == true) {
-                            
                             Tab("Debug", systemImage: "hammer", value: 3) {
-                                SideBarNavigation(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
-                                
+                                NavigationStack {
+                                    DevModeView(client: client)
+                                }
                             }
                         }
                         Tab("Live Chat", systemImage: "bubble.left", value: 4) {
-                            LiveChatView(client: client)
+                            NavigationStack {
+                                LiveChatView(client: client)
+                            }
                         }
                         Tab("Search", systemImage: "magnifyingglass", value: 5, role: .search) {
-                            SearchView(client: client)
+                            NavigationStack {
+                                SearchView(client: client)
+                            }
                         }
+                        
                     }
                 } else {
                     NavigationStack {
@@ -103,6 +111,13 @@ struct compactLayoutViewLiquidGlass : View {
                     }
                 }
             }
+        }
+        .onChange(of: localSelected, perform: {newvalue in
+            client.hapticPress()
+            client.navigation = client.navigationManager.switchTab(newTab: newvalue)
+        })
+        .onAppear() {
+            localSelected = client.navigation?.selectedTab ?? 0
         }
 
     }
@@ -563,16 +578,6 @@ struct AppTabNavigation: View {
                         }
                     } else {
                         CustomTabView(client: client)
-                        .padding(.vertical, client.navigation?.expanded ?? false ? 10 : 10)
-                        .padding(.horizontal, client.navigation?.expanded ?? false ? 10 : 8)
-                        .background(.regularMaterial)
-                        .clipShape(Capsule())
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 35)
-                                .stroke(Color.accentColor, lineWidth: 2)
-                        )
-                        .padding(22)
-                        .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
                     }
                 }
             }
@@ -581,6 +586,10 @@ struct AppTabNavigation: View {
             client.hapticPress()
             client.navigation = client.navigationManager.switchTab(newTab: Int16(newvalue))
         })
+        if #unavailable(iOS 26) {
+            
+            Spacer()
+        }
     }
 }
 
@@ -588,11 +597,11 @@ struct CustomTabView : View {
     @ObservedObject var client: Client
 
     var body: some View {
-//        Spacer(minLength: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/)/
+        Spacer(minLength: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/)
         HStack {
-//                    Spacer(minLength:0)
-
             if !(client.navigation?.expanded ?? false) {
+//                            Spacer(minLength: 5)
+
                 Button(action: {
                     client.hapticPress()
                     withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
@@ -668,9 +677,19 @@ struct CustomTabView : View {
                         .font(.system(size: 22))
                         .foregroundColor(.secondary).padding()
                 }
-//                Spacer(minLength: 0)
+                Spacer(minLength: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/)
             }
         }
+        .padding(.vertical, client.navigation?.expanded ?? false ? 10 : 10)
+        .padding(.horizontal, client.navigation?.expanded ?? false ? 10 : 8)
+        .background(.regularMaterial)
+        .clipShape(Capsule())
+        .overlay(
+            RoundedRectangle(cornerRadius: 35)
+                .stroke(Color.accentColor, lineWidth: 2)
+        )
+        .padding(22)
+        .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
     }
 }
 struct TabButton: View {
