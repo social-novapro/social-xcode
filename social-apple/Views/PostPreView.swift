@@ -54,7 +54,7 @@ struct PostPreView: View {
                         print("showing post?")
                     }) {
                         VStack {
-                            PostPreviewView(client: client, feedData: $feedData, selectedProfile: $selectedProfile)
+                            PostPreviewView(client: client, feedData: $feedData, selectedProfile: $selectedProfile, postActiveData: postActiveData)
                         }
                     }
                     .buttonStyle(.plain)
@@ -138,7 +138,7 @@ struct PostFeedPreView: View {
                         self.selectedPostIndex = currentPostIndex
                     }) {
                         VStack {
-                            PostPreviewView(client: client, feedData: $feedData, selectedProfile: $selectedProfile)
+                            PostPreviewView(client: client, feedData: $feedData, selectedProfile: $selectedProfile, postActiveData: postActiveData)
                         }
                     }
                     .buttonStyle(.plain)
@@ -177,6 +177,7 @@ struct PostPreviewView: View {
     @ObservedObject var client: Client
     @Binding var feedData: AllPosts
     @Binding var selectedProfile: SelectedProfileData
+    @ObservedObject var postActiveData: PostActiveData
 
     var body: some View {
         VStack {
@@ -302,7 +303,7 @@ struct PostPreviewView: View {
             
             HStack {
                 Spacer()
-                PostActionButtons(client: client, feedData: $feedData)
+                PostActionButtons(client: client, feedData: $feedData, postActiveData: postActiveData)
                 Spacer()
             }
             Spacer()
@@ -861,6 +862,8 @@ struct SubExpandedPostView: View {
                     .onAppear {
                         print("quotes shown maybe")
                     }
+            } else if (feedData.postLiveData.subAction == 5) {
+                SummaryView(client: client, postActiveData: postActiveData)
             }
         }
         .padding(15)
@@ -870,6 +873,24 @@ struct SubExpandedPostView: View {
             RoundedRectangle(cornerRadius: 20)
                 .stroke(Color.gray, lineWidth: 3)
         )
+    }
+}
+
+struct SummaryView : View {
+    @ObservedObject var client: Client
+    @ObservedObject var postActiveData: PostActiveData
+    
+    var body: some View {
+        VStack {
+            if (self.postActiveData.summary != nil) {
+                Text("Summary")
+                    .font(.headline)
+                Text("Based on \(postActiveData.summary?.totalPosts ?? 0) posts")
+                Text(postActiveData.summary?.response ?? "")
+            } else {
+                Text("Summary not loaded, please try again.")
+            }
+        }
     }
 }
 
@@ -1088,6 +1109,7 @@ struct PostActionButtons: View {
     @ObservedObject var client: Client
     @Binding var feedData: AllPosts
     @State var deletePostConfirm: Bool = false;
+    @ObservedObject var postActiveData: PostActiveData
 
     var body : some View {
         HStack {
@@ -1214,7 +1236,27 @@ struct PostActionButtons: View {
                 }
                 .buttonStyle(PlainButtonStyle())
             }
-            
+            /*
+            VStack {
+                Button(action: {
+                    client.hapticPress()
+                    self.postActiveData.getSummary();
+                }) {
+                    HStack {
+                        if (self.feedData.postLiveData.showingSummary == false) {
+                            Image(systemName: "sparkles")
+                        } else {
+                            Image(systemName: "sparkle")
+                        }
+                    }
+                    .padding(5)
+                    .foregroundColor(self.feedData.postLiveData.showingSummary == true ? .accentColor : .secondary)
+                    .background(client.themeData.blueBackground)
+                    .cornerRadius(10)
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+             */
             Spacer()
 
             if (feedData.postLiveData.isOwner==true) {

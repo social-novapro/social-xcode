@@ -265,4 +265,14 @@ class PostsApi: API_Base {
         }
     }
 
+    func summerizePosts(postID: String) async throws -> SummerizeResponseData {
+        print("summarizing")
+        do {
+            let data:SummerizeResponseData = try await apiHelper.asyncRequestData(urlString: "\(baseAPIurl)/ai/summary/"+postID, httpMethod: "GET")
+            print(data);
+            return data;
+        } catch {
+            throw error;
+        }
+    }
 }
