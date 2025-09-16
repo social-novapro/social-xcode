@@ -21,7 +21,7 @@ struct ProfileView : View {
         self.client = client
         self.userData = userData
         self.userID = userID
-        self.profileData = ProfileViewClass(client: client, userData: userData ?? nil, userID: userID)
+        self.profileData = ProfileViewClass(client: client, userData: userData, userID: userID)
     }
     
     var body: some View {
@@ -131,7 +131,10 @@ struct ProfileView : View {
                     Text("Loading")
                 }
             }
+//#endif
+
         }
+        .navigationTitle("Profile of @" + (profileData.userData?.username ?? "unknown"))
         .onAppear() {
             if (self.userData != nil) {
                 profileData.provBasic(userData: userData!)
@@ -155,7 +158,6 @@ struct ProfileView : View {
             profileData.ready()
             print("showing)")
         }
-        .navigationTitle("Profile of @" + (profileData.userData?.username ?? "unknown"))
     }
 }
 
@@ -839,3 +841,4 @@ struct FollowingFollowerListView: View {
         }
     }
 }
+

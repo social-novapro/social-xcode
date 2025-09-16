@@ -22,7 +22,13 @@ struct ContentView: View {
         Group {
 #if os(iOS) || os(tvOS)
            if horizontalSizeClass == .compact {
-               compactLayoutView(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
+               if #available(iOS 26, *) {
+                   compactLayoutViewLiquidGlass(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
+
+               } else {
+                   compactLayoutView(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
+
+               }
            } else {
                regularLayoutView(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
 
@@ -53,6 +59,69 @@ extension View {
     }
 }
 
+
+
+struct compactLayoutViewLiquidGlass : View {
+    @ObservedObject var client: Client
+    @ObservedObject var feedPosts: FeedPosts
+    @State var horizontalSizeClass: UserInterfaceSizeClass?
+    @State var localSelected:Int16 = 0
+    @State var searchText = ""
+    
+    var body: some View {
+        VStack {
+            if #available(iOS 26, *) {
+                
+                if (client.loggedIn) {
+//                    NavigationStack {
+
+                    TabView(selection: $localSelected) {
+                        Tab("Home", systemImage: "house", value: 0) {
+                            NavigationStack {
+                                FeedPage(client: client, feedPosts: feedPosts)
+                            }
+                        }
+                        Tab("System", systemImage: "archivebox", value: 2) {
+                            NavigationStack {
+                                SideBarNavigation(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
+                            }
+                        }
+                        if (client.devMode?.isEnabled == true) {
+                            Tab("Debug", systemImage: "hammer", value: 3) {
+                                NavigationStack {
+                                    DevModeView(client: client)
+                                }
+                            }
+                        }
+                        Tab("Live Chat", systemImage: "bubble.left", value: 4) {
+                            NavigationStack {
+                                LiveChatView(client: client)
+                            }
+                        }
+                        Tab("Search", systemImage: "magnifyingglass", value: 5, role: .search) {
+                            NavigationStack {
+                                SearchView(client: client)
+                            }
+                        }
+                        
+                    }
+                } else {
+                    NavigationStack {
+                        BeginPage(client: client)
+                    }
+                }
+            }
+        }
+        .onChange(of: localSelected, perform: {newvalue in
+            client.hapticPress()
+            client.navigation = client.navigationManager.switchTab(newTab: newvalue)
+        })
+        .onAppear() {
+            localSelected = client.navigation?.selectedTab ?? 0
+        }
+
+    }
+}
 
 struct compactLayoutView : View {
     @ObservedObject var client: Client
@@ -108,7 +177,7 @@ struct compactLayoutView : View {
             self.feedPosts.getFeed()
         })
         .overlay(
-            AppTabNavigation(client: client)
+            AppTabNavigation(client: client, localSelected: Int(client.navigation?.selectedTab ?? 0))
                 .frame(height: 50)
                 .padding(.bottom, 25),
             alignment: .bottom
@@ -480,7 +549,8 @@ struct SideBarNavigation: View {
 struct AppTabNavigation: View {
     @ObservedObject var client: Client
 //    @State var expand = false
-
+    @State var localSelected:Int = 0
+    
     var body: some View {
         VStack {
             HStack (alignment: .center) {
@@ -488,106 +558,140 @@ struct AppTabNavigation: View {
                     EmptyView()
                 }
                 else {
-                    Spacer(minLength: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/)
-                    HStack {
-                        if !(client.navigation?.expanded ?? false) {
-//                            Spacer(minLength: 5)
-
-                            Button(action: {
-                                client.hapticPress()
-                                withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
-                                    client.navigation = client.navigationManager.swapExpanded()
+                    if #available(iOS 26, *) {
+                        TabView(selection: $localSelected) {
+                            Tab("Home", systemImage: "house", value: 0) {
+                            }
+                            Tab("Search", systemImage: "magnifyingglass", value: 5, role: .search) {
+                                NavigationStack {
+                                    
                                 }
-                            }) {
-                                Image(systemName: "arrow.left")
-                                    .font(.system(size: 22))
-                                    .foregroundColor(.accentColor).padding()
                             }
-                        }
-                        else {
-                            Spacer(minLength: 5)
-                            Button(action: {
-                                client.hapticPress()
-                                client.navigation = client.navigationManager.switchTab(newTab: 0)
-                            }) {
-                                Image(systemName: "house")
-                                    .font(.system(size: 22))
-                                    .foregroundColor(client.navigation?.selectedTab == 0 ? .accentColor: .secondary)
-                                    .padding(.horizontal)
+                            Tab("System", systemImage: "archivebox", value: 2) {
                             }
-                            Spacer(minLength: 5)
-                            Button(action: {
-                                client.hapticPress()
-                                client.navigation = client.navigationManager.switchTab(newTab: 5)
-                            }) {
-                                Image(systemName: "magnifyingglass")
-                                    .font(.system(size: 22))
-                                    .foregroundColor(client.navigation?.selectedTab == 5 ? .accentColor: .secondary)
-                                    .padding(.horizontal)
-                            }
-                            Spacer(minLength: 5)
-                            Button(action: {
-                                client.hapticPress()
-                                client.navigation = client.navigationManager.switchTab(newTab: 2)
-                            }) {
-                                Image(systemName: "archivebox")
-                                    .font(.system(size: 22))
-                                    .foregroundColor(client.navigation?.selectedTab == 2 ? .accentColor: .secondary)
-                                    .padding(.horizontal)
-                            }
-                            Spacer(minLength: 5)
                             if (client.devMode?.isEnabled == true) {
-                                Button(action: {
-                                    client.hapticPress()
-                                    client.navigation = client.navigationManager.switchTab(newTab: 3)
-                                }) {
-                                    Image(systemName: "hammer")
-                                        .font(.system(size: 22))
-                                        .foregroundColor(client.navigation?.selectedTab == 3 ? .accentColor: .secondary)
-                                        .padding(.horizontal)
+                                Tab("Debug", systemImage: "hammer", value: 3) {
                                 }
-                                Spacer(minLength: 5)
                             }
-                            Spacer(minLength: 5)
-                            Button(action: {
-                                client.hapticPress()
-                                client.navigation = client.navigationManager.switchTab(newTab: 4)
-                            }) {
-                                Image(systemName: "bubble.left")
-                                    .font(.system(size: 22))
-                                    .foregroundColor(client.navigation?.selectedTab == 4 ? .accentColor: .secondary)
-                                    .padding(.horizontal)
+                            Tab("Live Chat", systemImage: "bubble.left", value: 4) {
                             }
-                            Button(action: {
-                                client.hapticPress()
-                                withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
-                                    client.navigation = client.navigationManager.swapExpanded()
-                                }
-                            }) {
-                                Image(systemName: "arrow.right")
-                                    .font(.system(size: 22))
-                                    .foregroundColor(.secondary).padding()
-                            }
-                            Spacer(minLength: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/)
                         }
+                    } else {
+                        CustomTabView(client: client)
                     }
-                    .padding(.vertical, client.navigation?.expanded ?? false ? 10 : 10)
-                    .padding(.horizontal, client.navigation?.expanded ?? false ? 10 : 8)
-                    .background(.regularMaterial)
-                    .clipShape(Capsule())
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 35)
-                            .stroke(Color.accentColor, lineWidth: 2)
-                    )
-                    .padding(22)
-                    .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
                 }
             }
         }
-        Spacer()
+        .onChange(of: localSelected, perform: {newvalue in
+            client.hapticPress()
+            client.navigation = client.navigationManager.switchTab(newTab: Int16(newvalue))
+        })
+        if #unavailable(iOS 26) {
+            
+            Spacer()
+        }
     }
 }
 
+struct CustomTabView : View {
+    @ObservedObject var client: Client
+
+    var body: some View {
+        Spacer(minLength: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/)
+        HStack {
+            if !(client.navigation?.expanded ?? false) {
+//                            Spacer(minLength: 5)
+
+                Button(action: {
+                    client.hapticPress()
+                    withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
+                        client.navigation = client.navigationManager.swapExpanded()
+                    }
+                }) {
+                    Image(systemName: "arrow.left")
+                        .font(.system(size: 22))
+                        .foregroundColor(.accentColor).padding()
+                }
+            }
+            else {
+                Spacer(minLength: 5)
+                Button(action: {
+                    client.hapticPress()
+                    client.navigation = client.navigationManager.switchTab(newTab: 0)
+                }) {
+                    Image(systemName: "house")
+                        .font(.system(size: 22))
+                        .foregroundColor(client.navigation?.selectedTab == 0 ? .accentColor: .secondary)
+                        .padding(.horizontal)
+                }
+                Spacer(minLength: 5)
+                Button(action: {
+                    client.hapticPress()
+                    client.navigation = client.navigationManager.switchTab(newTab: 5)
+                }) {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 22))
+                        .foregroundColor(client.navigation?.selectedTab == 5 ? .accentColor: .secondary)
+                        .padding(.horizontal)
+                }
+                Spacer(minLength: 5)
+                Button(action: {
+                    client.hapticPress()
+                    client.navigation = client.navigationManager.switchTab(newTab: 2)
+                }) {
+                    Image(systemName: "archivebox")
+                        .font(.system(size: 22))
+                        .foregroundColor(client.navigation?.selectedTab == 2 ? .accentColor: .secondary)
+                        .padding(.horizontal)
+                }
+                Spacer(minLength: 5)
+                if (client.devMode?.isEnabled == true) {
+                    Button(action: {
+                        client.hapticPress()
+                        client.navigation = client.navigationManager.switchTab(newTab: 3)
+                    }) {
+                        Image(systemName: "hammer")
+                            .font(.system(size: 22))
+                            .foregroundColor(client.navigation?.selectedTab == 3 ? .accentColor: .secondary)
+                            .padding(.horizontal)
+                    }
+                    Spacer(minLength: 5)
+                }
+                Spacer(minLength: 5)
+                Button(action: {
+                    client.hapticPress()
+                    client.navigation = client.navigationManager.switchTab(newTab: 4)
+                }) {
+                    Image(systemName: "bubble.left")
+                        .font(.system(size: 22))
+                        .foregroundColor(client.navigation?.selectedTab == 4 ? .accentColor: .secondary)
+                        .padding(.horizontal)
+                }
+                Button(action: {
+                    client.hapticPress()
+                    withAnimation(.interactiveSpring(response: 0.45, dampingFraction: 0.6, blendDuration: 0.6)) {
+                        client.navigation = client.navigationManager.swapExpanded()
+                    }
+                }) {
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 22))
+                        .foregroundColor(.secondary).padding()
+                }
+                Spacer(minLength: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/)
+            }
+        }
+        .padding(.vertical, client.navigation?.expanded ?? false ? 10 : 10)
+        .padding(.horizontal, client.navigation?.expanded ?? false ? 10 : 8)
+        .background(.regularMaterial)
+        .clipShape(Capsule())
+        .overlay(
+            RoundedRectangle(cornerRadius: 35)
+                .stroke(Color.accentColor, lineWidth: 2)
+        )
+        .padding(22)
+        .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
+    }
+}
 struct TabButton: View {
     var buttonIcon = ""
     var text = ""

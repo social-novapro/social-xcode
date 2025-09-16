@@ -14,6 +14,7 @@ struct PublishPollData: Decodable, Encodable {
     var pollPossibleFailed: Bool
 }
 
+@MainActor
 class PostCreation: ObservableObject {
     var client: Client
     @Published var content: String = ""

@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+    
 struct SearchView: View {
     @ObservedObject var client: Client
     @ObservedObject var searchClass: SearchClass

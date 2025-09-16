@@ -73,6 +73,16 @@ struct FeedPage: View {
                                 }
                         }
                     }
+                    .onChange(of: client.loggedIn, perform: { newValue in
+                        if (newValue == true) {
+                            client.hapticPress()
+                            DispatchQueue.main.async {
+                                self.feedPosts.refreshFeed()
+    //                            self.feedPosts.getCopostRequests()
+                            }
+
+                        }
+                    })
                     .listStyle(.plain)
                     #if !os(tvOS)
                     .listRowSeparator(.hidden)
@@ -103,6 +113,7 @@ struct FeedPage: View {
                 self.feedPosts.getFeed()
 //                self.feedPosts.getCopostRequests()
             }
+            
             .navigationTitle("Feed")
             .toolbar {
                 FeedToolBarPage(client: client, feedPosts: feedPosts, writingPost: $writingPost, showProfile: $showProfile)
@@ -149,6 +160,8 @@ struct FeedToolBarPage : View {
                 }
             })
             .buttonStyle(.plain)
+        }
+        HStack {
             Button(action: {
                 client.hapticPress()
                 self.showProfile = true;
