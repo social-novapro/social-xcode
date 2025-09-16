@@ -38,7 +38,7 @@ struct PostView: View {
                     }
                     else if (feedData.postLiveData.showData == true) {
 //                        VStack {
-                        PostPreviewView(client: client, feedData: $feedData, selectedProfile: $selectedProfile)
+                        PostPreviewView(client: client, feedData: $feedData, selectedProfile: $selectedProfile, postActiveData: postActiveData)
 //                        }
                     }
                     else {

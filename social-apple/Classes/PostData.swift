@@ -500,6 +500,11 @@ class PostActiveData: ObservableObject {
     @Published var post: AllPosts
     @Published var replies: PostReplyResV2 = PostReplyResV2()
     @Published var quotes: PostQuoteResV2 = PostQuoteResV2()
+    @Published var summary: SummerizeResponseData?
+    
+    @Published var doneSummary = false
+    @Published var loadingSummary = false
+    @Published var failedSummary = false
     
     @Published var doneReplies = false
     @Published var loadingReplies = false
@@ -512,6 +517,30 @@ class PostActiveData: ObservableObject {
     init(client: Client, postData: AllPosts) {
         self.client = client
         self.post = postData
+    }
+    
+    func getSummary() {
+        DispatchQueue.main.async {
+            if (self.post.postLiveData.showingSummary == false) {
+                DispatchQueue.main.async {
+                    
+                    Task {
+                        self.summary = try await self.client.api.posts.summerizePosts(postID: self.post.postData._id)
+                        
+//                        self.summary = summerization;
+                        self.post.postLiveData.subAction = 5
+                        self.post.postLiveData.showingSummary = true
+                        self.post.postLiveData.actionExpanded = true
+                    }
+                    self.client.hapticPress()
+                }
+            } else {
+                self.post.postLiveData.subAction = 0
+                self.post.postLiveData.showingSummary = false
+                self.post.postLiveData.actionExpanded = false
+                self.client.hapticPress()
+            }
+        }
     }
     
     func getReplies() {
@@ -658,7 +687,6 @@ struct AllPosts: Observable, Decodable, Identifiable, Equatable {
     var postLiveData: PostExtraData = PostExtraData()
 //    var postActiveData: PostActiveData
     var contentArgs: [String] = []
-    
     
     private enum CodingKeys: String, CodingKey {
         case typeData = "type"
@@ -902,6 +930,7 @@ struct PostExtraData: Observable {
     var showingPopover: Bool = false
     var showPostPage: Bool = false
     var showingEditPopover: Bool = false
+    var showingSummary: Bool = false
     var subAction: Int32 = 0
     
     /*
@@ -910,6 +939,7 @@ struct PostExtraData: Observable {
      * 2 = who liked
      * 3 = replies
      * 4 = quotes
+     * 5 = ai summary
      */
 }
 
@@ -998,3 +1028,25 @@ struct CopostRequestsData: Identifiable, Encodable, Decodable {
     }
 }
 
+struct SummerizeResponseData: Encodable, Decodable {
+    var foundUsername: String
+    var generationType: String
+    var modelName: String
+    var ollamaTime: Int64
+    var response: String
+    var responseLength: Int64
+    var totalChars: Int64
+    var totalPosts: Int64
+//    var versionNumber: String
+    
+//    private enum CodingKeys: String, CodingKey {
+//        case foundUsername
+//        case generationType
+//        case modelName
+//        case ollamaTime
+//        case repsonse
+//        case responseLength
+//        case totalChars
+//        case totalPosts
+//    }
+}
