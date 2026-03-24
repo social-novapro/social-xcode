@@ -14,7 +14,6 @@ class ApiClient: ObservableObject {
     var notifications: NotificationsApi
     var posts: PostsApi
     var users: UsersApi
-    var get: GetApi
     var developer: DeveloperApi
     var polls: PollsApi
     var anaytics: AnalyticsApi
@@ -56,7 +55,6 @@ class ApiClient: ObservableObject {
         self.notifications = NotificationsApi(apiHelper: apiHelper)
         self.posts = PostsApi(apiHelper: apiHelper)
         self.users = UsersApi(apiHelper: apiHelper)
-        self.get = GetApi(apiHelper: apiHelper)
         self.developer = DeveloperApi(apiHelper: apiHelper)
         self.polls = PollsApi(apiHelper: apiHelper)
         self.anaytics = AnalyticsApi(apiHelper: apiHelper)
@@ -81,7 +79,6 @@ class ApiClient: ObservableObject {
             self.notifications = NotificationsApi(apiHelper: self.apiHelper)
             self.posts = PostsApi(apiHelper: self.apiHelper)
             self.users = UsersApi(apiHelper: self.apiHelper)
-            self.get = GetApi(apiHelper: self.apiHelper)
             self.developer = DeveloperApi(apiHelper: self.apiHelper)
             self.polls = PollsApi(apiHelper: self.apiHelper)
             self.anaytics = AnalyticsApi(apiHelper: self.apiHelper)
