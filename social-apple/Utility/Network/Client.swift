@@ -27,7 +27,7 @@ class Client: ObservableObject {
      * 4= logout
      */
     
-    var userTokenManager = UserTokenHandler()
+    var userTokenManager = UserTokenHandler(persistentContainer: PersistenceController.shared.container)
     var devModeManager = DevModeHandler()
     var navigationManager = CurrentNavigationHandler()
     var hapticModeManager = HapticModeHandler()
