@@ -28,9 +28,9 @@ class Client: ObservableObject {
      */
     
     var userTokenManager = UserTokenHandler(persistentContainer: PersistenceController.shared.container)
-    var devModeManager = DevModeHandler()
-    var navigationManager = CurrentNavigationHandler()
-    var hapticModeManager = HapticModeHandler()
+    var devModeManager = DevModeHandler(persistentContainer: PersistenceController.shared.container)
+    var navigationManager = CurrentNavigationHandler(persistentContainer: PersistenceController.shared.container)
+    var hapticModeManager = HapticModeHandler(persistentContainer: PersistenceController.shared.container)
 
     var userTokens: UserTokenData
     var userData: UserData?

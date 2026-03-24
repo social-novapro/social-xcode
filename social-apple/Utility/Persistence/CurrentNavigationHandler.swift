@@ -11,13 +11,8 @@ import CoreData
 class CurrentNavigationHandler {
     private let persistentContainer: NSPersistentContainer
     
-    init() {
-        persistentContainer = NSPersistentContainer(name: "social_apple")
-        persistentContainer.loadPersistentStores(completionHandler: { _, error in
-            if let error = error {
-                fatalError("Failed to load Core Data stack: \(error)")
-            }
-        })
+    init(persistentContainer: NSPersistentContainer = PersistenceController.shared.container) {
+        self.persistentContainer = persistentContainer
     }
     
     func saveCurrentNavigation(currentNavigationData: CurrentNavigationData) {
