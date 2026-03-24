@@ -16,6 +16,7 @@
 		650C38342B796FD7002956DA /* Analytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650C38332B796FD7002956DA /* Analytics.swift */; };
 		650C383A2B797393002956DA /* UsersThemes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650C38392B797393002956DA /* UsersThemes.swift */; };
 		650C383C2B797462002956DA /* UserThemesData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650C383B2B797462002956DA /* UserThemesData.swift */; };
+		651262EC2F730B5D0031C65E /* DebugHarness.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651262EB2F730B5A0031C65E /* DebugHarness.swift */; };
 		651553D52B5785F100DF3353 /* DeveloperSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651553D42B5785F100DF3353 /* DeveloperSettingsView.swift */; };
 		651553D72B57877E00DF3353 /* DeveloperData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651553D62B57877D00DF3353 /* DeveloperData.swift */; };
 		651553D92B578A6A00DF3353 /* Developer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651553D82B578A6A00DF3353 /* Developer.swift */; };
@@ -96,6 +97,7 @@
 		650C38332B796FD7002956DA /* Analytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Analytics.swift; sourceTree = "<group>"; };
 		650C38392B797393002956DA /* UsersThemes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersThemes.swift; sourceTree = "<group>"; };
 		650C383B2B797462002956DA /* UserThemesData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserThemesData.swift; sourceTree = "<group>"; };
+		651262EB2F730B5A0031C65E /* DebugHarness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugHarness.swift; sourceTree = "<group>"; };
 		651553D42B5785F100DF3353 /* DeveloperSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperSettingsView.swift; sourceTree = "<group>"; };
 		651553D62B57877D00DF3353 /* DeveloperData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperData.swift; sourceTree = "<group>"; };
 		651553D82B578A6A00DF3353 /* Developer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Developer.swift; sourceTree = "<group>"; };
@@ -187,6 +189,14 @@
 			path = Users;
 			sourceTree = "<group>";
 		};
+		651262EA2F730B4F0031C65E /* Debug */ = {
+			isa = PBXGroup;
+			children = (
+				651262EB2F730B5A0031C65E /* DebugHarness.swift */,
+			);
+			path = Debug;
+			sourceTree = "<group>";
+		};
 		6516E5902B0ADF78008A84E4 /* API */ = {
 			isa = PBXGroup;
 			children = (
@@ -239,6 +249,7 @@
 		655AB60729F0720500C61F3A /* social-apple */ = {
 			isa = PBXGroup;
 			children = (
+				651262EA2F730B4F0031C65E /* Debug */,
 				655AB60829F0720500C61F3A /* social_appleApp.swift */,
 				655AB60A29F0720500C61F3A /* Persistence.swift */,
 				655AB60F29F0720500C61F3A /* ContentView.swift */,
@@ -489,6 +500,7 @@
 				655BC0C22B07565200949356 /* LiveChatData.swift in Sources */,
 				650C38342B796FD7002956DA /* Analytics.swift in Sources */,
 				651757EC2A006D6900E90FBA /* AnalyticData.swift in Sources */,
+				651262EC2F730B5D0031C65E /* DebugHarness.swift in Sources */,
 				65CC79352B697CE0002B5ADA /* PollsData.swift in Sources */,
 				65989CED2C88DD940039763D /* API_Base.swift in Sources */,
 				655AB60B29F0720500C61F3A /* Persistence.swift in Sources */,

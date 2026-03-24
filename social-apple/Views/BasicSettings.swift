@@ -15,6 +15,8 @@ struct BasicSettings: View {
     @State var enabledHaptic:Bool
     @State var subSettings:Bool = false;
     @State var settingsTab:Int64 = 0;
+    @State var runningDebugChecks: Bool = false
+    @State var debugReport: DebugContractCheckReport?
     
     init(client: Client) {
         self.client = client;
@@ -42,6 +44,42 @@ struct BasicSettings: View {
                     HStack {
                         Text("DevMode is currently: " + String(client.devMode?.isEnabled ?? false))
                         Spacer()
+                    }
+
+                    Button(action: {
+                        client.hapticPress()
+                        runningDebugChecks = true
+
+                        DispatchQueue.global(qos: .userInitiated).async {
+                            let report = DebugHarness.runContractBaselineChecks()
+                            DispatchQueue.main.async {
+                                debugReport = report
+                                runningDebugChecks = false
+                            }
+                        }
+                    }) {
+                        HStack {
+                            Text(runningDebugChecks ? "Running contract debug tests..." : "Run Contract Debug Tests")
+                            Spacer()
+                            Image(systemName: "play.circle")
+                        }
+                    }
+                    .buttonStyle(.plain)
+
+                    if let debugReport {
+                        HStack {
+                            Text("Contract checks: \(debugReport.passedCount)/\(debugReport.results.count) passed")
+                            Spacer()
+                        }
+
+                        ForEach(debugReport.results) { result in
+                            HStack {
+                                Text(result.passed ? "PASS" : "FAIL")
+                                    .foregroundStyle(result.passed ? Color.green : Color.red)
+                                Text(result.name)
+                                Spacer()
+                            }
+                        }
                     }
 
                 }
