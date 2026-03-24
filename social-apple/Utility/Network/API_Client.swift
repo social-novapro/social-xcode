@@ -73,18 +73,12 @@ class ApiClient: ObservableObject {
         print("Providing tokens")
         DispatchQueue.main.async {
             self.userTokens = userTokens
-            
-            self.apiHelper = API_Helper(userTokensProv: self.userTokens)
-            self.auth = AuthApi(apiHelper: self.apiHelper)
-            self.notifications = NotificationsApi(apiHelper: self.apiHelper)
-            self.posts = PostsApi(apiHelper: self.apiHelper)
-            self.users = UsersApi(apiHelper: self.apiHelper)
-            self.developer = DeveloperApi(apiHelper: self.apiHelper)
-            self.polls = PollsApi(apiHelper: self.apiHelper)
-            self.anaytics = AnalyticsApi(apiHelper: self.apiHelper)
-            self.search = SearchApi(apiHelper: self.apiHelper)
-            self.admin = AdminApi(apiHelper: self.apiHelper)
-            self.admin = AdminApi(apiHelper: self.apiHelper)
+
+            // Keep one shared helper/service chain and only update token state.
+            self.apiHelper.userTokens = self.userTokens
+
+            // Recreate websocket client because it builds URL state from user tokens.
+            self.livechatWS = LiveChatWebSocket(baseURL: self.apiHelper.baseAPIurl, userTokensProv: self.userTokens)
         }
     }
 }

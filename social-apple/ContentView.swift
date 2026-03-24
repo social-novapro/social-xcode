@@ -473,7 +473,7 @@ struct SideBarNavigation: View {
                 
                 VStack {
                     NavigationLink {
-                        BasicSettings(client: client)
+                        BasicSettings(client: client, feedPosts: feedPosts)
                     } label: {
                         HStack {
                             Image(systemName: "gearshape")

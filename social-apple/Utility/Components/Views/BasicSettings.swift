@@ -9,6 +9,7 @@ import SwiftUI
 
 struct BasicSettings: View {
     @ObservedObject var client: Client
+    @ObservedObject var feedPosts: FeedPosts
     @State var adminErrorFeed: AdminErrorFeed = AdminErrorFeed(client: Client())
 
     @State var enabledDevMode:Bool
@@ -18,8 +19,9 @@ struct BasicSettings: View {
     @State var runningDebugChecks: Bool = false
     @State var debugReport: DebugContractCheckReport?
     
-    init(client: Client) {
+    init(client: Client, feedPosts: FeedPosts) {
         self.client = client;
+        self.feedPosts = feedPosts
         self.enabledDevMode = client.devMode?.isEnabled ?? false;
         self.enabledHaptic = client.haptic?.isEnabled ?? true;
     }
@@ -230,7 +232,7 @@ struct BasicSettings: View {
             } else if (settingsTab==2) {
                 DeveloperSettingsView(client: client)
             } else if (settingsTab==3) {
-                AccountsView(client: client)
+                AccountsView(client: client, feedPosts: feedPosts)
             } else if (settingsTab==4) {
                 PushNotifications(client: client)
             } else if (settingsTab==5) {
