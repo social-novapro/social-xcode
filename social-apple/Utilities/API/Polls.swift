@@ -9,25 +9,11 @@ import Foundation
 import Combine
 
 class PollsApi: API_Base {
-    func createV2(pollInput: TempPollCreator) async throws -> CreatePollRes {
-        var goodOptions:Int32 = 0
-        var foundOptions: [String] = []
-        
-        for option in pollInput.options {
-            if (option != "") {
-                goodOptions+=1
-                foundOptions.append(option)
-            }
-        }
-        
-        if (goodOptions <= 1) {
-            throw ErrorData(code: "Z001", msg: "Uknown", error: true)
-        }
-        
-        var createPollReq = CreatePollReq(pollName: pollInput.pollQuestion, optionAmount: goodOptions, option_1: foundOptions[0], option_2: foundOptions[1])
+    private func buildCreatePollReq(pollName: String, goodOptions: Int32, foundOptions: [String]) -> CreatePollReq {
+        var createPollReq = CreatePollReq(pollName: pollName, optionAmount: goodOptions, option_1: foundOptions[0], option_2: foundOptions[1])
 
         var amount:Int32 = 0
-        
+
         // this is horrible code - need to update the api to work better
         for optionFound in foundOptions {
             amount+=1
@@ -49,6 +35,26 @@ class PollsApi: API_Base {
                 createPollReq.option_10 = optionFound
             }
         }
+
+        return createPollReq
+    }
+
+    func createV2(pollInput: TempPollCreator) async throws -> CreatePollRes {
+        var goodOptions:Int32 = 0
+        var foundOptions: [String] = []
+        
+        for option in pollInput.options {
+            if (option != "") {
+                goodOptions+=1
+                foundOptions.append(option)
+            }
+        }
+        
+        if (goodOptions <= 1) {
+            throw ErrorData(code: "Z001", msg: "Uknown", error: true)
+        }
+
+        let createPollReq = buildCreatePollReq(pollName: pollInput.pollQuestion, goodOptions: goodOptions, foundOptions: foundOptions)
         
         let APIUrl = baseAPIurl + "/polls/create"
         
@@ -76,32 +82,8 @@ class PollsApi: API_Base {
         if (goodOptions < 1) {
             return
         }
-        
-        var createPollReq = CreatePollReq(pollName: pollInput.pollQuestion, optionAmount: goodOptions, option_1: foundOptions[0], option_2: foundOptions[1])
 
-        var amount:Int32 = 0
-        
-        // this is horrible code - need to update the api to work better
-        for optionFound in foundOptions {
-            amount+=1
-            if (amount==3) {
-                createPollReq.option_3 = optionFound
-            } else if (amount==4) {
-                createPollReq.option_4 = optionFound
-            } else if (amount==5) {
-                createPollReq.option_5 = optionFound
-            } else if (amount==6) {
-                createPollReq.option_6 = optionFound
-            } else if (amount==7) {
-                createPollReq.option_7 = optionFound
-            } else if (amount==8) {
-                createPollReq.option_8 = optionFound
-            } else if (amount==9) {
-                createPollReq.option_9 = optionFound
-            } else if (amount==10) {
-                createPollReq.option_10 = optionFound
-            }
-        }
+        let createPollReq = buildCreatePollReq(pollName: pollInput.pollQuestion, goodOptions: goodOptions, foundOptions: foundOptions)
         
         let APIUrl = baseAPIurl + "/polls/create"
         

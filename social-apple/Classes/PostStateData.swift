@@ -192,21 +192,17 @@ class PostCreation: ObservableObject {
                 print("4- made poll")
                 print(newPoll)
 
-                DispatchQueue.main.async {
-                    self.newPoll = newPoll.pollData
-                    self.publishPollData.pollID = self.newPoll?._id
-                    self.publishPollData.sentPoll = true
-                    self.client.hapticPress()
-                }
+                self.newPoll = newPoll.pollData
+                self.publishPollData.pollID = self.newPoll?._id
+                self.publishPollData.sentPoll = true
+                self.client.hapticPress()
 
                 return newPoll
             } catch {
                 print("5- failed inside")
-                DispatchQueue.main.async {
-                    self.failed = true
-                    self.errorMsg = "Poll failed to be created, check for invalid options"
-                    self.publishPollData.pollPossibleFailed = true
-                }
+                self.failed = true
+                self.errorMsg = "Poll failed to be created, check for invalid options"
+                self.publishPollData.pollPossibleFailed = true
 
                 print("Error: \(error.localizedDescription)")
                 throw ErrorData(code: "Z001", msg: "Uknown", error: true)
