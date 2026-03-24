@@ -471,9 +471,19 @@ class FeedPosts: ObservableObject {
 
     func nextIndex() -> Void {
         DispatchQueue.main.async {
-            self.client.api.posts.getUserFeedIndex(userTokens: self.client.userTokens, index: self.feed.prevIndexID ?? "") { result in
-                self.client.hapticPress()
+            if (self.loadingScroll) {
+                return
+            }
 
+            guard let prevIndexID = self.feed.prevIndexID else {
+                self.loadingScroll = false
+                return
+            }
+
+            self.loadingScroll = true
+            self.client.hapticPress()
+
+            self.client.api.posts.getUserFeedIndex(userTokens: self.client.userTokens, index: prevIndexID) { result in
                 switch result {
                 case .success(let feed):
                     DispatchQueue.main.async {
@@ -482,6 +492,9 @@ class FeedPosts: ObservableObject {
                         self.loadingScroll = false
                     }
                 case .failure(let error):
+                    DispatchQueue.main.async {
+                        self.loadingScroll = false
+                    }
                     print("Error: \(error.localizedDescription)")
                 }
             }

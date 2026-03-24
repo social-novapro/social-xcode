@@ -79,30 +79,25 @@ class ProfileViewClass: ObservableObject {
     }
 
     func nextUserPostsIndex() {
-        if (self.loadingNextIndex == true) {return;}
-
         DispatchQueue.main.async {
+            if (self.loadingNextIndex == true) { return; }
+            self.loadingNextIndex = true
             self.client.hapticPress()
 
-            if (
-                (self.userPostIndexData == nil) ||
-                (self.userPostIndexData?.indexID == nil) ||
-                (self.userPostIndexData?.prevIndexID == nil)
-            ) {
+            guard let prevIndexID = self.userPostIndexData?.prevIndexID else {
                 print("no index data", self.userPostIndexData as Any)
+                self.loadingNextIndex = false
                 return;
             }
 
-            // need to do here, because it still thinks its loading if it exits early
-            self.loadingNextIndex = true
             var myIndexData:UserIndexDataRes?
 
             Task{
                 do {
-                    myIndexData = try await self.client.api.users.getNextUserPostIndex(indexID:(self.userPostIndexData?.prevIndexID)!)// { result in
+                    myIndexData = try await self.client.api.users.getNextUserPostIndex(indexID: prevIndexID)
 
                     self.userPostIndexData = myIndexData?.index ?? nil;
-                    self.addPosts(newPosts: myIndexData?.posts ?? [])
+                    self.addPosts(newPosts: myIndexData?.posts.reversed() ?? [])
 
                     self.loadingNextIndex = false
                     self.client.hapticPress()

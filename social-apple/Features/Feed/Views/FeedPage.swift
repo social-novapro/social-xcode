@@ -59,16 +59,8 @@ struct FeedPage: View {
                                     }
                                 }*/
                                 .onAppear(){
-                                    if (self.feedPosts.posts.last?.id == feedPosts.posts[index].id && self.feedPosts.loadingScroll == false) {
-                                        client.hapticPress()
-                                        
-                                        self.feedPosts.loadingScroll = true
-                                        
-                                        if (self.feedPosts.feed.prevIndexID != nil) {
-                                            DispatchQueue.main.async {
-                                                feedPosts.nextIndex()
-                                            }
-                                        }
+                                    if (self.feedPosts.posts.last?.id == feedPosts.posts[index].id) {
+                                        self.feedPosts.nextIndex()
                                     }
                                 }
                         }
