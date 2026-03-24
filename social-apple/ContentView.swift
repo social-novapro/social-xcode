@@ -9,13 +9,18 @@ import SwiftUI
 import CoreData
 
 struct ContentView: View {
-    @StateObject var client = Client()
-    @ObservedObject var feedPosts: FeedPosts = FeedPosts(client: Client())
+    @StateObject var client: Client
+    @StateObject var feedPosts: FeedPosts
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
     init() {
-        // INDEPENDANT CLIENT
-        self.feedPosts.getFeed()
+        let sharedClient = Client()
+        let sharedFeedPosts = FeedPosts(client: sharedClient)
+
+        _client = StateObject(wrappedValue: sharedClient)
+        _feedPosts = StateObject(wrappedValue: sharedFeedPosts)
+
+        sharedFeedPosts.getFeed()
     }
     
     var body: some View {
