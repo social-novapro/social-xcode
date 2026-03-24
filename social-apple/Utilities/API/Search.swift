@@ -8,10 +8,16 @@
 import Foundation
 
 class SearchApi: API_Base {
+    private enum Route {
+        static let search = "/search/"
+        static let setting = "/search/setting"
+        static func tags(_ value: String) -> String { "/search/tags/" + value }
+    }
+
     func searchRequest(lookup: SearchLookupData, completion: @escaping (Result<SearchFoundData, Error>) -> Void) {
         print("Request login")
         let lookupkey = ApiHeader(value: lookup.lookupkey, field: "lookupkey")
-        let APIUrl = baseAPIurl + "/search/"
+        let APIUrl = baseAPIurl + Route.search
         
         self.apiHelper.requestData(urlString: APIUrl, errorType: "withAuth", httpHeaders: [lookupkey]) { (result: Result<SearchFoundData, Error>) in
             switch result {
@@ -25,7 +31,7 @@ class SearchApi: API_Base {
     
     func searchSetting(completion: @escaping (Result<SearchSettingResponse, Error>) -> Void) {
         print("Request login")
-        let APIUrl = baseAPIurl + "/search/setting"
+        let APIUrl = baseAPIurl + Route.setting
         
         self.apiHelper.requestData(urlString: APIUrl) { (result: Result<SearchSettingResponse, Error>) in
             switch result {
@@ -39,7 +45,7 @@ class SearchApi: API_Base {
     
     func changeSearchSetting(newSearch: String, completion: @escaping (Result<SearchSettingResponse, Error>) -> Void) {
         print("Request login")
-        let APIUrl = baseAPIurl + "/search/setting"
+        let APIUrl = baseAPIurl + Route.setting
         
         self.apiHelper.requestDataWithBody(urlString: APIUrl, httpMethod: "POST", httpBody: SearchSettingRequest(newSearch: newSearch)) { (result: Result<SearchSettingResponse, Error>) in
             switch result {
@@ -61,7 +67,7 @@ class SearchApi: API_Base {
             searchTextReplace = searchText.replacingOccurrences(of: "#", with: "1")
         }
         
-        let APIUrl = baseAPIurl + "/search/tags/" + searchTextReplace
+        let APIUrl = baseAPIurl + Route.tags(searchTextReplace)
         
         self.apiHelper.requestData(urlString: APIUrl, httpMethod: "GET") { (result: Result<SearchPossibleTags, Error>) in
             switch result {

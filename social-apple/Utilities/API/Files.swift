@@ -8,8 +8,13 @@
 import Foundation
 
 class FilesAPI: API_Base {
+    private enum Route {
+        static func fileType(_ selectedFileName: String) -> String { "/cdn/fileType/" + selectedFileName }
+        static func upload(_ type: String) -> String { "/cdn/" + type + "/" }
+    }
+
     func getFileType(selectedFileName: String) async throws -> FileTypeData {
-        let APIUrl = baseAPIurl + "/cdn/fileType/" + selectedFileName;
+        let APIUrl = baseAPIurl + Route.fileType(selectedFileName);
         
         do {
             let data:FileTypeData = try await apiHelper.asyncRequestData(urlString: APIUrl, httpMethod: "GET");
@@ -23,7 +28,7 @@ class FilesAPI: API_Base {
     func uploadMedia(selectedFile: URL) async throws -> FileUploadRes {
         let fileName = selectedFile.lastPathComponent;
         let fileType = try await self.getFileType(selectedFileName: fileName);
-        let APIUrl = baseAPIurl + "/cdn/" + fileType.type + "/";
+        let APIUrl = baseAPIurl + Route.upload(fileType.type);
 
         do {
             let data:FileUploadRes = try await apiHelper.asyncRequestFileUpload(urlString: APIUrl, fileURL: selectedFile, httpMethod: "POST");

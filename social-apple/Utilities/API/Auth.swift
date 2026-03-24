@@ -8,12 +8,17 @@
 import Foundation
 
 class AuthApi: API_Base {
+    private enum Route {
+        static let userLogin = "/auth/userLogin"
+        static let newUser = "Priv/post/newUser"
+    }
+
     func userLoginRequest(userLogin: UserLoginData, completion: @escaping (Result<UserLoginResponse, Error>) -> Void) {
         print("Request login")
         let username = ApiHeader(value: userLogin.username, field: "username")
         let password = ApiHeader(value: userLogin.password, field: "password")
         
-        let APIUrl = baseAPIurl + "/auth/userLogin"
+        let APIUrl = baseAPIurl + Route.userLogin
         self.apiHelper.requestData(urlString: APIUrl, errorType: "withAuth", httpHeaders: [username, password]) { (result: Result<UserLoginResponse, Error>) in
             switch result {
             case .success(let userLoginData):
@@ -27,7 +32,7 @@ class AuthApi: API_Base {
     func userCreateRequest(userCreate: UserCreateData, completion: @escaping (Result<UserLoginResponse, Error>) -> Void) {
         print("Request create user")
 
-        let APIUrl = baseAPIurl + "Priv/post/newUser"
+        let APIUrl = baseAPIurl + Route.newUser
         self.apiHelper.requestDataWithBody(urlString: APIUrl, httpMethod: "post", httpBody: userCreate) { (result: Result<UserLoginResponse, Error>) in
             switch result {
             case .success(let userLoginData):

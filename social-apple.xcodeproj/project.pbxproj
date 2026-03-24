@@ -21,6 +21,8 @@
 		651262F02F7335F30031C65E /* PostModelsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651262EF2F7335ED0031C65E /* PostModelsData.swift */; };
 		651263002F7401000031C65E /* UserStateData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651262FF2F7400F00031C65E /* UserStateData.swift */; };
 		651263022F7401100031C65E /* UserModelsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651263012F7401070031C65E /* UserModelsData.swift */; };
+		651263042F7402200031C65E /* AdminStateData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651263032F7402140031C65E /* AdminStateData.swift */; };
+		651263062F74022A0031C65E /* AdminModelsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651263052F7402240031C65E /* AdminModelsData.swift */; };
 		651553D52B5785F100DF3353 /* DeveloperSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651553D42B5785F100DF3353 /* DeveloperSettingsView.swift */; };
 		651553D72B57877E00DF3353 /* DeveloperData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651553D62B57877D00DF3353 /* DeveloperData.swift */; };
 		651553D92B578A6A00DF3353 /* Developer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651553D82B578A6A00DF3353 /* Developer.swift */; };
@@ -71,7 +73,6 @@
 		65C79E222DF91A8900A9F5F6 /* iOS26_1.icon in Resources */ = {isa = PBXBuildFile; fileRef = 65C79E212DF91A8800A9F5F6 /* iOS26_1.icon */; };
 		65CA9D3E2BC85ECD00CB145F /* AdminView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA9D3D2BC85ECD00CB145F /* AdminView.swift */; };
 		65CA9D402BC8D98000CB145F /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA9D3F2BC8D98000CB145F /* NotificationView.swift */; };
-		65CA9D422BC8D9DF00CB145F /* AdminData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA9D412BC8D9DF00CB145F /* AdminData.swift */; };
 		65CA9D452BC8DA0900CB145F /* Admin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA9D442BC8DA0900CB145F /* Admin.swift */; };
 		65CA9D472BC8DA1700CB145F /* AdminErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA9D462BC8DA1700CB145F /* AdminErrors.swift */; };
 		65CA9D492BC8DE9B00CB145F /* AdminErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CA9D482BC8DE9B00CB145F /* AdminErrorView.swift */; };
@@ -104,6 +105,8 @@
 		651262EF2F7335ED0031C65E /* PostModelsData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostModelsData.swift; sourceTree = "<group>"; };
 		651262FF2F7400F00031C65E /* UserStateData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStateData.swift; sourceTree = "<group>"; };
 		651263012F7401070031C65E /* UserModelsData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModelsData.swift; sourceTree = "<group>"; };
+		651263032F7402140031C65E /* AdminStateData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminStateData.swift; sourceTree = "<group>"; };
+		651263052F7402240031C65E /* AdminModelsData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminModelsData.swift; sourceTree = "<group>"; };
 		651553D42B5785F100DF3353 /* DeveloperSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperSettingsView.swift; sourceTree = "<group>"; };
 		651553D62B57877D00DF3353 /* DeveloperData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperData.swift; sourceTree = "<group>"; };
 		651553D82B578A6A00DF3353 /* Developer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Developer.swift; sourceTree = "<group>"; };
@@ -156,7 +159,6 @@
 		65C79E212DF91A8800A9F5F6 /* iOS26_1.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = iOS26_1.icon; sourceTree = "<group>"; };
 		65CA9D3D2BC85ECD00CB145F /* AdminView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminView.swift; sourceTree = "<group>"; };
 		65CA9D3F2BC8D98000CB145F /* NotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
-		65CA9D412BC8D9DF00CB145F /* AdminData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminData.swift; sourceTree = "<group>"; };
 		65CA9D442BC8DA0900CB145F /* Admin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Admin.swift; sourceTree = "<group>"; };
 		65CA9D462BC8DA1700CB145F /* AdminErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminErrors.swift; sourceTree = "<group>"; };
 		65CA9D482BC8DE9B00CB145F /* AdminErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminErrorView.swift; sourceTree = "<group>"; };
@@ -301,6 +303,8 @@
 				65502EA92B51E379005D4201 /* BasicData.swift */,
 				65CED5EF2D927AF7007A2755 /* FilesData.swift */,
 				655BC0C12B07565100949356 /* LiveChatData.swift */,
+				651263032F7402140031C65E /* AdminStateData.swift */,
+				651263052F7402240031C65E /* AdminModelsData.swift */,
 				651262FF2F7400F00031C65E /* UserStateData.swift */,
 				651263012F7401070031C65E /* UserModelsData.swift */,
 				655AB62729F0778300C61F3A /* UserLoginData.swift */,
@@ -315,7 +319,6 @@
 				650C383B2B797462002956DA /* UserThemesData.swift */,
 				65297ECF2BC34E530070C958 /* SearchData.swift */,
 				659F02E92C85F5300070114E /* ThemeData.swift */,
-				65CA9D412BC8D9DF00CB145F /* AdminData.swift */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -440,6 +443,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				651263042F7402200031C65E /* AdminStateData.swift in Sources */,
+				651263062F74022A0031C65E /* AdminModelsData.swift in Sources */,
 				651263002F7401000031C65E /* UserStateData.swift in Sources */,
 				651263022F7401100031C65E /* UserModelsData.swift in Sources */,
 				651262EE2F7335E00031C65E /* PostStateData.swift in Sources */,
@@ -479,7 +484,6 @@
 				659B62EC2B2BBE5600CF2FA4 /* LocalLogData.swift in Sources */,
 				65CED5F02D927AFB007A2755 /* FilesData.swift in Sources */,
 				655AB60929F0720500C61F3A /* social_appleApp.swift in Sources */,
-				65CA9D422BC8D9DF00CB145F /* AdminData.swift in Sources */,
 				65DC094F2B30150E004B5865 /* Notifications.swift in Sources */,
 				6503515C29F370CA005C4253 /* FeedPage.swift in Sources */,
 				659F02EA2C85F5320070114E /* ThemeData.swift in Sources */,
