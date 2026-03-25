@@ -16,6 +16,7 @@ struct ProfileView : View {
     @State var userFollowingList: UserFollowListData?
     @State var userFollowerList: UserFollowListData?
     @State var selectedFollowList = 0
+    @State private var loadedFollowListsForUserID: String?
 
     init (client: Client, userData: UserData?, userID: String?) {
         self.client = client
@@ -26,7 +27,7 @@ struct ProfileView : View {
     
     var body: some View {
         VStack {
-            if (self.profileData.doneLoading) {
+            if self.profileData.doneLoading && self.profileData.userData != nil {
                 TabView {
                     VStack {
                         Text("Quick Info")
@@ -114,49 +115,58 @@ struct ProfileView : View {
                 .tabViewStyle(PageTabViewStyle())
                 .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
 #endif
+            } else if !self.profileData.doneLoading {
+                VStack(spacing: 10) {
+                    ProgressView()
+                    Text("Loading profile...")
+                        .foregroundStyle(.secondary)
+                }
             } else {
-                if ((profileData.userData) != nil) {
-                    TabView {
-                        VStack {
-                            Text("Quick Info")
-                            ProfileUserDataView(client: client, profileData: profileData)
-                        }
-                    }
-                    .padding(10)
-#if os(iOS)
-                    .tabViewStyle(PageTabViewStyle())
-                    .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
-#endif
-                } else {
-                    Text("Loading")
+                VStack(spacing: 10) {
+                    Text("No user found")
+                        .font(.headline)
+                    Text("This profile does not exist or could not be loaded.")
+                        .foregroundStyle(.secondary)
                 }
             }
 //#endif
 
         }
-        .navigationTitle("Profile of @" + (profileData.userData?.username ?? "unknown"))
+        .navigationTitle(profileData.doneLoading ? "Profile of @" + (profileData.userData?.username ?? "unknown") : "Loading profile...")
         .onAppear() {
             if (self.userData != nil) {
                 profileData.provBasic(userData: userData!)
             }
 
-            Task {
-                do {
-                    userFollowingList = try await client.api.users.followingFollowerList(userID: userID ?? "", type: 0)
-                } catch {
-                    print("Failed to get following list: \(error.localizedDescription)")
-                }
-                // omg had to seperate cause it fails when missing a list
-                do {
-                    userFollowerList = try await client.api.users.followingFollowerList(userID: userID ?? "", type: 1)
-
-                } catch {
-                    print("Failed get follower list: \(error.localizedDescription)")
-
-                }
-            }
             profileData.ready()
             print("showing)")
+        }
+        .onChange(of: profileData.userData?._id ?? "") { newUserID in
+            let resolvedID = newUserID.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !resolvedID.isEmpty else {
+                return
+            }
+            guard loadedFollowListsForUserID != resolvedID else {
+                return
+            }
+            loadedFollowListsForUserID = resolvedID
+            loadFollowLists(userID: resolvedID)
+        }
+    }
+
+    private func loadFollowLists(userID: String) {
+        Task {
+            do {
+                userFollowingList = try await client.api.users.followingFollowerList(userID: userID, type: 0)
+            } catch {
+                print("Failed to get following list: \(error.localizedDescription)")
+            }
+
+            do {
+                userFollowerList = try await client.api.users.followingFollowerList(userID: userID, type: 1)
+            } catch {
+                print("Failed get follower list: \(error.localizedDescription)")
+            }
         }
     }
 }

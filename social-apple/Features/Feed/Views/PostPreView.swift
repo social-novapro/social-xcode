@@ -234,26 +234,16 @@ struct PostPreviewView: View {
                             },
                             onMentionTap: { mention in
                                 client.hapticPress()
-                                let username = mention.replacingOccurrences(of: "@", with: "")
+                                let username = mention.replacingOccurrences(of: "@", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
                                 guard !username.isEmpty else {
                                     return
                                 }
 
-                                client.api.search.searchRequest(lookup: SearchLookupData(lookupkey: "@\(username)")) { result in
-                                    switch result {
-                                    case .success(let found):
-                                        guard let user = found.usersFound?.first(where: { ($0.username ?? "").lowercased() == username.lowercased() }),
-                                              let userID = user._id,
-                                              !userID.isEmpty else {
-                                            return
-                                        }
-                                        DispatchQueue.main.async {
-                                            selectedProfile.showProfile = true
-                                            selectedProfile.profileData = user
-                                            selectedProfile.userID = userID
-                                        }
-                                    case .failure:
-                                        break
+                                // Open immediately; ProfileView will fetch the latest user data.
+                                DispatchQueue.main.async {
+                                    selectedProfile = SelectedProfileData(showProfile: false, profileData: nil, userID: username)
+                                    DispatchQueue.main.async {
+                                        selectedProfile.showProfile = true
                                     }
                                 }
                             }

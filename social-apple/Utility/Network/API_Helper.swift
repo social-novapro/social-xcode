@@ -382,6 +382,7 @@ class API_Helper: ObservableObject {
                 completion(.success(apiData))
             case .failure(let error):
                 print("Error: \(error)")
+                completion(.failure(error))
             }
         }
         
@@ -420,6 +421,7 @@ class API_Helper: ObservableObject {
                 completion(.success(apiData))
             case .failure(let error):
                 print("Error: \(error)")
+                completion(.failure(error))
             }
         }
     }
@@ -438,25 +440,34 @@ class API_Helper: ObservableObject {
             }
 
             guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
-                do {
-                    switch errorType {
-                    case "normal":
-                        let error = try JSONDecoder().decode(ErrorData.self, from: data!)
-                        print("API error: \(error.msg), code: \(error.code)")
-                    case "withAuth":
-                        let error = try JSONDecoder().decode(ErrorDataWithAuth.self, from: data!)
-                        print("API error: \(error.error.msg), code: \(error.error.code)")
-                    default:
-                        print("Invalid errorType")
-                        completion(.failure(NSError(domain: "com.example.error", code: 0, userInfo: nil)))
-                        
+                if let data {
+                    do {
+                        switch errorType {
+                        case "normal":
+                            let apiError = try JSONDecoder().decode(ErrorData.self, from: data)
+                            print("API error: \(apiError.msg), code: \(apiError.code)")
+                            self.provideError(error: apiError)
+                            completion(.failure(apiError))
+                            return
+                        case "withAuth":
+                            let apiError = try JSONDecoder().decode(ErrorDataWithAuth.self, from: data)
+                            print("API error: \(apiError.error.msg), code: \(apiError.error.code)")
+                            self.provideError(error: apiError.error)
+                            completion(.failure(apiError.error))
+                            return
+                        default:
+                            break
+                        }
+                    } catch {
+                        print("Error decoding API error: \(error.localizedDescription)")
                     }
-                } catch {
-                    print("Error decoding API error: \(error.localizedDescription)")
                 }
-                
+
                 print("NOT 2XX result ")
-                print(response!)
+                if let response {
+                    print(response)
+                }
+                completion(.failure(NSError(domain: "com.example.error", code: 0, userInfo: nil)))
                 return
             }
             

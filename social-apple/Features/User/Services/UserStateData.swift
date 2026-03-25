@@ -47,8 +47,23 @@ class ProfileViewClass: ObservableObject {
     }
 
     func ready() {
+        DispatchQueue.main.async {
+            self.doneLoading = false
+            self.possibleFail = false
+        }
+
+        let requestUserID = self.userID.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !requestUserID.isEmpty else {
+            DispatchQueue.main.async {
+                self.doneLoading = true
+                self.possibleFail = true
+                self.userData = nil
+            }
+            return
+        }
+
         // check cache
-        client.api.users.getUser(userID: self.userID) { result in
+        client.api.users.getUser(userID: requestUserID) { result in
             switch result {
             case .success(let results):
                 print("Updating results")
@@ -56,6 +71,9 @@ class ProfileViewClass: ObservableObject {
                     self.followed = results.extraData?.followed ?? false
                     self.userDataFull = results;
                     self.userData = results.userData;
+                    if let resolvedID = results.userData._id, !resolvedID.isEmpty {
+                        self.userID = resolvedID
+                    }
 //                    self.postData = results.postData.reversed();
                     self.addPosts(newPosts: results.postData.reversed())
                     self.pinData = results.pinData.reversed();
@@ -70,11 +88,12 @@ class ProfileViewClass: ObservableObject {
                 print(results)
             case .failure(let error):
                 print("Error: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    self.doneLoading = true
+                    self.possibleFail = true
+                    self.userData = nil
+                }
             }
-        }
-
-        DispatchQueue.main.async {
-            self.possibleFail = true;
         }
     }
 

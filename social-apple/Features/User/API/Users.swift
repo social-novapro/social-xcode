@@ -24,6 +24,7 @@ class UsersApi: API_Base {
                 completion(.success(userData))
             case .failure(let error):
                 print("Error: \(error)")
+                completion(.failure(error))
             }
         }
     }
@@ -37,6 +38,7 @@ class UsersApi: API_Base {
                 completion(.success(userData))
             case .failure(let error):
                 print("Error: \(error)")
+                completion(.failure(error))
             }
         }
     }
