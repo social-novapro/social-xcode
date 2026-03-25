@@ -12,7 +12,7 @@ import Foundation
 class LiveChatWebSocket: ObservableObject {
     @Published var receivedDataQueue: [LiveChatData] = []
 
-    private var webSocketTask: URLSessionWebSocketTask!
+    private var webSocketTask: URLSessionWebSocketTask?
     private var reconnectAttempts = 0
     private let maxReconnectAttempts = 5
     private let reconnectDelay: TimeInterval = 2.0
@@ -34,12 +34,16 @@ class LiveChatWebSocket: ObservableObject {
         let session = URLSession(configuration: .default)
 
         webSocketTask = session.webSocketTask(with: url)
-        webSocketTask.resume()
+        webSocketTask?.resume()
         reconnectAttempts = 0
         receiveData()
     }
 
     private func receiveData() {
+        guard let webSocketTask else {
+            return
+        }
+
         webSocketTask.receive { [weak self] result in
             guard let self = self else { return }
             switch result {
@@ -130,8 +134,15 @@ class LiveChatWebSocket: ObservableObject {
 
             if let jsonString = String(data: encodedData, encoding: .utf8) {
                 print("sending json : " + jsonString)
+                guard let webSocketTask else {
+                    print("WebSocket not initialized. Reconnecting before send.")
+                    connectWS()
+                    return
+                }
+
                 guard webSocketTask.state == .running else {
                     print("WebSocket is not open. Cannot send data.")
+                    connectWS()
                     return
                 }
 
@@ -152,7 +163,7 @@ class LiveChatWebSocket: ObservableObject {
     // Handle cleanup on deinit if needed
     deinit {
         if (webSocketTask != nil) {
-            webSocketTask.cancel(with: .goingAway, reason: nil)
+            webSocketTask?.cancel(with: .goingAway, reason: nil)
         }
     }
     func killConnection() {

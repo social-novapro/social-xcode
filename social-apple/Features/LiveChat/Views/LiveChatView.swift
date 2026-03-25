@@ -113,6 +113,10 @@ struct LiveChatView: View {
             client.api.livechatWS.connectWS()
             self.isInitialized = true
         }
+        .onChange(of: client.userTokens.userID) { _ in
+            client.api.livechatWS.connectWS()
+            self.isInitialized = true
+        }
         .onReceive(client.api.livechatWS.$receivedDataQueue) { newQueue in
             DispatchQueue.main.async {
                 guard let newReceivedData = newQueue.first else {

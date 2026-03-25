@@ -35,9 +35,9 @@ class NotificationsApi: API_Base {
     func registerDevice(notificationRegister: PushNotificationSend, completion: @escaping (Result<PushNotificationRes, Error>) -> Void) {
         print("register device request")
         let APIUrl = baseAPIurl + Route.register
-        
+
         saveDeviceToken(deviceToken: notificationRegister.deviceToken)
-        
+
         self.apiHelper.requestDataWithBody(urlString: APIUrl, httpMethod: "POST", httpBody: notificationRegister) { (result: Result<PushNotificationRes, Error>) in
             switch result {
             case .success(let response):
@@ -48,6 +48,19 @@ class NotificationsApi: API_Base {
                 print("Error: \(error)")
             }
         }
+    }
+
+    func registerDeviceTokenFromAPNs(
+        deviceToken: String,
+        completion: @escaping (Result<PushNotificationRes, Error>) -> Void
+    ) {
+        let sendData = PushNotificationSend(
+            deviceToken: deviceToken,
+            deviceType: "iPhone",
+            userID: self.apiHelper.userTokens.userID
+        )
+
+        self.registerDevice(notificationRegister: sendData, completion: completion)
     }
     
     func deregisterDevice(completion: @escaping (Result<PushNotificationRes, Error>) -> Void) {

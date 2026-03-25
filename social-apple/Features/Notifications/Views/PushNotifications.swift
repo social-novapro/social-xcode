@@ -9,9 +9,6 @@ import SwiftUI
 
 struct PushNotifications: View {
     @ObservedObject var client: Client
-    #if os(iOS)
-    @UIApplicationDelegateAdaptor private var appDelegate: MyAppDelegate
-    #endif
     @State var deviceSettings: [NotificationDeviceSetting]? = []
     @State var isLoading: Bool = true
 
@@ -25,8 +22,14 @@ struct PushNotifications: View {
             Text("Welcome to Notification Panel")
             Text("Press register to sign up for notifications! You will be able to deregister, and change what notifications to recieve!")
             Button(action: {
-                appDelegate.registerPushNotifications(client: client)
-                self.registered = true
+                #if os(iOS)
+                if let appDelegate = MyAppDelegate.shared ?? (UIApplication.shared.delegate as? MyAppDelegate) {
+                    appDelegate.registerPushNotifications(client: client)
+                    self.registered = true
+                } else {
+                    print("Unable to access shared MyAppDelegate for push registration")
+                }
+                #endif
             }, label: {
                 Text("Register")
             })
@@ -89,6 +92,11 @@ struct PushNotifications: View {
             }
         }
         .onAppear {
+            #if os(iOS)
+            if let appDelegate = MyAppDelegate.shared ?? (UIApplication.shared.delegate as? MyAppDelegate) {
+                appDelegate.client = client
+            }
+            #endif
             getDeviceSettings()
         }
         .navigationTitle("Notifications")
