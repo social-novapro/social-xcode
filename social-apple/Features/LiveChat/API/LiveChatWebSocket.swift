@@ -13,6 +13,9 @@ class LiveChatWebSocket: ObservableObject {
     @Published var receivedDataQueue: [LiveChatData] = []
 
     private var webSocketTask: URLSessionWebSocketTask!
+    private var reconnectAttempts = 0
+    private let maxReconnectAttempts = 5
+    private let reconnectDelay: TimeInterval = 2.0
     var tokens:Bool = false
     var wsURL: String
     
@@ -31,12 +34,14 @@ class LiveChatWebSocket: ObservableObject {
         let session = URLSession(configuration: .default)
 
         webSocketTask = session.webSocketTask(with: url)
-        receiveData()
         webSocketTask.resume()
+        reconnectAttempts = 0
+        receiveData()
     }
 
     private func receiveData() {
-        webSocketTask.receive { result in
+        webSocketTask.receive { [weak self] result in
+            guard let self = self else { return }
             switch result {
             case .success(let message):
                 switch message {
@@ -67,7 +72,26 @@ class LiveChatWebSocket: ObservableObject {
                 self.receiveData() // Continue to listen for more messages
             case .failure(let error):
                 print("WebSocket receive error: \(error)")
+                self.handleReconnectIfNeeded(error: error)
             }
+        }
+    }
+
+    private func handleReconnectIfNeeded(error: Error) {
+        // Only reconnect if we have a valid authenticated session (simple check: userID not empty)
+        guard !self.userTokens.userID.isEmpty else {
+            print("No authenticated session, will not reconnect.")
+            return
+        }
+        if reconnectAttempts < maxReconnectAttempts {
+            reconnectAttempts += 1
+            print("Attempting to reconnect in \(reconnectDelay) seconds (attempt \(reconnectAttempts))...")
+            DispatchQueue.main.asyncAfter(deadline: .now() + reconnectDelay) { [weak self] in
+                guard let self = self else { return }
+                self.connectWS()
+            }
+        } else {
+            print("Max reconnect attempts reached. Giving up.")
         }
     }
 
