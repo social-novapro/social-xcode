@@ -9,7 +9,8 @@ import Foundation
 
 class SearchApi: API_Base {
     private enum Route {
-        static let search = "/search/"
+        static let search = "/search/v2"
+        static let exploreV2 = "/search/v2/explore"
         static let setting = "/search/setting"
         static func tags(_ value: String) -> String { "/search/tags/" + value }
     }
@@ -28,7 +29,21 @@ class SearchApi: API_Base {
             }
         }
     }
-    
+
+    func getExploreV2(completion: @escaping (Result<SearchFoundData, Error>) -> Void) {
+        let APIUrl = baseAPIurl + Route.exploreV2
+
+        self.apiHelper.requestData(urlString: APIUrl, httpMethod: "GET") { (result: Result<SearchFoundData, Error>) in
+            switch result {
+            case .success(let data):
+                completion(.success(data))
+            case .failure(let error):
+                print("Error: \(error)")
+                completion(.failure(error))
+            }
+        }
+    }
+
     func searchSetting(completion: @escaping (Result<SearchSettingResponse, Error>) -> Void) {
         print("Request login")
         let APIUrl = baseAPIurl + Route.setting

@@ -817,6 +817,16 @@ struct ExpandedPostView: View {
     }
 }
 
+struct postSearchPreview: View {
+    @ObservedObject var client: Client
+    @Binding var feedData: AllPosts
+    @State private var selectedProfile: SelectedProfileData = SelectedProfileData()
+
+    var body: some View {
+        PostPreView(client: client, feedData: $feedData, selectedProfile: $selectedProfile)
+    }
+}
+
 struct SubExpandedPostView: View {
     @ObservedObject var client: Client
     @ObservedObject var postActiveData: PostActiveData

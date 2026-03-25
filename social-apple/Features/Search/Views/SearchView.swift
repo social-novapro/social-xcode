@@ -6,249 +6,265 @@
 //
 
 import SwiftUI
-    
+
 struct SearchView: View {
     @ObservedObject var client: Client
-    @ObservedObject var searchClass: SearchClass
-    
+    @StateObject private var searchClass: SearchClass
+    @State private var selectedProfile: SelectedProfileData = SelectedProfileData()
+
     init(client: Client) {
-        self.client = client;
-        self.searchClass = SearchClass(client: client)
+        self.client = client
+        _searchClass = StateObject(wrappedValue: SearchClass(client: client))
     }
 
-    @State var searchText:String = ""
+    private var isSearchMode: Bool {
+        !searchClass.searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private var activeUsers: [UserData] {
+        isSearchMode ? (searchClass.searchResults.usersFound ?? []) : (searchClass.exploreResults.usersFound ?? [])
+    }
+
+    private var activeHashtags: [SearchV2HashtagData] {
+        isSearchMode ? (searchClass.searchResults.hashtagsFound ?? []) : (searchClass.exploreResults.hashtagsFound ?? [])
+    }
+
+    private var activePostsCount: Int {
+        if isSearchMode {
+            return searchClass.searchResults.postsFound?.count ?? 0
+        }
+        return searchClass.exploreResults.postsFound?.count ?? 0
+    }
 
     var body: some View {
-        NavigationView {
-            VStack {
-                if (searchClass.foundData == true) {
-                    ScrollView {
-                        VStack {
-                            if (searchClass.searchResults.usersFound?.isEmpty != true) {
-                                FancyText(text: "Users Found")
-                            }
-                            ForEach (searchClass.searchResults.usersFound ?? []) { user in
-                                userPreview(client: client, userData: user)
-                            }
-                            if (searchClass.searchResults.hashtagsFound?.isEmpty != true) {
-                                FancyText(text: "Related Hashtags")
-                            }
-                            ForEach ($searchClass.searchResults.hashtagsFound ?? []) { $tag in
-                                FancyText(text: tag.tag)
-                            }
-                            // exported out cause xcode complains a lot
-                            SearchHashtagResultsView(client: client, searchClass: searchClass)
-                            if (searchClass.searchResults.postsFound?.isEmpty != true) {
-                                FancyText(text: "Posts Found")
-
-                            }
-                            SearchPostResultsView(client: client, searchClass: searchClass)
-                            
-                            VStack {
-                                
-                            }
-                            .padding(50)
-                        }
-                        .padding(10)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                if searchClass.isLoading {
+                    HStack {
+                        ProgressView()
+                        Text("Loading...")
                     }
                 }
-                else {
-                    Text("Start Searching")
+
+                if let errorText = searchClass.errorText {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Failed to load explore/search")
+                            .font(.headline)
+                        Text(errorText)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        Button("Retry") {
+                            if isSearchMode {
+                                searchClass.onSearchTextChanged(searchClass.searchText)
+                            } else {
+                                searchClass.loadExplore()
+                            }
+                        }
+                    }
+                }
+
+                if !activeHashtags.isEmpty {
+                    sectionHeader(isSearchMode ? "Hashtags" : "Trending Hashtags")
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(activeHashtags) { tag in
+                                Button {
+                                    searchClass.searchText = tag.displayText
+                                    searchClass.onSearchTextChanged(tag.displayText)
+                                } label: {
+                                    Text(tag.displayText)
+                                        .font(.subheadline)
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 6)
+                                        .background(client.themeData.mainBackground)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 10)
+                                                .stroke(Color.secondary, lineWidth: 1)
+                                        )
+                                        .cornerRadius(10)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+                }
+
+                if !activeUsers.isEmpty {
+                    sectionHeader(isSearchMode ? "Users" : "Newest Users")
+                    ForEach(activeUsers) { user in
+                        ExploreUserRow(client: client, user: user, isSearchMode: isSearchMode, searchClass: searchClass)
+                    }
+                }
+
+                if activePostsCount > 0 {
+                    sectionHeader(isSearchMode ? "Posts" : "Newest Posts")
+                    ForEach(Array(0..<activePostsCount), id: \.self) { index in
+                        if let postBinding = bindingForPost(at: index) {
+                            PostPreView(client: client, feedData: postBinding, selectedProfile: $selectedProfile)
+                        }
+                    }
+                }
+
+                if !searchClass.isLoading && searchClass.errorText == nil && activeHashtags.isEmpty && activeUsers.isEmpty && activePostsCount == 0 {
+                    Text(isSearchMode ? "No results found" : "No explore content available")
+                        .foregroundStyle(.secondary)
                 }
             }
+            .padding(10)
         }
-        
         .navigationTitle("Search")
-        .searchable(text: $searchClass.searchText,/* placement: .toolbar,*/ prompt: "Search for something")
+        .searchable(text: $searchClass.searchText, prompt: "Search posts, users, hashtags")
         .onChange(of: searchClass.searchText) { newValue in
-            self.searchClass.search(newValue: newValue)
+            searchClass.onSearchTextChanged(newValue)
+        }
+        .navigationDestination(isPresented: $selectedProfile.showProfile) {
+            ProfileView(client: client, userData: selectedProfile.profileData, userID: selectedProfile.userID)
         }
     }
-}
 
-struct SearchHashtagResultsView: View {
-    @ObservedObject var client: Client
-    @ObservedObject var searchClass: SearchClass
+    @ViewBuilder
+    private func sectionHeader(_ title: String) -> some View {
+        Text(title)
+            .font(.title3)
+            .fontWeight(.semibold)
+    }
 
-    var body: some View {
-        ForEach($searchClass.searchResults.tagsFound ?? []) { $tag in
-            if (tag.posts?.isEmpty != true) {
-                FancyText(text: "Posts for \(tag.tag)")
+    private func bindingForPost(at index: Int) -> Binding<AllPosts>? {
+        if isSearchMode {
+            guard let posts = searchClass.searchResults.postsFound,
+                  posts.indices.contains(index) else {
+                return nil
             }
 
-            ForEach($tag.posts ?? []) { $post in
-                postSearchPreview(client: client, feedData: $post)
+            return Binding(
+                get: { searchClass.searchResults.postsFound?[index] ?? posts[index] },
+                set: { newValue in
+                    searchClass.searchResults.postsFound?[index] = newValue
+                }
+            )
+        }
+
+        guard let posts = searchClass.exploreResults.postsFound,
+              posts.indices.contains(index) else {
+            return nil
+        }
+
+        return Binding(
+            get: { searchClass.exploreResults.postsFound?[index] ?? posts[index] },
+            set: { newValue in
+                searchClass.exploreResults.postsFound?[index] = newValue
             }
-        }
+        )
     }
 }
 
-struct SearchPostResultsView: View {
+private struct ExploreUserRow: View {
     @ObservedObject var client: Client
+    let user: UserData
+    let isSearchMode: Bool
     @ObservedObject var searchClass: SearchClass
+    @State private var profileShowing: Bool = false
+    @State private var isMutatingFollow: Bool = false
 
     var body: some View {
-        ForEach ($searchClass.searchResults.postsFound ?? []) { $post in
-            postSearchPreview(client: client, feedData: $post)
-        }
-    }
-}
+        VStack(alignment: .leading, spacing: 8) {
+            Button {
+                profileShowing = true
+            } label: {
+                HStack(spacing: 10) {
+                    if let profileURL = user.profileURL, !profileURL.isEmpty {
+                        AsyncImage(url: URL(string: profileURL)) { phase in
+                            switch phase {
+                            case .empty:
+                                ProgressView()
+                                    .frame(width: 36, height: 36)
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 36, height: 36)
+                                    .clipShape(Circle())
+                            case .failure:
+                                Image(systemName: "person.circle")
+                                    .font(.title2)
+                            @unknown default:
+                                EmptyView()
+                            }
+                        }
+                    } else {
+                        Image(systemName: "person.circle")
+                            .font(.title2)
+                    }
 
-struct postSearchPreview: View {
-    @ObservedObject var client: Client
-    @Binding var feedData: AllPosts
-    @State var showingPost:Bool = false
-    @State var selectedProfile:SelectedProfileData = SelectedProfileData()
-    
-    var body: some View {
-        VStack {
-            if (self.feedData.postLiveData.deleted) {
-                HStack {
-                    Text("This post was deleted.")
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack {
+                            Text(user.displayName ?? "Unknown")
+                                .font(.headline)
+                            if user.verified == true {
+                                Image(systemName: "checkmark.seal.fill")
+                            }
+                        }
+                        Text("@\(user.username ?? "unknown")")
+                            .foregroundStyle(.secondary)
+                        Text(user.description ?? "")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
+
                     Spacer()
                 }
             }
-            else if feedData.postLiveData.showData {
-                Button(action: {
-                    client.hapticPress()
-                    self.feedData.postLiveData.showPostPage = true
-                    print("showing post?")
-                }) {
-                    VStack {
-                        if (self.feedData.postData.edited==true) {
-                            HStack {
-                                Text("This post was edited...")
-                                    .italic()
-                            }
-                            .foregroundColor(.secondary)
-                        }
-                        
-                        VStack {
-                            Spacer()
-                            VStack {
-                                ProfilePostView(client: client, feedData: $feedData, selectedProfile: $selectedProfile)
-                            }
-                            Spacer()
-                            
-                            HStack {
-                                VStack {
-                                    Text(feedData.postData.content!)
-                                        .foregroundColor(.secondary)
-                                        .lineLimit(100) // or set a specific number
-                                        .multilineTextAlignment(.leading) // or .center, .trailing
-                                }
-                                Spacer()
-                            }
-                            .background(client.themeData.greenBackground)
-                            Spacer()
-                        }
-                        
-                        VStack {
-                            if (feedData.quoteData != nil) {
-                                VStack {
-                                    if (feedData.quoteData?.quotePost != nil) {
-                                        Divider()
-                                        Spacer()
-                                        Button(action: {
-                                            client.hapticPress()
-                                            DispatchQueue.main.async {
-                                                feedData.postLiveData.isActive=true
-                                            }
-                                            print ("showing usuer?")
-                                            // go to user
-                                        }) {
-                                            if (feedData.quoteData?.quoteUser != nil) {
-                                                HStack {
-                                                    Text(feedData.quoteData?.quoteUser?.displayName ?? "")
-                                                    Text("@\(feedData.quoteData?.quoteUser?.username ?? "")")
-                                                    if (feedData.userData?.verified == true) {
-                                                        Image(systemName: "checkmark.seal.fill")
-                                                    }
-                                                    Spacer()
-                                                }
-                                            }
-                                        }
-                                        .buttonStyle(PlainButtonStyle())
-                                        Spacer()
-                                        VStack {
-                                            HStack {
-                                                Text(feedData.quoteData?.quotePost?.content ?? "empty quote")
-                                                    .lineLimit(nil) // or set a specific number
-                                                    .multilineTextAlignment(.leading) // or .center, .trailing
-                                                
-                                                Spacer()
-                                            }
-                                        }
-                                        .foregroundColor(.secondary)
-                                        .background(client.themeData.greenBackground)
-                                        
-                                        Spacer()
-                                    }
-                                }
-                            }
-                        }
+            .buttonStyle(.plain)
+
+            HStack {
+                Text("\(user.followerCount ?? 0) followers")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                if (user._id ?? "") != client.userTokens.userID {
+                    Button(user.followed == true ? "Unfollow" : "Follow") {
+                        mutateFollow()
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.borderedProminent)
+                    .disabled(isMutatingFollow)
                 }
             }
         }
-        .onAppear {
-            print ("showing")
-        }
-        
-        .padding(15)
+        .padding(12)
         .background(client.themeData.mainBackground)
-        .cornerRadius(20)
+        .cornerRadius(14)
         .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.secondary, lineWidth: 3)
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.secondary, lineWidth: 1)
         )
-        
-        if (self.feedData.postLiveData.actionExpanded == true) {
-            ExpandedPostView(client: client, feedData: $feedData)
+        .navigationDestination(isPresented: $profileShowing) {
+            ProfileView(client: client, userData: user, userID: user._id)
         }
     }
-}
 
-struct userPreview: View {
-    @ObservedObject var client: Client
-    @State var userData: UserData
-    @State var profileShowing: Bool = false
-    
-    var body: some View {
-        VStack {
-            Button(action: {
-                self.profileShowing = true;
-            }) {
-                VStack {
-                    HStack {
-                        Text(userData.displayName!)
-                        Text("@" + userData.username!)
-                        if (userData.verified == true) {
-                            Image(systemName: "checkmark.seal.fill")
-                        }
-                        Spacer()
-                    }
-                    HStack {
-                        Text(userData.description!)
-                        Spacer()
-                    }
-                    HStack {
-                        Text(String(userData.likeCount!) + " Likes - " + String(userData.likedCount!) + " Liked")
-                    }
-                    
+    private func mutateFollow() {
+        guard let userID = user._id else {
+            return
+        }
+
+        let currentlyFollowed = user.followed == true
+        searchClass.setFollow(userID: userID, followed: !currentlyFollowed, inSearchResults: isSearchMode)
+        isMutatingFollow = true
+
+        Task {
+            do {
+                if currentlyFollowed {
+                    _ = try await client.api.users.unFollowUser(userID: userID)
+                } else {
+                    _ = try await client.api.users.followUser(userID: userID)
                 }
+            } catch {
+                searchClass.setFollow(userID: userID, followed: currentlyFollowed, inSearchResults: isSearchMode)
+            }
+            await MainActor.run {
+                isMutatingFollow = false
             }
         }
-        .navigationDestination(isPresented: $profileShowing) {
-            ProfileView(client: client, userData: userData, userID: userData._id)
-        }
-        .padding(15)
-        .background(client.themeData.mainBackground)
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.accentColor, lineWidth: 3)
-        )
     }
 }
