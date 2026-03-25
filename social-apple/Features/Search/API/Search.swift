@@ -26,6 +26,7 @@ class SearchApi: API_Base {
                 completion(.success(userLoginData))
             case .failure(let error):
                 print("Error: \(error)")
+                completion(.failure(error))
             }
         }
     }
@@ -54,6 +55,7 @@ class SearchApi: API_Base {
                 completion(.success(searchSettingData))
             case .failure(let error):
                 print("Error: \(error)")
+                completion(.failure(error))
             }
         }
     }
@@ -68,6 +70,7 @@ class SearchApi: API_Base {
                 completion(.success(searchSettingData))
             case .failure(let error):
                 print("Error: \(error)")
+                completion(.failure(error))
             }
         }
     }
@@ -90,6 +93,7 @@ class SearchApi: API_Base {
                 completion(.success(seachTags))
             case .failure(let error):
                 print("Error: \(error)")
+                completion(.failure(error))
             }
         }
     }

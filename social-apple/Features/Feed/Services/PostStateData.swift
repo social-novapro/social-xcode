@@ -99,33 +99,44 @@ class PostCreation: ObservableObject {
     }
 
     func typeCopost(text: String) {
-        if (text == "") {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty {
             DispatchQueue.main.async {
-                self.coposterSearch = "";
+                self.coposterSearch = ""
+                self.possibleCoposters = nil
             }
+            return
         }
 
-        var searchTerm = text;
-        if (searchTerm.starts(with: "@")) {
-            searchTerm = text.replacingOccurrences(of: "@", with: "0");
+        var searchTerm = trimmed
+        if searchTerm.starts(with: "@") {
+            // Do not query suggestions for just '@'.
+            guard searchTerm.count > 1 else {
+                DispatchQueue.main.async {
+                    self.possibleCoposters = nil
+                }
+                return
+            }
+            searchTerm = searchTerm.replacingOccurrences(of: "@", with: "0")
         } else {
-            searchTerm = "0"+text;
+            searchTerm = "0" + searchTerm
         }
 
         client.api.search.searchTagSuggestion(searchText: searchTerm) { result in
             switch result {
             case .success(let results):
                 DispatchQueue.main.async {
-                    self.possibleCoposters = results;
+                    self.possibleCoposters = results
                     print(results)
                 }
-                break;
             case .failure(let error):
+                DispatchQueue.main.async {
+                    self.possibleCoposters = nil
+                }
                 print(error)
                 print("Error: \(error.localizedDescription)")
             }
         }
-
     }
 
     func addToPostContent(text: String) {
@@ -138,45 +149,49 @@ class PostCreation: ObservableObject {
     }
 
     func typePost(newValue: String) {
-        if (newValue == "") {
+        if newValue.isEmpty {
             DispatchQueue.main.async {
-                self.possibleTags = nil;
-               // self.calcRemainingCharacters();
+                self.possibleTags = nil
                 return
             }
-        }
-//        print("--- \(newValue) \(content)")
-
-        var words: [String] {
-            content.split(separator: " ").map { String($0) }
-        }
-
-        if (words.count == 0) {
             return
         }
-        let currentWord = words[words.count-1]
-        print(words[words.count-1])
 
-        // if doesnt meet tag requirements
-        if (content.last == " " || !currentWord.starts(with: "@") && !currentWord.starts(with: "#")){
+        let words = newValue.split(separator: " ").map { String($0) }
+        guard let currentWord = words.last else {
             DispatchQueue.main.async {
-                self.possibleTags = nil;
+                self.possibleTags = nil
             }
-
-            return;
+            return
         }
 
-//        if (currentWord.starts(with: "@"))
+        // Hide suggestions if token is complete or not a tag/mention token.
+        if newValue.last == " " || (!currentWord.starts(with: "@") && !currentWord.starts(with: "#")) {
+            DispatchQueue.main.async {
+                self.possibleTags = nil
+            }
+            return
+        }
+
+        // Do not show suggestions for only '@' or '#'.
+        guard currentWord.count > 1 else {
+            DispatchQueue.main.async {
+                self.possibleTags = nil
+            }
+            return
+        }
 
         client.api.search.searchTagSuggestion(searchText: currentWord) { result in
             switch result {
             case .success(let results):
                 DispatchQueue.main.async {
-                    self.possibleTags = results;
+                    self.possibleTags = results
                     print(results)
                 }
-                break;
             case .failure(let error):
+                DispatchQueue.main.async {
+                    self.possibleTags = nil
+                }
                 print("Error: \(error.localizedDescription)")
             }
         }
