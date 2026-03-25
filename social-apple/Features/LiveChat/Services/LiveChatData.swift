@@ -13,6 +13,8 @@ struct LiveChatSendData: Decodable, Encodable {
     var apiVersion: String? = nil
     var userID: String? = nil
     var message: LiveChatMessageSendData? = nil
+    var messageToDelete: String? = nil
+    var editMessage: LiveChatEditMessageSendData? = nil
     var tokens: TokenData
     var typing: Bool?
 }
@@ -21,6 +23,12 @@ struct LiveChatMessageSendData: Decodable, Encodable {
     var userID: String? = nil
     var content: String? = nil
     var replyTo: String? = nil
+}
+
+struct LiveChatEditMessageSendData: Decodable, Encodable {
+    var postID: String
+    var content: String
+    var timeStamp: Int64
 }
 
 struct LiveChatTypers: Decodable, Encodable, Identifiable {
@@ -56,6 +64,44 @@ func createLiveSendData(
     )
 }
 
+func createLiveEditSendData(
+    postID: String,
+    content: String,
+    userTokenData: UserTokenData?,
+    timeStamp: Int64 = Int64(Date().timeIntervalSince1970 * 1000)
+) -> LiveChatSendData {
+    let apiValues = API_Data()
+
+    return LiveChatSendData(
+        type: 5,
+        mesType: 2,
+        apiVersion: "1.0",
+        userID: userTokenData?.userID,
+        message: nil,
+        messageToDelete: nil,
+        editMessage: LiveChatEditMessageSendData(postID: postID, content: content, timeStamp: timeStamp),
+        tokens: genTokenData(appToken: apiValues.getAppToken(), devToken: apiValues.getDevToken(), userTokenData: userTokenData ?? nil)
+    )
+}
+
+func createLiveDeleteSendData(
+    messageToDelete: String,
+    userTokenData: UserTokenData?
+) -> LiveChatSendData {
+    let apiValues = API_Data()
+
+    return LiveChatSendData(
+        type: 3,
+        mesType: 2,
+        apiVersion: "1.0",
+        userID: userTokenData?.userID,
+        message: nil,
+        messageToDelete: messageToDelete,
+        editMessage: nil,
+        tokens: genTokenData(appToken: apiValues.getAppToken(), devToken: apiValues.getDevToken(), userTokenData: userTokenData ?? nil)
+    )
+}
+
 struct LiveChatData: Decodable, Encodable, Identifiable {
     var id = UUID()
     var _id: String? = nil
@@ -65,6 +111,7 @@ struct LiveChatData: Decodable, Encodable, Identifiable {
     var apiVersions: String? = nil
     var pings: LiveChatPingsData? = nil
     var message: LiveChatMessageData? = nil
+    var messageToDelete: String? = nil
     var userJoin: LiveChatUserJoinData? = nil
     var userLeave: LiveChatUserLeaveData? = nil
     var userTyping: Bool? = nil
@@ -78,6 +125,7 @@ struct LiveChatData: Decodable, Encodable, Identifiable {
         case pings
         case userJoin
         case message
+        case messageToDelete
         case userLeave
         case userTyping
     }
