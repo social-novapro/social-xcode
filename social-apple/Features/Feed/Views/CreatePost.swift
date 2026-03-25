@@ -256,7 +256,7 @@ struct TagSuggestionsView: View {
                         FancyText(text: "Suggested Hashtags:")
 
                         ForEach(hashtags) { hashtag in
-                            TagSuggestionView(client: client, postCreation: postCreation, suggestion: hashtag.tag)
+                            TagSuggestionView(client: client, postCreation: postCreation, suggestion: hashtag.displayText)
                         }
                     }
                 }

@@ -360,13 +360,19 @@ struct PostEditReq : Encodable {
 }
 
 struct TagPotentialData : Identifiable, Decodable {
-    var id = UUID()
+    var id: String { displayText }
     var possibility: String
-    var tag: String
+    var tag: String?
+    var tagText: String?
+
+    var displayText: String {
+        tag ?? tagText ?? ""
+    }
 
     private enum CodingKeys: String, CodingKey {
         case possibility
         case tag
+        case tagText
     }
 }
 

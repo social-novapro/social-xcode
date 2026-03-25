@@ -65,7 +65,7 @@ class SearchClass: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35, execute: work)
     }
 
-    private func runSearch(query: String) {
+    func runSearch(query: String) {
         DispatchQueue.main.async {
             self.isLoading = true
             self.errorText = nil

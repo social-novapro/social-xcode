@@ -19,6 +19,7 @@ class Client: ObservableObject {
     @Published var beginPageMode:Int = 0
     @Published var loginUser:Bool = false;
     @Published var createUser:Bool = false;
+    @Published var pendingSearchLookup: String? = nil
     /*
      * 0= none / loggedin
      * 1= begin

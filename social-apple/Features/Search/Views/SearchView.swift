@@ -36,6 +36,10 @@ struct SearchView: View {
         return searchClass.exploreResults.postsFound?.count ?? 0
     }
 
+    private var activeTagGroups: [TagFoundData] {
+        isSearchMode ? (searchClass.searchResults.tagsFound ?? []) : (searchClass.exploreResults.tagsFound ?? [])
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
@@ -96,6 +100,22 @@ struct SearchView: View {
                     }
                 }
 
+                if !activeTagGroups.isEmpty {
+                    sectionHeader("Posts for Hashtags")
+                    ForEach(Array(activeTagGroups.enumerated()), id: \.element.id) { tagIndex, tagGroup in
+                        Text("Posts for \(tagGroup.tag)")
+                            .font(.headline)
+
+                        if let posts = tagGroup.posts {
+                            ForEach(posts.indices, id: \.self) { postIndex in
+                                if let postBinding = bindingForTaggedPost(tagIndex: tagIndex, postIndex: postIndex) {
+                                    PostPreView(client: client, feedData: postBinding, selectedProfile: $selectedProfile)
+                                }
+                            }
+                        }
+                    }
+                }
+
                 if activePostsCount > 0 {
                     sectionHeader(isSearchMode ? "Posts" : "Newest Posts")
                     ForEach(Array(0..<activePostsCount), id: \.self) { index in
@@ -105,7 +125,7 @@ struct SearchView: View {
                     }
                 }
 
-                if !searchClass.isLoading && searchClass.errorText == nil && activeHashtags.isEmpty && activeUsers.isEmpty && activePostsCount == 0 {
+                if !searchClass.isLoading && searchClass.errorText == nil && activeHashtags.isEmpty && activeUsers.isEmpty && activeTagGroups.isEmpty && activePostsCount == 0 {
                     Text(isSearchMode ? "No results found" : "No explore content available")
                         .foregroundStyle(.secondary)
                 }
@@ -116,6 +136,13 @@ struct SearchView: View {
         .searchable(text: $searchClass.searchText, prompt: "Search posts, users, hashtags")
         .onChange(of: searchClass.searchText) { newValue in
             searchClass.onSearchTextChanged(newValue)
+        }
+        .onAppear {
+            if let pending = client.pendingSearchLookup?.trimmingCharacters(in: .whitespacesAndNewlines), !pending.isEmpty {
+                searchClass.searchText = pending
+                searchClass.runSearch(query: pending)
+                client.pendingSearchLookup = nil
+            }
         }
         .navigationDestination(isPresented: $selectedProfile.showProfile) {
             ProfileView(client: client, userData: selectedProfile.profileData, userID: selectedProfile.userID)
@@ -153,6 +180,58 @@ struct SearchView: View {
             get: { searchClass.exploreResults.postsFound?[index] ?? posts[index] },
             set: { newValue in
                 searchClass.exploreResults.postsFound?[index] = newValue
+            }
+        )
+    }
+
+    private func bindingForTaggedPost(tagIndex: Int, postIndex: Int) -> Binding<AllPosts>? {
+        if isSearchMode {
+            guard let tagGroups = searchClass.searchResults.tagsFound,
+                  tagGroups.indices.contains(tagIndex),
+                  let posts = tagGroups[tagIndex].posts,
+                  posts.indices.contains(postIndex) else {
+                return nil
+            }
+
+            return Binding(
+                get: {
+                    searchClass.searchResults.tagsFound?[tagIndex].posts?[postIndex] ?? posts[postIndex]
+                },
+                set: { newValue in
+                    guard var tagGroups = searchClass.searchResults.tagsFound,
+                          tagGroups.indices.contains(tagIndex),
+                          var posts = tagGroups[tagIndex].posts,
+                          posts.indices.contains(postIndex) else {
+                        return
+                    }
+                    posts[postIndex] = newValue
+                    tagGroups[tagIndex].posts = posts
+                    searchClass.searchResults.tagsFound = tagGroups
+                }
+            )
+        }
+
+        guard let tagGroups = searchClass.exploreResults.tagsFound,
+              tagGroups.indices.contains(tagIndex),
+              let posts = tagGroups[tagIndex].posts,
+              posts.indices.contains(postIndex) else {
+            return nil
+        }
+
+        return Binding(
+            get: {
+                searchClass.exploreResults.tagsFound?[tagIndex].posts?[postIndex] ?? posts[postIndex]
+            },
+            set: { newValue in
+                guard var tagGroups = searchClass.exploreResults.tagsFound,
+                      tagGroups.indices.contains(tagIndex),
+                      var posts = tagGroups[tagIndex].posts,
+                      posts.indices.contains(postIndex) else {
+                    return
+                }
+                posts[postIndex] = newValue
+                tagGroups[tagIndex].posts = posts
+                searchClass.exploreResults.tagsFound = tagGroups
             }
         )
     }

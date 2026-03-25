@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Foundation
 
 
 struct PostPreView: View {
@@ -219,14 +220,44 @@ struct PostPreviewView: View {
                 Spacer()
                 HStack {
                     VStack {
-                        // doesnt work
-//                        TappableText(content: feedData.postData.content!) { word in
-//                            print("tapped on \(word)")
-//                        }
-                        Text(feedData.postData.content!)
-//                            .foregroundColor(.secondary)
-                            .lineLimit(100) // or set a specific number
-                            .multilineTextAlignment(.leading) // or .center, .trailing
+                        InteractivePostText(
+                            content: feedData.postData.content ?? "",
+                            onHashtagTap: { hashtag in
+                                client.hapticPress()
+                                let query = hashtag.trimmingCharacters(in: .whitespacesAndNewlines)
+                                guard !query.isEmpty else {
+                                    return
+                                }
+                                client.pendingSearchLookup = query
+                                client.navigation = client.navigationManager.switchTab(newTab: 5)
+                                print("Tapped hashtag: \(hashtag)")
+                            },
+                            onMentionTap: { mention in
+                                client.hapticPress()
+                                let username = mention.replacingOccurrences(of: "@", with: "")
+                                guard !username.isEmpty else {
+                                    return
+                                }
+
+                                client.api.search.searchRequest(lookup: SearchLookupData(lookupkey: "@\(username)")) { result in
+                                    switch result {
+                                    case .success(let found):
+                                        guard let user = found.usersFound?.first(where: { ($0.username ?? "").lowercased() == username.lowercased() }),
+                                              let userID = user._id,
+                                              !userID.isEmpty else {
+                                            return
+                                        }
+                                        DispatchQueue.main.async {
+                                            selectedProfile.showProfile = true
+                                            selectedProfile.profileData = user
+                                            selectedProfile.userID = userID
+                                        }
+                                    case .failure:
+                                        break
+                                    }
+                                }
+                            }
+                        )
                     }
                     Spacer()
                 }
@@ -485,29 +516,73 @@ struct ProfilePostView: View {
 }
 
 
-struct TappableText: View {
+struct InteractivePostText: View {
     let content: String
-    let onTap: (String) -> Void
-
-    var words: [String] {
-        content.split(separator: " ").map { String($0) }
-    }
+    let onHashtagTap: (String) -> Void
+    let onMentionTap: (String) -> Void
 
     var body: some View {
-        VStack {
-            HStack {
-                ForEach(words, id: \.self) { word in
-                    Text(word + " ")
-                        .foregroundColor(.blue)
-                        .onTapGesture {
-                            onTap(word)
-                        }
-//                        .padding(.trailing, 4) // Add some space between words
+        Text(PostContentParser.makeAttributedContent(content))
+            .lineLimit(100)
+            .multilineTextAlignment(.leading)
+            .environment(\.openURL, OpenURLAction { url in
+                guard url.scheme == "interact", let host = url.host else {
+                    return .systemAction
                 }
-                Spacer()
-            }
-            .frame(maxWidth: .infinity, alignment: .leading) // Allow text to wrap
+
+                let token = url.lastPathComponent.removingPercentEncoding ?? url.lastPathComponent
+                switch host {
+                case "hashtag":
+                    onHashtagTap(token)
+                    return .handled
+                case "mention":
+                    onMentionTap(token)
+                    return .handled
+                default:
+                    return .systemAction
+                }
+            })
+    }
+}
+
+private enum PostContentParser {
+    private static let tokenRegex = try? NSRegularExpression(pattern: "(?<![A-Za-z0-9_])([#@][A-Za-z0-9_]+)")
+    private static let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue | NSTextCheckingResult.CheckingType.phoneNumber.rawValue)
+
+    static func makeAttributedContent(_ content: String) -> AttributedString {
+        var attributed = AttributedString(content)
+        guard let tokenRegex else {
+            return attributed
         }
+
+        let nsString = content as NSString
+        let fullRange = NSRange(location: 0, length: nsString.length)
+        let protectedRanges = detector?.matches(in: content, options: [], range: fullRange).map { $0.range } ?? []
+
+        for match in tokenRegex.matches(in: content, options: [], range: fullRange) {
+            guard match.numberOfRanges > 1 else {
+                continue
+            }
+
+            let tokenRange = match.range(at: 1)
+            let insideProtectedRange = protectedRanges.contains(where: { NSIntersectionRange($0, tokenRange).length > 0 })
+            if insideProtectedRange {
+                continue
+            }
+
+            guard let swiftRange = Range(tokenRange, in: content),
+                  let attributedRange = Range(swiftRange, in: attributed) else {
+                continue
+            }
+
+            let token = String(content[swiftRange])
+            let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? token
+
+            attributed[attributedRange].foregroundColor = .blue
+            attributed[attributedRange].link = URL(string: "interact://\(token.hasPrefix("#") ? "hashtag" : "mention")/\(encodedToken)")
+        }
+
+        return attributed
     }
 }
 
