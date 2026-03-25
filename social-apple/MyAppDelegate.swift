@@ -10,10 +10,13 @@ import UIKit
 import UserNotifications
 
 class MyAppDelegate: UIResponder, UIApplicationDelegate {
+    static weak var shared: MyAppDelegate?
     var client: Client?
+    private var pendingDeviceToken: String?
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         print("didFinishLaunchingWithOptions")
+        MyAppDelegate.shared = self
 
         return true;
     }
@@ -22,6 +25,7 @@ class MyAppDelegate: UIResponder, UIApplicationDelegate {
     func registerPushNotifications(client: Client) {
         UNUserNotificationCenter.current().delegate = self
         self.client = client
+        registerPendingDeviceTokenIfNeeded()
         let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
         
         UNUserNotificationCenter.current()
@@ -40,30 +44,42 @@ class MyAppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        
         print("Successfully registered notificaiton")
-        let tokenParts = deviceToken.map{ data in String(format: "%02.2hhx", data) }
+        let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
         let token = tokenParts.joined()
         print(token)
 
-        let userTokenManager = UserTokenHandler()
-        let tokensFound = userTokenManager.getUserTokens()
-        let userTokens = (tokensFound != nil) ? tokensFound : UserTokenData(accessToken: "", userToken: "", userID: "")
-       
-        let sendData = PushNotificationSend(deviceToken: token, deviceType: "iPhone", userID: userTokens?.userID ?? "empty")
-        let apiHelper = API_Helper(userTokensProv: userTokens!)
-
-        let notificationsApi = NotificationsApi(apiHelper: apiHelper)
-        
-        notificationsApi.registerDevice(notificationRegister: sendData) { result in
-            print("done registering")
-            self.client?.api.notifications.refreshDeviceToken()
+        guard let client else {
+            pendingDeviceToken = token
+            print("Client not ready yet for APNs registration; buffering token.")
+            return
         }
-        
+
+        registerDeviceToken(token, for: client)
     }
     
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         print("Failed to register notifications")
+    }
+
+    private func registerPendingDeviceTokenIfNeeded() {
+        guard let token = pendingDeviceToken, let client else {
+            return
+        }
+        pendingDeviceToken = nil
+        registerDeviceToken(token, for: client)
+    }
+
+    private func registerDeviceToken(_ token: String, for client: Client) {
+        client.api.notifications.registerDeviceTokenFromAPNs(deviceToken: token) { result in
+            switch result {
+            case .success:
+                print("done registering")
+                client.api.notifications.refreshDeviceToken()
+            case .failure(let error):
+                print("Error: \(error.localizedDescription)")
+            }
+        }
     }
     
     

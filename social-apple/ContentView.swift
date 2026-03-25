@@ -9,13 +9,18 @@ import SwiftUI
 import CoreData
 
 struct ContentView: View {
-    @StateObject var client = Client()
-    @ObservedObject var feedPosts: FeedPosts = FeedPosts(client: Client())
+    @StateObject var client: Client
+    @StateObject var feedPosts: FeedPosts
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
     init() {
-        // INDEPENDANT CLIENT
-        self.feedPosts.getFeed()
+        let sharedClient = Client()
+        let sharedFeedPosts = FeedPosts(client: sharedClient)
+
+        _client = StateObject(wrappedValue: sharedClient)
+        _feedPosts = StateObject(wrappedValue: sharedFeedPosts)
+
+        sharedFeedPosts.getFeed()
     }
     
     var body: some View {
@@ -45,6 +50,11 @@ struct ContentView: View {
             print("serveroffline \(client.serverOffline)")
             print ("devMode: \(client.devMode!)")
             print ("page: \(client.navigation?.selectedTab ?? -1)")
+            #if os(iOS)
+            if let appDelegate = MyAppDelegate.shared ?? (UIApplication.shared.delegate as? MyAppDelegate) {
+                appDelegate.client = client
+            }
+            #endif
         }
     }
 }
@@ -297,10 +307,6 @@ struct IncomeNotificationView: View {
     @State var expand = false
     @State var newNotification = false
     @State var notificationBody = ""
-    
-    #if os(iOS)
-    @UIApplicationDelegateAdaptor private var appDelegate: MyAppDelegate
-    #endif
 
     var body: some View {
         VStack {
@@ -468,7 +474,7 @@ struct SideBarNavigation: View {
                 
                 VStack {
                     NavigationLink {
-                        BasicSettings(client: client)
+                        BasicSettings(client: client, feedPosts: feedPosts)
                     } label: {
                         HStack {
                             Image(systemName: "gearshape")
