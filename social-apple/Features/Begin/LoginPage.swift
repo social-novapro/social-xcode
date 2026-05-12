@@ -12,6 +12,14 @@ struct LoginPage: View {
     
     @State private var username: String = ""
     @State private var password: String = ""
+    @State private var isLoggingIn: Bool = false
+    @State private var loginError: String = ""
+    
+    private var canSubmit: Bool {
+        !isLoggingIn &&
+        !username.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        !password.isEmpty
+    }
     
     var body: some View {
         VStack {
@@ -21,6 +29,8 @@ struct LoginPage: View {
                         Spacer()
                         Image(systemName: "person.circle")
                         TextField("Username", text: $username)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
                             .padding(15)
                             .cornerRadius(20)
                             .overlay(
@@ -50,22 +60,9 @@ struct LoginPage: View {
                 .padding(5)
                 
                 Button(action: {
-                    client.hapticPress()
-                    print("button pressed")
-                    let userLogin = UserLoginData(username: username, password: password)
-                    print("userlogin, LoginPage")
-                    client.api.auth.userLoginRequest(userLogin: userLogin) { result in
-                        print("api rquest login:")
-                        switch result {
-                        case .success(let userLoginData):
-                            client.provideTokens(userLoginResponse: userLoginData)
-                            client.changeBeginSetting(value: 0)
-                        case .failure(let error):
-                            print("Error: \(error.localizedDescription)")
-                        }
-                    }
+                    login()
                 }) {
-                    Text("Login")
+                    Text(isLoggingIn ? "Logging in..." : "Login")
                         .padding(15)
                         .cornerRadius(20)
                         .overlay(
@@ -73,9 +70,46 @@ struct LoginPage: View {
                                 .stroke(Color.accentColor, lineWidth: 3)
                         )
                 }
+                .disabled(!canSubmit)
+                
+                if !loginError.isEmpty {
+                    Text(loginError)
+                        .foregroundStyle(.red)
+                        .padding(.horizontal, 15)
+                        .padding(.top, 4)
+                }
+                
                 Spacer()
             }
         }
         .navigationTitle("Login")
+    }
+    
+    private func login() {
+        guard canSubmit else {
+            return
+        }
+        
+        client.hapticPress()
+        isLoggingIn = true
+        loginError = ""
+        
+        let userLogin = UserLoginData(
+            username: username.trimmingCharacters(in: .whitespacesAndNewlines),
+            password: password
+        )
+        
+        client.api.auth.userLoginRequest(userLogin: userLogin) { result in
+            DispatchQueue.main.async {
+                isLoggingIn = false
+                switch result {
+                case .success(let userLoginData):
+                    client.provideTokens(userLoginResponse: userLoginData)
+                    client.changeBeginSetting(value: 0)
+                case .failure(let error):
+                    loginError = "Login failed: \(error.localizedDescription)"
+                }
+            }
+        }
     }
 }

@@ -27,6 +27,12 @@ struct ErrorData : Codable, Error {
     }
 }
 
+extension ErrorData: LocalizedError {
+    var errorDescription: String? {
+        msg
+    }
+}
+
 struct ErrorDataWithAuth: Decodable, Error {
     let authorized: Bool
     let error: ErrorData
@@ -34,6 +40,12 @@ struct ErrorDataWithAuth: Decodable, Error {
     init (authorized: Bool, error: ErrorData) {
         self.authorized = authorized
         self.error = error
+    }
+}
+
+extension ErrorDataWithAuth: LocalizedError {
+    var errorDescription: String? {
+        error.msg
     }
 }
 
