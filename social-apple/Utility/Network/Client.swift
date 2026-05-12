@@ -97,9 +97,10 @@ class Client: ObservableObject {
         }
     }
     
-    func switchAccount(userID: String, completion: (() -> Void)? = nil) {
+    @discardableResult
+    func switchAccount(userID: String, completion: (() -> Void)? = nil) -> Bool {
         guard let switchedTokens = userTokenManager.switchActiveUser(userID: userID) else {
-            return
+            return false
         }
         
         DispatchQueue.main.async {
@@ -113,6 +114,7 @@ class Client: ObservableObject {
             self.loadCurrentUserData()
             completion?()
         }
+        return true
     }
     
     func changeBeginSetting(value: Int) {
