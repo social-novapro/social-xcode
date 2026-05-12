@@ -9,22 +9,26 @@ import SwiftUI
 
 struct LogoutView: View {
     @ObservedObject var client: Client
-    @State private var isLoggingOut = false
+    var feedPosts: FeedPosts? = nil
+    @Environment(\.dismiss) private var dismiss
+    @State private var logoutMessage = ""
 
     var body: some View {
-        VStack {
-            if (isLoggingOut) {
+        VStack(spacing: 16) {
+            if (!client.loggedIn) {
                 BeginPage(client: client)
             }
             else {
-                Text("Are you sure you want to logout?")
+                Text("Choose how you want to log out.")
+                
                 Button(action: {
                     client.hapticPress()
-                    print("deleting pressed")
-                    client.logout()
-                    isLoggingOut = true
+                    client.logoutCurrentAccount {
+                        refreshFeedForCurrentAccount()
+                        logoutMessage = "Logged out of the current account."
+                    }
                 }) {
-                    Text("Log out")
+                    Text("Log out current account")
                         .padding(15)
                         .cornerRadius(20)
                         .overlay(
@@ -32,11 +36,51 @@ struct LogoutView: View {
                                 .stroke(Color.accentColor, lineWidth: 3)
                         )
                 }
+                
+                Button(role: .destructive, action: {
+                    client.hapticPress()
+                    client.logoutAllAccounts {
+                        feedPosts?.resetForAccountChange()
+                        logoutMessage = "Logged out of all accounts."
+                    }
+                }) {
+                    Text("Log out all accounts")
+                        .padding(15)
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.red, lineWidth: 3)
+                        )
+                }
+                
+                Button("Cancel") {
+                    client.hapticPress()
+                    dismiss()
+                }
+                
+                if !logoutMessage.isEmpty {
+                    Text(logoutMessage)
+                        .font(.caption)
+                }
+                
                 Spacer()
             }
             
         }
         .navigationTitle("Logout")
 
+    }
+    
+    private func refreshFeedForCurrentAccount() {
+        guard let feedPosts else {
+            return
+        }
+        
+        feedPosts.newClient(client: client)
+        if client.loggedIn {
+            feedPosts.refreshFeed(resetFeed: true)
+        } else {
+            feedPosts.resetForAccountChange()
+        }
     }
 }

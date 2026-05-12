@@ -71,7 +71,7 @@ class ApiClient: ObservableObject {
     func updateUserTokens(userTokens: UserTokenData) {
         /* sets up tokens */
         print("Providing tokens")
-        DispatchQueue.main.async {
+        let applyTokens = {
             self.userTokens = userTokens
 
             // Keep one shared helper/service chain and only update token state.
@@ -79,6 +79,14 @@ class ApiClient: ObservableObject {
 
             // Recreate websocket client because it builds URL state from user tokens.
             self.livechatWS = LiveChatWebSocket(baseURL: self.apiHelper.baseAPIurl, userTokensProv: self.userTokens)
+        }
+        
+        if Thread.isMainThread {
+            applyTokens()
+        } else {
+            DispatchQueue.main.async {
+                applyTokens()
+            }
         }
     }
 }
