@@ -73,16 +73,24 @@ struct LoginPage: View {
                 .disabled(!canSubmit)
                 
                 if !loginError.isEmpty {
-                    Text(loginError)
-                        .foregroundStyle(.red)
+                    AuthInlineErrorView(message: loginError)
                         .padding(.horizontal, 15)
-                        .padding(.top, 4)
+                        .padding(.top, 8)
                 }
                 
                 Spacer()
             }
         }
         .navigationTitle("Login")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button("Back") {
+                    client.hapticPress()
+                    client.changeBeginSetting(value: 1)
+                }
+                .disabled(isLoggingIn)
+            }
+        }
     }
     
     private func login() {
@@ -107,9 +115,34 @@ struct LoginPage: View {
                     client.provideTokens(userLoginResponse: userLoginData)
                     client.changeBeginSetting(value: 0)
                 case .failure(let error):
-                    loginError = "Login failed: \(error.localizedDescription)"
+                    loginError = userFacingErrorMessage(
+                        error,
+                        fallback: "We couldn't sign you in. Check your username and password, then try again."
+                    )
                 }
             }
         }
+    }
+}
+
+struct AuthInlineErrorView: View {
+    let message: String
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 8) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(.red)
+            Text(message)
+                .font(.callout)
+                .foregroundStyle(.primary)
+            Spacer()
+        }
+        .padding(12)
+        .background(Color.red.opacity(0.12))
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.red.opacity(0.35), lineWidth: 1)
+        )
     }
 }

@@ -49,6 +49,28 @@ extension ErrorDataWithAuth: LocalizedError {
     }
 }
 
+func userFacingErrorMessage(_ error: Error, fallback: String) -> String {
+    if let apiError = error as? ErrorData, !apiError.msg.isEmpty {
+        return apiError.msg
+    }
+    
+    if let authError = error as? ErrorDataWithAuth, !authError.error.msg.isEmpty {
+        return authError.error.msg
+    }
+    
+    let nsError = error as NSError
+    if nsError.domain == NSURLErrorDomain {
+        return "We couldn't reach Interact. Check your connection and try again."
+    }
+    
+    let message = error.localizedDescription
+    if message.isEmpty || message.contains("com.example.error") {
+        return fallback
+    }
+    
+    return message
+}
+
 struct ApiHeader: Decodable {
     let value: String
     let field: String

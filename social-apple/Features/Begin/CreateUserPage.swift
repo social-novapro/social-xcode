@@ -160,16 +160,24 @@ struct CreateUserPage: View {
                 .disabled(!canSubmit)
                 
                 if !createError.isEmpty {
-                    Text(createError)
-                        .foregroundStyle(.red)
+                    AuthInlineErrorView(message: createError)
                         .padding(.horizontal, 15)
-                        .padding(.top, 4)
+                        .padding(.top, 8)
                 }
                 
                 Spacer()
             }
         }
         .navigationTitle("Sign up")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button("Back") {
+                    client.hapticPress()
+                    client.changeBeginSetting(value: 1)
+                }
+                .disabled(isCreatingUser)
+            }
+        }
     }
     
     private func createUser() {
@@ -200,7 +208,10 @@ struct CreateUserPage: View {
                     client.provideTokens(userLoginResponse: userLoginData)
                     client.changeBeginSetting(value: 0)
                 case .failure(let error):
-                    createError = "Sign up failed: \(error.localizedDescription)"
+                    createError = userFacingErrorMessage(
+                        error,
+                        fallback: "We couldn't create your account. Check the fields and try again."
+                    )
                 }
             }
         }
