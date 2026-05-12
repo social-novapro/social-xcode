@@ -50,6 +50,12 @@ class ProfileViewClass: ObservableObject {
         DispatchQueue.main.async {
             self.doneLoading = false
             self.possibleFail = false
+            self.loadingNextIndex = false
+            self.userPostIndexData = nil
+            self.postData = []
+            self.pinData = []
+            self.badgeData = []
+            self.mentionData = []
         }
 
         let requestUserID = self.userID.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -75,7 +81,7 @@ class ProfileViewClass: ObservableObject {
                         self.userID = resolvedID
                     }
 //                    self.postData = results.postData.reversed();
-                    self.addPosts(newPosts: results.postData.reversed())
+                    self.addPosts(newPosts: results.postData.reversed(), toClear: true)
                     self.pinData = results.pinData.reversed();
                     self.badgeData = results.badgeData?.reversed() ?? []
                     self.mentionData = results.mentionData?.reversed() ?? []
@@ -131,7 +137,7 @@ class ProfileViewClass: ObservableObject {
 
     // copied from PostData.swift
     func addPosts(newPosts: [AllPosts], toClear:Bool=false) -> Void {
-        DispatchQueue.main.async {
+        let applyPosts = {
             // due to new posts showing at bottom
             // could change that and fix it needing to be clear
             if (toClear==true) {
@@ -144,14 +150,18 @@ class ProfileViewClass: ObservableObject {
                 }
 
                 // this isnt working, will need to figure out, only in case of bad index going to server or getting from
-//                if let existingIndex = self.postData.firstIndex(where: { $0.postData._id == newPost.postData._id }) {
-//                    print("existing")
-//                    self.postData[existingIndex] = newPost
-//                } else {
-//                    print("adding")
+                if let existingIndex = self.postData.firstIndex(where: { $0.postData._id == newPost.postData._id }) {
+                    self.postData[existingIndex] = newPost
+                } else {
                     self.postData.append(newPost)
-//                }
+                }
             }
+        }
+
+        if Thread.isMainThread {
+            applyPosts()
+        } else {
+            DispatchQueue.main.async(execute: applyPosts)
         }
     }
 }

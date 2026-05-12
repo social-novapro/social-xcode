@@ -7,6 +7,29 @@
 
 import SwiftUI
 
+private func profilePostBinding(
+    profileData: ProfileViewClass,
+    postID: String,
+    keyPath: ReferenceWritableKeyPath<ProfileViewClass, [AllPosts]>,
+    fallback: AllPosts
+) -> Binding<AllPosts> {
+    Binding {
+        profileData[keyPath: keyPath].first { $0.postData._id == postID } ?? fallback
+    } set: { updatedPost in
+        var posts = profileData[keyPath: keyPath]
+        guard let index = posts.firstIndex(where: { $0.postData._id == postID }) else {
+            return
+        }
+        posts[index] = updatedPost
+        profileData[keyPath: keyPath] = posts
+    }
+}
+
+private func nonEmptyText(_ value: String?, fallback: String) -> String {
+    let trimmedValue = value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    return trimmedValue.isEmpty ? fallback : trimmedValue
+}
+
 struct ProfileView : View {
     @ObservedObject var client: Client
     @ObservedObject var profileData: ProfileViewClass
@@ -54,8 +77,10 @@ struct ProfileView : View {
                         Text("User Pins")
 
                         List {
-                            ForEach(self.profileData.pinData.indices, id: \.self) { index in
-                                PostPreView(client: client, feedData: $profileData.pinData[index], selectedProfile: $selectedProfile)
+                            ForEach(self.profileData.pinData, id: \.postData._id) { post in
+                                let postID = post.postData._id
+
+                                PostPreView(client: client, feedData: profilePostBinding(profileData: profileData, postID: postID, keyPath: \.pinData, fallback: post), selectedProfile: $selectedProfile)
                                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 #if !os(tvOS)
                                     .listRowSeparator(.hidden)
@@ -78,8 +103,10 @@ struct ProfileView : View {
                         Text("User Posts")
 
                         List {
-                            ForEach(self.profileData.postData.indices, id: \.self) { index in
-                                PostPreView(client: client, feedData: $profileData.postData[index], selectedProfile: $selectedProfile)
+                            ForEach(self.profileData.postData, id: \.postData._id) { post in
+                                let postID = post.postData._id
+
+                                PostPreView(client: client, feedData: profilePostBinding(profileData: profileData, postID: postID, keyPath: \.postData, fallback: post), selectedProfile: $selectedProfile)
                                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 #if !os(tvOS)
                                     .listRowSeparator(.hidden)
@@ -88,7 +115,7 @@ struct ProfileView : View {
                                     .padding(10)
                                 
                                     .onAppear(){
-                                        if (self.profileData.postData.last?.id == profileData.postData[index].id) {
+                                        if (self.profileData.postData.last?.postData._id == postID) {
                                             print("showing bottom")
                                             self.profileData.nextUserPostsIndex()
                                         }
@@ -134,8 +161,8 @@ struct ProfileView : View {
         }
         .navigationTitle(profileData.doneLoading ? "Profile of @" + (profileData.userData?.username ?? "unknown") : "Loading profile...")
         .onAppear() {
-            if (self.userData != nil) {
-                profileData.provBasic(userData: userData!)
+            if let userData {
+                profileData.provBasic(userData: userData)
             }
 
             profileData.ready()
@@ -187,8 +214,10 @@ struct ProfileMentionView: View {
             Text("User Mentions")
 
             List {
-                ForEach(self.profileData.mentionData.indices, id: \.self) { index in
-                    PostPreView(client: client, feedData: $profileData.mentionData[index], selectedProfile: $selectedProfile)
+                ForEach(self.profileData.mentionData, id: \.postData._id) { post in
+                    let postID = post.postData._id
+
+                    PostPreView(client: client, feedData: profilePostBinding(profileData: profileData, postID: postID, keyPath: \.mentionData, fallback: post), selectedProfile: $selectedProfile)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
 #if !os(tvOS)
                         .listRowSeparator(.hidden)
@@ -246,100 +275,115 @@ struct ProfileUserDataView: View {
                 EditProfileResults(client: client, profileData: profileData, editingResults: $editingResults, showEditResults: $showEditResults)
             }
             if (!editingProfile && !showEditResults) {
-                HStack {
-                    Text(profileData.userData!.displayName!)
-                    Text("@" + profileData.userData!.username!)
-                    if (profileData.userData!.verified == true) {
-                        Image(systemName: "checkmark.seal.fill")
+                if let userData = profileData.userData {
+                    HStack {
+                        Text(nonEmptyText(userData.displayName, fallback: "Unknown User"))
+                        Text("@" + nonEmptyText(userData.username, fallback: "unknown"))
+                        if (userData.verified == true) {
+                            Image(systemName: "checkmark.seal.fill")
+                        }
+                        Spacer()
                     }
-                    Spacer()
-                }
-                HStack {
-                    Text(profileData.userData!.description!)
-                    Spacer()
-                }
-                HStack {
-                    Text(String(profileData.userData?.followingCount ?? 0) + " Following")
-                    Text("|")
-                    Text(String(profileData.userData?.followerCount ?? 0) + " Followers")
-                    
-                    if (profileData.userData?._id ?? "" != self.client.userTokens.userID) {
-                        Button(action: {
-                            client.hapticPress()
-                            print(profileData.followed)
-                            DispatchQueue.main.async {
-                                Task {
-                                    if (profileData.followed == true) {
-                                        do {
-                                            _ = try await client.api.users.unFollowUser(userID: self.profileData.userData?._id ?? "")
-                                            profileData.followed = false
-                                        } catch let error as ErrorData {
-                                            print("ErrorData: \(error.code), \(error.msg)")
-                                        } catch {
-                                            print("Unexpected error: \(error)")
-                                        }
-                                    } else {
-                                        do {
-                                            //self.profileData.userDataFull?.extraData?.followed
-                                            _ = try await client.api.users.followUser(userID: self.profileData.userData?._id ?? "")
-                                            profileData.followed = true
-                                        } catch {
-                                            print("failed true" )
-                                            print(error as! ErrorData)
+
+                    if let description = userData.description?.trimmingCharacters(in: .whitespacesAndNewlines), !description.isEmpty {
+                        HStack {
+                            Text(description)
+                            Spacer()
+                        }
+                    }
+
+                    HStack {
+                        Text(String(userData.followingCount ?? 0) + " Following")
+                        Text("|")
+                        Text(String(userData.followerCount ?? 0) + " Followers")
+                        
+                        if let profileUserID = userData._id, !profileUserID.isEmpty, profileUserID != self.client.userTokens.userID {
+                            Button(action: {
+                                client.hapticPress()
+                                print(profileData.followed)
+                                DispatchQueue.main.async {
+                                    Task {
+                                        if (profileData.followed == true) {
+                                            do {
+                                                _ = try await client.api.users.unFollowUser(userID: profileUserID)
+                                                profileData.followed = false
+                                            } catch let error as ErrorData {
+                                                print("ErrorData: \(error.code), \(error.msg)")
+                                            } catch {
+                                                print("Unexpected error: \(error)")
+                                            }
+                                        } else {
+                                            do {
+                                                //self.profileData.userDataFull?.extraData?.followed
+                                                _ = try await client.api.users.followUser(userID: profileUserID)
+                                                profileData.followed = true
+                                            } catch let error as ErrorData {
+                                                print("ErrorData: \(error.code), \(error.msg)")
+                                            } catch {
+                                                print("Unexpected error: \(error)")
+                                            }
                                         }
                                     }
                                 }
+                            }) {
+                                Text("|")
+                                if (profileData.followed == true) {
+                                    Text("Unfollow User")
+                                } else {
+                                    Text("Follow User")
+                                }
                             }
-                        }) {
-                            Text("|")
-                            if (profileData.followed == true) {
-                                Text("Unfollow User")
-                            } else {
-                                Text("Follow User")
-                            }
+                            .buttonStyle(PlainButtonStyle())
                         }
-                        .buttonStyle(PlainButtonStyle())
-                    }
-                    Spacer()
-                }
-                if (profileData.userData!.likeCount != nil) {
-                    HStack {
-                        Text(String(profileData.userData!.likeCount!) + " Likes")
                         Spacer()
                     }
-                }
-                if (profileData.userData!.likedCount != nil) {
-                    HStack {
-                        Text(String(profileData.userData!.likedCount!) + " Liked Posts")
-                        Spacer()
+                    if let likeCount = userData.likeCount {
+                        HStack {
+                            Text(String(likeCount) + " Likes")
+                            Spacer()
+                        }
                     }
-                }
-                if (profileData.userData!.statusTitle != nil) {
-                    HStack {
-                        Text("Activity Status: " + profileData.userData!.statusTitle!)
-                        Spacer()
+                    if let likedCount = userData.likedCount {
+                        HStack {
+                            Text(String(likedCount) + " Liked Posts")
+                            Spacer()
+                        }
                     }
-                }
-                HStack {
-                    Text("Created " + int64TimeFormatter(timestamp: profileData.userData!.creationTimestamp!))
-                    Spacer()
-                }
-                if (profileData.userData!.totalPosts != nil) {
-                    HStack {
-                        Text(String(profileData.userData!.totalPosts!) + " Total Posts")
-                        Spacer()
+                    if let statusTitle = userData.statusTitle?.trimmingCharacters(in: .whitespacesAndNewlines), !statusTitle.isEmpty {
+                        HStack {
+                            Text("Activity Status: " + statusTitle)
+                            Spacer()
+                        }
                     }
-                }
-                if (profileData.userData!.totalReplies != nil) {
-                    HStack {
-                        Text(String(profileData.userData!.totalReplies!) + " Total Replies")
-                        Spacer()
+                    if let creationTimestamp = userData.creationTimestamp {
+                        HStack {
+                            Text("Created " + int64TimeFormatter(timestamp: creationTimestamp))
+                            Spacer()
+                        }
                     }
-                    
-                }
-                if (profileData.userData!.totalQuotes != nil) {
+                    if let totalPosts = userData.totalPosts {
+                        HStack {
+                            Text(String(totalPosts) + " Total Posts")
+                            Spacer()
+                        }
+                    }
+                    if let totalReplies = userData.totalReplies {
+                        HStack {
+                            Text(String(totalReplies) + " Total Replies")
+                            Spacer()
+                        }
+                        
+                    }
+                    if let totalQuotes = userData.totalQuotes {
+                        HStack {
+                            Text(String(totalQuotes) + " Total Quote Posts")
+                            Spacer()
+                        }
+                    }
+                } else {
                     HStack {
-                        Text(String(profileData.userData!.totalQuotes!) + " Total Quote Posts")
+                        Text("Profile details unavailable")
+                            .foregroundColor(.secondary)
                         Spacer()
                     }
                 }
@@ -613,13 +657,14 @@ struct EditProfileView : View {
                     do {
                         possibleEdits = try await client.api.users.getUserEdit()
                         doneLoading = true;
-                    } catch {
-                        let foundError = error as! ErrorData
+                    } catch let error as ErrorData {
                         print("failed true" )
-                        print(foundError)
-                        if (foundError.code == "C022") {
+                        print(error)
+                        if (error.code == "C022") {
                             print("already following")
                         }
+                    } catch {
+                        print("Unexpected error: \(error)")
                     }
                 }
             }
@@ -726,8 +771,10 @@ struct FollowingFollowerProfilePreview: View {
             }
             
             HStack {
-                Text("Joined " + int64TimeFormatter(timestamp: followDataPoint.userData.creationTimestamp ?? 0))
-                    .foregroundColor(.secondary)
+                if let creationTimestamp = followDataPoint.userData.creationTimestamp {
+                    Text("Joined " + int64TimeFormatter(timestamp: creationTimestamp))
+                        .foregroundColor(.secondary)
+                }
 
                 Spacer()
             }
@@ -751,14 +798,14 @@ struct FollowingFollowerProfilePreview: View {
                 Spacer()
             }
             
-            if (client.userTokens.userID != followDataPoint.userData._id) {
+            if let profileUserID = followDataPoint.userData._id, !profileUserID.isEmpty, client.userTokens.userID != profileUserID {
                 Button(action: {
                     client.hapticPress()
                     DispatchQueue.main.async {
                         Task {
                             if (followDataPoint.userData.followed == true) {
                                 do {
-                                    _ = try await client.api.users.unFollowUser(userID: self.followDataPoint.userData._id ?? "")
+                                    _ = try await client.api.users.unFollowUser(userID: profileUserID)
                                     followDataPoint.userData.followed = false
                                 } catch let error as ErrorData {
                                     print("ErrorData: \(error.code), \(error.msg)")
@@ -767,11 +814,12 @@ struct FollowingFollowerProfilePreview: View {
                                 }
                             } else {
                                 do {
-                                    _ = try await client.api.users.followUser(userID: self.followDataPoint.userData._id ?? "")
+                                    _ = try await client.api.users.followUser(userID: profileUserID)
                                     followDataPoint.userData.followed = true
+                                } catch let error as ErrorData {
+                                    print("ErrorData: \(error.code), \(error.msg)")
                                 } catch {
-                                    print("failed true" )
-                                    print(error as! ErrorData)
+                                    print("Unexpected error: \(error)")
                                 }
                             }
                         }
@@ -807,10 +855,12 @@ struct FollowingFollowerListView: View {
 
     var body: some View {
         VStack {
-            if (self.userList?.data != nil) {
+            let followRows = self.userList?.data ?? []
+
+            if (!followRows.isEmpty) {
                 List {
-                    ForEach(self.userList!.data!.indices, id: \.self) { index in
-                        FollowingFollowerProfilePreview(client: client, followDataPoint: self.userList!.data![index])
+                    ForEach(followRows, id: \.followData._id) { followDataPoint in
+                        FollowingFollowerProfilePreview(client: client, followDataPoint: followDataPoint)
 #if !os(tvOS)
                             .listRowSeparator(.hidden)
 #endif
@@ -851,4 +901,3 @@ struct FollowingFollowerListView: View {
         }
     }
 }
-
