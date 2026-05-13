@@ -84,14 +84,21 @@ struct PostPreView: View {
                 print ("showing")
             }
             .padding(15)
-            .interactCardSurface(tone: postCardTone, cornerRadius: 20, lineWidth: 3)
+            .interactCardSurface(
+                design: client.designPreference,
+                tone: postCardTone,
+                cornerRadius: 20,
+                lineWidth: 3,
+                originalBackground: client.themeData.mainBackground,
+                originalBorder: .gray
+            )
         if (self.feedData.postLiveData.actionExpanded == true) {
             ExpandedPostView(client: client, feedData: $feedData)
         }
     }
     
     private var postCardTone: InteractSectionTone {
-        feedData.postLiveData.isOwner == true ? .owner : .normal
+        client.designPreference == .new && feedData.postLiveData.isOwner == true ? .owner : .normal
     }
 }
 
@@ -159,14 +166,21 @@ struct PostFeedPreView: View {
                 }
             }
             .padding(15)
-            .interactCardSurface(tone: postCardTone, cornerRadius: 20, lineWidth: 3)
+            .interactCardSurface(
+                design: client.designPreference,
+                tone: postCardTone,
+                cornerRadius: 20,
+                lineWidth: 3,
+                originalBackground: client.themeData.mainBackground,
+                originalBorder: .gray
+            )
         if (self.feedData.postLiveData.actionExpanded == true) {
             ExpandedPostView(client: client, postActiveData: postActiveData, feedData: $feedData)
         }
     }
     
     private var postCardTone: InteractSectionTone {
-        feedData.postLiveData.isOwner == true ? .owner : .normal
+        client.designPreference == .new && feedData.postLiveData.isOwner == true ? .owner : .normal
     }
 }
 

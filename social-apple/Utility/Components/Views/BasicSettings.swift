@@ -96,7 +96,7 @@ struct BasicSettings: View {
                 }
                 .padding(10)
                 #endif
-                appearanceSection
+                preferencesSection
                 
                 Button(action: {
                     client.hapticPress()
@@ -211,10 +211,17 @@ struct BasicSettings: View {
                 .padding(20)
             }
             .padding(15)
-            .interactCardSurface(tone: .selected, cornerRadius: 20, lineWidth: 3)
+            .interactCardSurface(
+                design: client.designPreference,
+                tone: client.designPreference == .new ? .selected : .normal,
+                cornerRadius: 20,
+                lineWidth: 3,
+                originalBackground: client.themeData.mainBackground,
+                originalBorder: .accentColor
+            )
             .padding(10)
         }
-        .interactAppBackground()
+        .interactAppBackground(design: client.designPreference)
         .onChange(of: enabledDevMode) { newValue in
             client.devMode = client.devModeManager.swapMode()
             client.themeData.updateThemes(devMode: client.devMode ?? DevModeData(isEnabled: false))
@@ -241,39 +248,89 @@ struct BasicSettings: View {
         .navigationTitle("Settings")
     }
     
-    private var appearanceSection: some View {
-        InteractConnectedCardSection(tone: .selected) {
-            InteractConnectedCardRow {
-                HStack(spacing: 12) {
-                    Image(systemName: "circle.lefthalf.filled")
-                        .foregroundStyle(.secondary)
-                    
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Appearance")
-                        Text("Use system, light, or dark mode.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+    private var preferencesSection: some View {
+        Group {
+            if client.designPreference == .new {
+                InteractConnectedCardSection(design: client.designPreference, tone: .selected) {
+                    InteractConnectedCardRow(design: client.designPreference) {
+                        appearancePickerRow
                     }
                     
-                    Spacer(minLength: 12)
+                    InteractConnectedCardDivider(design: client.designPreference, leadingInset: 56)
                     
-                    Picker(
-                        "Appearance",
-                        selection: Binding(
-                            get: { client.appearancePreference },
-                            set: { client.setAppearancePreference($0) }
-                        )
-                    ) {
-                        ForEach(InteractAppearancePreference.allCases) { preference in
-                            Text(preference.title).tag(preference)
-                        }
+                    InteractConnectedCardRow(design: client.designPreference) {
+                        designPickerRow
                     }
-                    .pickerStyle(.menu)
-                    .labelsHidden()
                 }
+            } else {
+                VStack(spacing: 12) {
+                    appearancePickerRow
+                    designPickerRow
+                }
+                .padding(10)
             }
         }
         .padding(10)
+    }
+    
+    private var appearancePickerRow: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "circle.lefthalf.filled")
+                .foregroundStyle(.secondary)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Appearance")
+                Text("Use system, light, or dark mode.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
+            Spacer(minLength: 12)
+            
+            Picker(
+                "Appearance",
+                selection: Binding(
+                    get: { client.appearancePreference },
+                    set: { client.setAppearancePreference($0) }
+                )
+            ) {
+                ForEach(InteractAppearancePreference.allCases) { preference in
+                    Text(preference.title).tag(preference)
+                }
+            }
+            .pickerStyle(.menu)
+            .labelsHidden()
+        }
+    }
+    
+    private var designPickerRow: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "square.stack.3d.up")
+                .foregroundStyle(.secondary)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Design")
+                Text("Choose the original app design or the new design pass.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
+            Spacer(minLength: 12)
+            
+            Picker(
+                "Design",
+                selection: Binding(
+                    get: { client.designPreference },
+                    set: { client.setDesignPreference($0) }
+                )
+            ) {
+                ForEach(InteractDesignPreference.allCases) { preference in
+                    Text(preference.title).tag(preference)
+                }
+            }
+            .pickerStyle(.menu)
+            .labelsHidden()
+        }
     }
 }
 

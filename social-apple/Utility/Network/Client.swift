@@ -32,11 +32,13 @@ class Client: ObservableObject {
     var devModeManager = DevModeHandler(persistentContainer: PersistenceController.shared.container)
     var navigationManager = CurrentNavigationHandler(persistentContainer: PersistenceController.shared.container)
     var hapticModeManager = HapticModeHandler(persistentContainer: PersistenceController.shared.container)
+    var appPreferenceManager = AppPreferenceHandler(persistentContainer: PersistenceController.shared.container)
 
     @Published var userTokens: UserTokenData
     @Published var userData: UserData?
     @Published var savedUserTokens: [UserTokenData] = []
     @Published var appearancePreference: InteractAppearancePreference = .system
+    @Published var designPreference: InteractDesignPreference = .original
     var themeData: ThemeData = ThemeData(devMode: DevModeData(isEnabled: false))
 
     @Published var cache = CacheManager();
@@ -55,7 +57,11 @@ class Client: ObservableObject {
             self.loggedIn = false
         }
         self.userTokens = initialUserTokens
-        self.appearancePreference = InteractAppearanceStore.preference(for: initialUserTokens.userID)
+        let initialPreferences = AppPreferenceHandler(
+            persistentContainer: PersistenceController.shared.container
+        ).getAppPreferences(userID: initialUserTokens.userID)
+        self.appearancePreference = initialPreferences.appearancePreference
+        self.designPreference = initialPreferences.designPreference
         
         let apiHelper = API_Helper(userTokensProv: initialUserTokens)
         self.api = ApiClient(apiHelper: apiHelper)
@@ -91,7 +97,7 @@ class Client: ObservableObject {
             self.userTokenManager.saveUserTokens(userTokenData: newTokens)
             self.savedUserTokens = self.userTokenManager.getAllUserTokens()
             self.api.updateUserTokens(userTokens: self.userTokens)
-            self.refreshAppearancePreference()
+            self.refreshAppPreferences()
             self.loggedIn = true
             self.loginUser = false
             self.createUser = false
@@ -219,15 +225,22 @@ class Client: ObservableObject {
     
     func setAppearancePreference(_ preference: InteractAppearancePreference) {
         DispatchQueue.main.async {
-            InteractAppearanceStore.setPreference(preference, for: self.userTokens.userID)
-            self.appearancePreference = preference
+            let preferences = self.appPreferenceManager.setAppearancePreference(preference, userID: self.userTokens.userID)
+            self.applyAppPreferences(preferences)
+        }
+    }
+    
+    func setDesignPreference(_ preference: InteractDesignPreference) {
+        DispatchQueue.main.async {
+            let preferences = self.appPreferenceManager.setDesignPreference(preference, userID: self.userTokens.userID)
+            self.applyAppPreferences(preferences)
         }
     }
     
     private func applyUserTokens(_ userTokens: UserTokenData) {
         self.userTokens = userTokens
         self.api.updateUserTokens(userTokens: userTokens)
-        self.refreshAppearancePreference()
+        self.refreshAppPreferences()
     }
     
     private func clearCurrentSession() {
@@ -236,7 +249,7 @@ class Client: ObservableObject {
         self.userData = nil
         self.savedUserTokens = []
         self.api.updateUserTokens(userTokens: emptyTokens)
-        self.refreshAppearancePreference()
+        self.refreshAppPreferences()
         self.loggedIn = false
         self.beginPageMode = 1
         self.loginUser = false
@@ -267,7 +280,13 @@ class Client: ObservableObject {
         }
     }
     
-    private func refreshAppearancePreference() {
-        self.appearancePreference = InteractAppearanceStore.preference(for: self.userTokens.userID)
+    private func refreshAppPreferences() {
+        let preferences = appPreferenceManager.getAppPreferences(userID: self.userTokens.userID)
+        applyAppPreferences(preferences)
+    }
+    
+    private func applyAppPreferences(_ preferences: AppPreferencesData) {
+        self.appearancePreference = preferences.appearancePreference
+        self.designPreference = preferences.designPreference
     }
 }

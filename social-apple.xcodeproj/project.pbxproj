@@ -19,7 +19,10 @@
 		651262EC2F730B5D0031C65E /* DebugHarness.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651262EB2F730B5A0031C65E /* DebugHarness.swift */; };
 		66A100032F80000000000000 /* InteractAppearancePreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A100022F80000000000000 /* InteractAppearancePreference.swift */; };
 		66A100052F80000000000000 /* InteractThemePalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A100042F80000000000000 /* InteractThemePalette.swift */; };
-		66A100072F80000000000000 /* InteractDesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A100062F80000000000000 /* InteractDesignSystem.swift */; };
+		66A100092F80000000000000 /* InteractDesignProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A100082F80000000000000 /* InteractDesignProtocol.swift */; };
+		66A1000B2F80000000000000 /* InteractOriginalDesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A1000A2F80000000000000 /* InteractOriginalDesign.swift */; };
+		66A1000D2F80000000000000 /* InteractNewDesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A1000C2F80000000000000 /* InteractNewDesign.swift */; };
+		66A1000F2F80000000000000 /* AppPreferenceHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A1000E2F80000000000000 /* AppPreferenceHandler.swift */; };
 		651262EE2F7335E00031C65E /* PostStateData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651262ED2F7335C70031C65E /* PostStateData.swift */; };
 		651262F02F7335F30031C65E /* PostModelsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651262EF2F7335ED0031C65E /* PostModelsData.swift */; };
 		651263002F7401000031C65E /* UserStateData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651262FF2F7400F00031C65E /* UserStateData.swift */; };
@@ -105,7 +108,10 @@
 		651262EB2F730B5A0031C65E /* DebugHarness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugHarness.swift; sourceTree = "<group>"; };
 		66A100022F80000000000000 /* InteractAppearancePreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractAppearancePreference.swift; sourceTree = "<group>"; };
 		66A100042F80000000000000 /* InteractThemePalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractThemePalette.swift; sourceTree = "<group>"; };
-		66A100062F80000000000000 /* InteractDesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractDesignSystem.swift; sourceTree = "<group>"; };
+		66A100082F80000000000000 /* InteractDesignProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractDesignProtocol.swift; sourceTree = "<group>"; };
+		66A1000A2F80000000000000 /* InteractOriginalDesign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractOriginalDesign.swift; sourceTree = "<group>"; };
+		66A1000C2F80000000000000 /* InteractNewDesign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractNewDesign.swift; sourceTree = "<group>"; };
+		66A1000E2F80000000000000 /* AppPreferenceHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferenceHandler.swift; sourceTree = "<group>"; };
 		651262ED2F7335C70031C65E /* PostStateData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostStateData.swift; sourceTree = "<group>"; };
 		651262EF2F7335ED0031C65E /* PostModelsData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostModelsData.swift; sourceTree = "<group>"; };
 		651262FF2F7400F00031C65E /* UserStateData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStateData.swift; sourceTree = "<group>"; };
@@ -245,9 +251,11 @@
 		66A100012F80000000000000 /* DesignSystem */ = {
 			isa = PBXGroup;
 			children = (
+				66A100082F80000000000000 /* InteractDesignProtocol.swift */,
+				66A1000A2F80000000000000 /* InteractOriginalDesign.swift */,
+				66A1000C2F80000000000000 /* InteractNewDesign.swift */,
 				66A100022F80000000000000 /* InteractAppearancePreference.swift */,
 				66A100042F80000000000000 /* InteractThemePalette.swift */,
-				66A100062F80000000000000 /* InteractDesignSystem.swift */,
 			);
 			path = DesignSystem;
 			sourceTree = "<group>";
@@ -561,6 +569,7 @@
 				651757DD29FB811300E90FBA /* DevModeHandler.swift */,
 				655BC0C92B07575100949356 /* CurrentNavigationHandler.swift */,
 				6526E8792B54E2B80072E33E /* HapticModeHandler.swift */,
+				66A1000E2F80000000000000 /* AppPreferenceHandler.swift */,
 				659B62E92B2BBE4800CF2FA4 /* LocalLogsHandler.swift */,
 			);
 			path = Persistence;
@@ -872,7 +881,10 @@
 				651262EC2F730B5D0031C65E /* DebugHarness.swift in Sources */,
 				66A100032F80000000000000 /* InteractAppearancePreference.swift in Sources */,
 				66A100052F80000000000000 /* InteractThemePalette.swift in Sources */,
-				66A100072F80000000000000 /* InteractDesignSystem.swift in Sources */,
+				66A100092F80000000000000 /* InteractDesignProtocol.swift in Sources */,
+				66A1000B2F80000000000000 /* InteractOriginalDesign.swift in Sources */,
+				66A1000D2F80000000000000 /* InteractNewDesign.swift in Sources */,
+				66A1000F2F80000000000000 /* AppPreferenceHandler.swift in Sources */,
 				65CC79352B697CE0002B5ADA /* PollsData.swift in Sources */,
 				65989CED2C88DD940039763D /* API_Base.swift in Sources */,
 				655AB60B29F0720500C61F3A /* Persistence.swift in Sources */,
