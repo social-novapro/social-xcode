@@ -190,29 +190,29 @@ class InteractAppDesign {
 
     func screenPaddingStyle(maxWidth: CGFloat) -> InteractScreenPaddingStyle {
         InteractScreenPaddingStyle(
-            maxWidth: nil,
-            horizontal: 10,
-            vertical: 10,
-            centersContent: false
+            maxWidth: maxWidth,
+            horizontal: 16,
+            vertical: 12,
+            centersContent: true
         )
     }
 
     func listScreenStyle(maxWidth: CGFloat) -> InteractListScreenStyle {
         InteractListScreenStyle(
-            maxWidth: nil,
-            centersContent: false,
+            maxWidth: maxWidth,
+            centersContent: true,
             hidesScrollBackground: true,
-            horizontalPadding: 0,
-            verticalPadding: 0
+            horizontalPadding: 6,
+            verticalPadding: 12
         )
     }
 
     func listRowStyle(rowPadding: CGFloat) -> InteractListRowStyle {
         InteractListRowStyle(
-            insets: EdgeInsets(),
-            padding: rowPadding,
+            insets: EdgeInsets(top: rowPadding, leading: 4, bottom: rowPadding, trailing: 16),
+            padding: 0,
             hidesSeparator: true,
-            clearBackground: false
+            clearBackground: true
         )
     }
 

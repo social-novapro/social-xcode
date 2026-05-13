@@ -88,9 +88,7 @@ struct LiveChatView: View {
 
                     Color.clear
                         .frame(height: 1)
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets())
-                        .listRowBackground(Color.clear)
+                        .interactPlainListRow(rowPadding: 0)
                         .id("chat-bottom-anchor")
                 }
                 .interactCardListScreen()

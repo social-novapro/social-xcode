@@ -408,7 +408,7 @@ extension View {
 
     func interactScreenPadding(
         design: InteractDesignPreference? = nil,
-        maxWidth: CGFloat = 620
+        maxWidth: CGFloat = 600
     ) -> some View {
         modifier(
             InteractScreenPaddingModifier(
@@ -432,7 +432,7 @@ extension View {
 
     func interactPlainListRow(
         design: InteractDesignPreference? = nil,
-        rowPadding: CGFloat = 10
+        rowPadding: CGFloat = 6
     ) -> some View {
         modifier(
             InteractPlainListRowModifier(
@@ -573,33 +573,34 @@ private struct InteractCardListScreenModifier: ViewModifier {
         let style = (designOverride ?? environmentDesign).listScreenStyle(maxWidth: maxWidth)
 
         if style.centersContent, let maxWidth = style.maxWidth {
-            applyListContentMargins(
+            applyVerticalListContentMargins(
                 content
                 .listStyle(.plain)
                 .frame(maxWidth: maxWidth, alignment: .leading)
-                .frame(maxWidth: .infinity, alignment: .center),
+                .padding(.horizontal, style.horizontalPadding),
                 style: style
             )
+            .frame(maxWidth: .infinity, alignment: .center)
         } else {
-            applyListContentMargins(content.listStyle(.plain), style: style)
+            applyVerticalListContentMargins(content.listStyle(.plain), style: style)
         }
     }
 
     @ViewBuilder
-    private func applyListContentMargins<V: View>(_ view: V, style: InteractListScreenStyle) -> some View {
+    private func applyVerticalListContentMargins<V: View>(_ view: V, style: InteractListScreenStyle) -> some View {
         #if os(iOS) || os(tvOS)
         if #available(iOS 17.0, tvOS 17.0, *) {
             view
-                .contentMargins(.horizontal, style.horizontalPadding, for: .scrollContent)
-                .contentMargins(.vertical, style.verticalPadding, for: .scrollContent)
+                .contentMargins(.top, style.verticalPadding, for: .scrollContent)
+                .contentMargins(.bottom, style.verticalPadding, for: .scrollContent)
         } else {
             view
         }
         #elseif os(macOS)
         if #available(macOS 14.0, *) {
             view
-                .contentMargins(.horizontal, style.horizontalPadding, for: .scrollContent)
-                .contentMargins(.vertical, style.verticalPadding, for: .scrollContent)
+                .contentMargins(.top, style.verticalPadding, for: .scrollContent)
+                .contentMargins(.bottom, style.verticalPadding, for: .scrollContent)
         } else {
             view
         }
@@ -629,7 +630,6 @@ private struct InteractPlainListRowModifier: ViewModifier {
             content
                 .listRowInsets(style.insets)
                 .listRowSeparator(style.hidesSeparator ? .hidden : .visible)
-                .listRowBackground(Color.clear)
                 .padding(style.padding)
         }
         #else
@@ -641,7 +641,6 @@ private struct InteractPlainListRowModifier: ViewModifier {
         } else {
             content
                 .listRowInsets(style.insets)
-                .listRowBackground(Color.clear)
                 .padding(style.padding)
         }
         #endif

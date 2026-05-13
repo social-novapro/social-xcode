@@ -100,8 +100,8 @@ final class InteractNewDesign: InteractAppDesign {
 
     override func listRowStyle(rowPadding: CGFloat) -> InteractListRowStyle {
         InteractListRowStyle(
-            insets: EdgeInsets(),
-            padding: rowPadding,
+            insets: EdgeInsets(top: rowPadding, leading: 4, bottom: rowPadding, trailing: 16),
+            padding: 0,
             hidesSeparator: true,
             clearBackground: true
         )

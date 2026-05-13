@@ -34,10 +34,6 @@ struct AdminErrorView: View {
                         }
                     }
                 }
-#if !os(tvOS)
-                .listStyle(.plain)
-                .listRowSeparator(.hidden)
-#endif
                 .interactCardListScreen()
                 .refreshable {
                     client.hapticPress()

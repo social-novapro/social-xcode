@@ -250,11 +250,9 @@ struct ProfileView : View {
                 editingProfile: $editingProfile,
                 showEditResults: $showEditResults
             )
-            .listRowInsets(EdgeInsets())
-            .listRowSeparator(.hidden)
-            .listRowBackground(Color.clear)
-            .padding(.horizontal, 15)
-            .padding(.vertical, 12)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .interactPlainListRow()
 
             if editingProfile {
                 EditProfileView(
@@ -264,10 +262,8 @@ struct ProfileView : View {
                     editingResults: $editingResults,
                     showEditResults: $showEditResults
                 )
-                .listRowInsets(EdgeInsets())
-                .listRowSeparator(.hidden)
-                .listRowBackground(Color.clear)
-                .padding(15)
+                .padding(14)
+                .interactPlainListRow()
             } else if showEditResults {
                 EditProfileResults(
                     client: client,
@@ -275,25 +271,18 @@ struct ProfileView : View {
                     editingResults: $editingResults,
                     showEditResults: $showEditResults
                 )
-                .listRowInsets(EdgeInsets())
-                .listRowSeparator(.hidden)
-                .listRowBackground(Color.clear)
-                .padding(15)
+                .padding(14)
+                .interactPlainListRow()
             } else {
                 ProfileSectionPicker(selectedSection: $selectedProfileSection)
-                    .listRowInsets(EdgeInsets())
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(Color.clear)
-                    .padding(.horizontal, 15)
-                    .padding(.bottom, 8)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .interactPlainListRow()
 
                 sectionRowsWithSwipe
                 profileBottomSpacer
             }
         }
-#if !os(tvOS)
-        .listRowSeparator(.hidden)
-#endif
         .interactCardListScreen()
         .refreshable {
             await refreshSelectedProfileSection()
@@ -317,9 +306,7 @@ struct ProfileView : View {
     private var profileBottomSpacer: some View {
         Color.clear
             .frame(height: 92)
-            .listRowInsets(EdgeInsets())
-            .listRowSeparator(.hidden)
-            .listRowBackground(Color.clear)
+            .interactPlainListRow(rowPadding: 0)
     }
 
     private var sectionSwipeGesture: some Gesture {
@@ -424,12 +411,7 @@ struct ProfileView : View {
 
                 PostPreView(client: client, feedData: profilePostBinding(profileData: profileData, postID: postID, keyPath: keyPath, fallback: post), selectedProfile: $selectedProfile)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-#if !os(tvOS)
-                    .listRowSeparator(.hidden)
-#endif
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
-                    .padding(10)
+                    .interactPlainListRow()
                     .onAppear {
                         if loadMoreOnBottom && self.profileData.postData.last?.postData._id == postID {
                             self.profileData.nextUserPostsIndex()
@@ -444,25 +426,17 @@ struct ProfileView : View {
                     Spacer()
                 }
                 .padding(20)
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
+                .interactPlainListRow()
             } else {
-                EmptyView()
-                    .padding(.bottom, 30)
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
+                Color.clear
+                    .frame(height: 30)
+                    .interactPlainListRow(rowPadding: 0)
             }
         default:
             ProfileSectionStatusView(state: state) {
                 profileData.refreshProfile(section: section)
             }
-#if !os(tvOS)
-            .listRowSeparator(.hidden)
-#endif
-            .listRowInsets(EdgeInsets())
-            .listRowBackground(Color.clear)
+            .interactPlainListRow()
         }
     }
 
@@ -472,27 +446,16 @@ struct ProfileView : View {
         case .loaded:
             ForEach(profileData.badgeData, id: \.id) { badge in
                 BadgeCardView(client: client, badgeData: badge)
-                    .padding(10)
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
-#if !os(tvOS)
-                    .listRowSeparator(.hidden)
-#endif
+                    .interactPlainListRow()
             }
-            EmptyView()
-                .padding(.bottom, 30)
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
+            Color.clear
+                .frame(height: 30)
+                .interactPlainListRow(rowPadding: 0)
         default:
             ProfileSectionStatusView(state: profileData.badgesLoadState) {
                 profileData.refreshProfile(section: .badges)
             }
-#if !os(tvOS)
-            .listRowSeparator(.hidden)
-#endif
-            .listRowInsets(EdgeInsets())
-            .listRowBackground(Color.clear)
+            .interactPlainListRow()
         }
     }
 
@@ -998,30 +961,16 @@ struct ProfileMentionView: View {
 
                         PostPreView(client: client, feedData: profilePostBinding(profileData: profileData, postID: postID, keyPath: \.mentionData, fallback: post), selectedProfile: $selectedProfile)
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
-#if !os(tvOS)
-                            .listRowSeparator(.hidden)
-#endif
-                            .listRowInsets(EdgeInsets())
-                            .listRowBackground(Color.clear)
-                            .padding(10)
+                            .interactPlainListRow()
                     }
-                    EmptyView()
-                        .padding(.bottom, 20)
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets())
-                        .listRowBackground(Color.clear)
+                    Color.clear
+                        .frame(height: 20)
+                        .interactPlainListRow(rowPadding: 0)
                 default:
                     ProfileSectionStatusView(state: loadState, retryAction: retryAction)
-#if !os(tvOS)
-                        .listRowSeparator(.hidden)
-#endif
-                        .listRowInsets(EdgeInsets())
-                        .listRowBackground(Color.clear)
+                        .interactPlainListRow()
                 }
             }
-            #if !os(tvOS)
-            .listRowSeparator(.hidden)
-            #endif
             .interactCardListScreen()
             .refreshable {
                 await refreshAction()
@@ -1473,30 +1422,19 @@ struct FollowingFollowerListView: View {
                             state: .empty("No " + (selectedFollowList == 0 ? "following" : "followers") + " found."),
                             retryAction: nil
                         )
-#if !os(tvOS)
-                        .listRowSeparator(.hidden)
-#endif
-                        .listRowInsets(EdgeInsets())
-                        .listRowBackground(Color.clear)
+                        .interactPlainListRow()
                     } else {
                         ForEach(followRows, id: \.followData._id) { followDataPoint in
                             FollowingFollowerProfilePreview(client: client, followDataPoint: followDataPoint)
-#if !os(tvOS)
-                                .listRowSeparator(.hidden)
-#endif
-                                .listRowInsets(EdgeInsets())
-                                .listRowBackground(Color.clear)
-                                .padding(10)
+                                .interactPlainListRow()
                                 .onAppear(){
                                     client.hapticPress()
                                 }
 
                         }
-                        EmptyView()
-                            .padding(.bottom, 40)
-                            .listRowSeparator(.hidden)
-                            .listRowInsets(EdgeInsets())
-                            .listRowBackground(Color.clear)
+                        Color.clear
+                            .frame(height: 40)
+                            .interactPlainListRow(rowPadding: 0)
 
                         if userList?.prevIndexID != nil {
                             HStack {
@@ -1513,11 +1451,7 @@ struct FollowingFollowerListView: View {
                                 Spacer()
                             }
                             .padding(20)
-#if !os(tvOS)
-                            .listRowSeparator(.hidden)
-#endif
-                            .listRowInsets(EdgeInsets())
-                            .listRowBackground(Color.clear)
+                            .interactPlainListRow()
                         }
                     }
                 default:
@@ -1526,16 +1460,9 @@ struct FollowingFollowerListView: View {
                             await refreshAction()
                         }
                     }
-#if !os(tvOS)
-                    .listRowSeparator(.hidden)
-#endif
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
+                    .interactPlainListRow()
                 }
             }
-#if !os(tvOS)
-            .listRowSeparator(.hidden)
-#endif
             .interactCardListScreen()
             .refreshable {
                 client.hapticPress()
