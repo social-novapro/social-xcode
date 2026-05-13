@@ -128,6 +128,7 @@ struct CreateUserPage: View {
                 
                 Spacer()
             }
+            .interactScreenPadding(maxWidth: 520)
         }
         .interactAppBackground()
         .navigationTitle("Sign up")

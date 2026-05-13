@@ -208,25 +208,91 @@ struct compactLayoutView : View {
     }
 }
 
+enum InteractSidebarItem: String, CaseIterable, Identifiable, Hashable {
+    case feed
+    case search
+    case liveChat
+    case profile
+    case createPost
+    case settings
+
+    var id: Self { self }
+
+    var title: String {
+        switch self {
+        case .feed:
+            return "Feed"
+        case .search:
+            return "Search"
+        case .liveChat:
+            return "Live Chat"
+        case .profile:
+            return "Profile"
+        case .createPost:
+            return "Create Post"
+        case .settings:
+            return "Settings"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .feed:
+            return "house"
+        case .search:
+            return "magnifyingglass"
+        case .liveChat:
+            return "bubble.left"
+        case .profile:
+            return "person"
+        case .createPost:
+            return "plus.circle"
+        case .settings:
+            return "gearshape"
+        }
+    }
+}
+
+struct NativeAppSidebar: View {
+    @ObservedObject var client: Client
+    @Binding var selection: InteractSidebarItem?
+
+    var body: some View {
+        List(selection: $selection) {
+            if client.loggedIn {
+                Section("Navigation") {
+                    ForEach(InteractSidebarItem.allCases) { item in
+                        NavigationLink(value: item) {
+                            Label(item.title, systemImage: item.systemImage)
+                        }
+                    }
+                }
+            } else {
+                Section {
+                    Label("Signed Out", systemImage: "person.crop.circle.badge.xmark")
+                    Text("Sign in to use Interact.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .listStyle(.sidebar)
+        .navigationTitle("Interact")
+    }
+}
+
 struct regularLayoutView : View {
     @ObservedObject var client: Client
     @ObservedObject var feedPosts: FeedPosts
     @State var horizontalSizeClass: UserInterfaceSizeClass?
+    @State private var selectedSidebarItem: InteractSidebarItem? = .feed
 
     
     var body: some View {
         NavigationSplitView {
-            SystemView(client: client, feedPosts: feedPosts, presentation: .sidebar)
+            NativeAppSidebar(client: client, selection: $selectedSidebarItem)
         } detail: {
-            Group {
-                if client.serverOffline {
-                    ServerStatusOffline(client: client)
-                } else if client.loggedIn || client.beginPageMode == 0 {
-                    FeedPage(client: client, feedPosts: feedPosts)
-                } else {
-                    BeginPage(client: client)
-                }
-            }
+            sidebarDetail
             .onChange(of: client.loggedIn, perform: {newValue in
                 print("changed client.loggedIn to \(newValue) group inside splitView")
             })
@@ -240,6 +306,11 @@ struct regularLayoutView : View {
             print("changed client.loggedIn to \(newValue) regularLayoutView")
             self.feedPosts.newClient(client: client)
             self.feedPosts.getFeed()
+            if newValue == true {
+                selectedSidebarItem = .feed
+            } else {
+                selectedSidebarItem = nil
+            }
         })
         .overlay(
             IncomeNotificationView(client: client)
@@ -250,6 +321,29 @@ struct regularLayoutView : View {
         .navigationViewStyle(StackNavigationViewStyle())
         #endif
 
+    }
+
+    @ViewBuilder private var sidebarDetail: some View {
+        if client.serverOffline {
+            ServerStatusOffline(client: client)
+        } else if client.loggedIn {
+            switch selectedSidebarItem ?? .feed {
+            case .feed:
+                FeedPage(client: client, feedPosts: feedPosts)
+            case .search:
+                SearchView(client: client)
+            case .liveChat:
+                LiveChatView(client: client)
+            case .profile:
+                ProfileView(client: client, userData: client.userData, userID: client.userTokens.userID)
+            case .createPost:
+                CreatePost(client: client)
+            case .settings:
+                BasicSettings(client: client, feedPosts: feedPosts)
+            }
+        } else {
+            BeginPage(client: client)
+        }
     }
 }
 

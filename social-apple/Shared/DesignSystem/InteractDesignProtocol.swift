@@ -68,6 +68,8 @@ struct InteractListScreenStyle {
     let maxWidth: CGFloat?
     let centersContent: Bool
     let hidesScrollBackground: Bool
+    let horizontalPadding: CGFloat
+    let verticalPadding: CGFloat
 }
 
 struct InteractListRowStyle {
@@ -125,9 +127,9 @@ class InteractAppDesign {
         colorScheme: ColorScheme
     ) -> Color? {
         switch tone {
-        case .normal:
+        case .normal, .owner:
             return nil
-        case .owner, .current, .selected:
+        case .current, .selected:
             return Color.accentColor.opacity(colorScheme == .dark ? 0.18 : 0.12)
         case .destructive:
             return Color.red.opacity(colorScheme == .dark ? 0.18 : 0.12)
@@ -199,7 +201,9 @@ class InteractAppDesign {
         InteractListScreenStyle(
             maxWidth: nil,
             centersContent: false,
-            hidesScrollBackground: false
+            hidesScrollBackground: false,
+            horizontalPadding: 0,
+            verticalPadding: 0
         )
     }
 

@@ -286,10 +286,10 @@ struct ProfileView : View {
                 sectionRowsWithSwipe
             }
         }
-        .listStyle(.plain)
 #if !os(tvOS)
         .listRowSeparator(.hidden)
 #endif
+        .interactCardListScreen()
         .refreshable {
             await refreshSelectedProfileSection()
         }
@@ -991,10 +991,10 @@ struct ProfileMentionView: View {
                         .listRowInsets(EdgeInsets())
                 }
             }
-#if !os(tvOS)
-            .listStyle(.plain)
+            #if !os(tvOS)
             .listRowSeparator(.hidden)
-#endif
+            #endif
+            .interactCardListScreen()
             .refreshable {
                 await refreshAction()
             }
@@ -1498,10 +1498,10 @@ struct FollowingFollowerListView: View {
                     .listRowInsets(EdgeInsets())
                 }
             }
-            .listStyle(.plain)
 #if !os(tvOS)
             .listRowSeparator(.hidden)
 #endif
+            .interactCardListScreen()
             .refreshable {
                 client.hapticPress()
                 await refreshAction()

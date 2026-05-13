@@ -484,7 +484,9 @@ private struct InteractAppBackgroundModifier: ViewModifier {
         let design = designOverride ?? environmentDesign
         let style = design.appBackgroundStyle(colorScheme: colorScheme)
 
-        content.background(InteractAppBackgroundView(style: style))
+        content
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .background(InteractAppBackgroundView(style: style))
     }
 }
 
@@ -574,10 +576,14 @@ private struct InteractCardListScreenModifier: ViewModifier {
             content
                 .listStyle(.plain)
                 .frame(maxWidth: maxWidth, alignment: .leading)
+                .padding(.horizontal, style.horizontalPadding)
+                .padding(.vertical, style.verticalPadding)
                 .frame(maxWidth: .infinity, alignment: .center)
         } else {
             content
                 .listStyle(.plain)
+                .padding(.horizontal, style.horizontalPadding)
+                .padding(.vertical, style.verticalPadding)
         }
     }
 }

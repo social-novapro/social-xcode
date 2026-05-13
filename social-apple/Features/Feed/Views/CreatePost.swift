@@ -222,7 +222,7 @@ struct CreatePost: View {
                         }
                     }
                 }
-                .padding(10)
+                .interactScreenPadding()
             }
         }
         .interactAppBackground()

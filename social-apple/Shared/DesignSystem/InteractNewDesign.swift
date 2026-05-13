@@ -92,7 +92,9 @@ final class InteractNewDesign: InteractAppDesign {
         InteractListScreenStyle(
             maxWidth: maxWidth,
             centersContent: true,
-            hidesScrollBackground: true
+            hidesScrollBackground: true,
+            horizontalPadding: 6,
+            verticalPadding: 12
         )
     }
 

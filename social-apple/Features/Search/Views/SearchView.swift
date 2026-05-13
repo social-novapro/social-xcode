@@ -130,7 +130,7 @@ struct SearchView: View {
                         .foregroundStyle(.secondary)
                 }
             }
-            .padding(10)
+            .interactScreenPadding()
         }
         .interactAppBackground()
         .navigationTitle("Search")
