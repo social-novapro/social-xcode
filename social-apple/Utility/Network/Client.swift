@@ -38,7 +38,7 @@ class Client: ObservableObject {
     @Published var userData: UserData?
     @Published var savedUserTokens: [UserTokenData] = []
     @Published var appearancePreference: InteractAppearancePreference = .system
-    @Published var designPreference: InteractDesignPreference = .original
+    @Published var designPreference: InteractDesignPreference = InteractDesignPreference.defaultPreference
     var themeData: ThemeData = ThemeData(devMode: DevModeData(isEnabled: false))
 
     @Published var cache = CacheManager();

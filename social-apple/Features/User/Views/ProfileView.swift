@@ -280,7 +280,6 @@ struct ProfileView : View {
                     .interactPlainListRow()
 
                 sectionRowsWithSwipe
-                profileBottomSpacer
             }
         }
         .interactCardListScreen()
@@ -301,12 +300,6 @@ struct ProfileView : View {
         .transition(sectionTransition)
         .animation(.interactiveSpring(response: 0.28, dampingFraction: 0.86), value: sectionDragOffset)
         .animation(.spring(response: 0.28, dampingFraction: 0.88), value: selectedProfileSection)
-    }
-
-    private var profileBottomSpacer: some View {
-        Color.clear
-            .frame(height: 92)
-            .interactPlainListRow(rowPadding: 0)
     }
 
     private var sectionSwipeGesture: some Gesture {

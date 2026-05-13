@@ -11,6 +11,8 @@ enum InteractDesignPreference: String, CaseIterable, Identifiable, Codable {
     case original
     case new
 
+    static let defaultPreference: InteractDesignPreference = .new
+
     var id: String { rawValue }
 
     var title: String {
@@ -105,6 +107,7 @@ class InteractAppDesign {
     var connectedCardCornerRadius: CGFloat { 20 }
     var connectedCardLineWidth: CGFloat { 3 }
     var connectedSectionContentPadding: CGFloat? { 15 }
+    var customTabBarBottomContentInset: CGFloat { 80 }
 
     func toneBorderColor(
         tone: InteractSectionTone,
@@ -255,7 +258,7 @@ enum InteractDesignRegistry {
 }
 
 private struct InteractDesignKey: EnvironmentKey {
-    static let defaultValue: InteractAppDesign = InteractDesignRegistry.design(for: .original)
+    static let defaultValue: InteractAppDesign = InteractDesignRegistry.design(for: InteractDesignPreference.defaultPreference)
 }
 
 extension EnvironmentValues {

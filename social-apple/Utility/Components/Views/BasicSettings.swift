@@ -32,7 +32,7 @@ struct BasicSettings: View {
                 appSection
                 developerSection
             }
-            .interactScreenPadding()
+            .interactScrollableScreen()
         }
         .interactAppBackground()
         .onChange(of: enabledDevMode) { newValue in
@@ -366,7 +366,7 @@ struct SearchSettingPage : View {
                     }
                 }
             }
-            .interactScreenPadding()
+            .interactScrollableScreen()
         }
         .interactAppBackground()
         .onAppear(perform: loadSearchSettings)

@@ -418,6 +418,20 @@ extension View {
         )
     }
 
+    func interactScrollableScreen(
+        design: InteractDesignPreference? = nil,
+        maxWidth: CGFloat = 600,
+        bottomPadding: CGFloat = 28
+    ) -> some View {
+        modifier(
+            InteractScrollableScreenModifier(
+                designOverride: design.map { InteractDesignRegistry.design(for: $0) },
+                maxWidth: maxWidth,
+                bottomPadding: bottomPadding
+            )
+        )
+    }
+
     func interactCardListScreen(
         design: InteractDesignPreference? = nil,
         maxWidth: CGFloat = 620
@@ -448,6 +462,10 @@ extension View {
 
     func interactFloatingSurface(tone: InteractSectionTone = .normal) -> some View {
         modifier(InteractFloatingSurfaceModifier(tone: tone))
+    }
+
+    func interactCustomTabBarBottomReserve(isActive: Bool = true) -> some View {
+        modifier(InteractCustomTabBarBottomReserveModifier(isActive: isActive))
     }
 }
 
@@ -543,6 +561,32 @@ private struct InteractScreenPaddingModifier: ViewModifier {
             content
                 .padding(.horizontal, style.horizontal)
                 .padding(.vertical, style.vertical)
+        }
+    }
+}
+
+private struct InteractScrollableScreenModifier: ViewModifier {
+    @Environment(\.interactDesign) private var environmentDesign
+    let designOverride: InteractAppDesign?
+    let maxWidth: CGFloat
+    let bottomPadding: CGFloat
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        let style = (designOverride ?? environmentDesign).screenPaddingStyle(maxWidth: maxWidth)
+
+        if style.centersContent, let maxWidth = style.maxWidth {
+            content
+                .frame(maxWidth: maxWidth, alignment: .leading)
+                .padding(.horizontal, style.horizontal)
+                .padding(.top, style.vertical)
+                .padding(.bottom, style.vertical + bottomPadding)
+                .frame(maxWidth: .infinity, alignment: .center)
+        } else {
+            content
+                .padding(.horizontal, style.horizontal)
+                .padding(.top, style.vertical)
+                .padding(.bottom, style.vertical + bottomPadding)
         }
     }
 }
@@ -685,5 +729,25 @@ private struct InteractFloatingSurfaceModifier: ViewModifier {
                 y: style.shadow?.y ?? 0
             )
             .contentShape(Capsule(style: .continuous))
+    }
+}
+
+private struct InteractCustomTabBarBottomReserveModifier: ViewModifier {
+    @Environment(\.interactDesign) private var design
+    let isActive: Bool
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if isActive && design.customTabBarBottomContentInset > 0 {
+            content
+                .safeAreaInset(edge: .bottom, spacing: 0) {
+                    Color.clear
+                        .frame(height: design.customTabBarBottomContentInset)
+                        .allowsHitTesting(false)
+                        .accessibilityHidden(true)
+                }
+        } else {
+            content
+        }
     }
 }

@@ -112,7 +112,7 @@ struct compactLayoutViewLiquidGlass : View {
                         }
                         Tab("Search", systemImage: "magnifyingglass", value: 5, role: .search) {
                             NavigationStack {
-                                SearchView(client: client)
+                                SearchView(client: client, searchPlacement: .automatic)
                             }
                         }
                         
@@ -166,7 +166,7 @@ struct compactLayoutView : View {
                     }
                 case 5:
                     NavigationStack {
-                        SearchView(client: client)
+                        SearchView(client: client, searchPlacement: .topNavigation)
                     }
                 default:
                     NavigationStack {
@@ -188,6 +188,7 @@ struct compactLayoutView : View {
             self.feedPosts.newClient(client: client)
             self.feedPosts.getFeed()
         })
+        .interactCustomTabBarBottomReserve(isActive: showsCustomTabReserve)
         .overlay(
             AppTabNavigation(client: client, localSelected: Int(client.navigation?.selectedTab ?? 0))
                 .frame(height: 50)
@@ -206,6 +207,10 @@ struct compactLayoutView : View {
         #endif
 
     }
+
+    private var showsCustomTabReserve: Bool {
+        client.loggedIn && client.navigation?.hidden != true
+    }
 }
 
 enum InteractSidebarItem: String, CaseIterable, Identifiable, Hashable {
@@ -215,8 +220,26 @@ enum InteractSidebarItem: String, CaseIterable, Identifiable, Hashable {
     case profile
     case createPost
     case settings
+    case dev
 
     var id: Self { self }
+
+    static func visibleItems(devModeEnabled: Bool) -> [InteractSidebarItem] {
+        var items: [InteractSidebarItem] = [
+            .feed,
+            .search,
+            .liveChat,
+            .profile,
+            .createPost,
+            .settings
+        ]
+
+        if devModeEnabled {
+            items.append(.dev)
+        }
+
+        return items
+    }
 
     var title: String {
         switch self {
@@ -232,6 +255,8 @@ enum InteractSidebarItem: String, CaseIterable, Identifiable, Hashable {
             return "Create Post"
         case .settings:
             return "Settings"
+        case .dev:
+            return "Debug"
         }
     }
 
@@ -249,6 +274,8 @@ enum InteractSidebarItem: String, CaseIterable, Identifiable, Hashable {
             return "plus.circle"
         case .settings:
             return "gearshape"
+        case .dev:
+            return "hammer"
         }
     }
 }
@@ -260,8 +287,8 @@ struct NativeAppSidebar: View {
     var body: some View {
         List(selection: $selection) {
             if client.loggedIn {
-                Section("Navigation") {
-                    ForEach(InteractSidebarItem.allCases) { item in
+                Section {
+                    ForEach(InteractSidebarItem.visibleItems(devModeEnabled: client.devMode?.isEnabled == true)) { item in
                         NavigationLink(value: item) {
                             Label(item.title, systemImage: item.systemImage)
                         }
@@ -277,50 +304,43 @@ struct NativeAppSidebar: View {
             }
         }
         .listStyle(.sidebar)
-        .navigationTitle("Interact")
+        .navigationSplitViewColumnWidth(min: 190, ideal: 230, max: 300)
     }
 }
 
-struct regularLayoutView : View {
+struct NativeSidebarShell: View {
     @ObservedObject var client: Client
     @ObservedObject var feedPosts: FeedPosts
-    @State var horizontalSizeClass: UserInterfaceSizeClass?
+    let showsNotifications: Bool
     @State private var selectedSidebarItem: InteractSidebarItem? = .feed
 
-    
     var body: some View {
         NavigationSplitView {
             NativeAppSidebar(client: client, selection: $selectedSidebarItem)
         } detail: {
             sidebarDetail
-            .onChange(of: client.loggedIn, perform: {newValue in
-                print("changed client.loggedIn to \(newValue) group inside splitView")
-            })
-
+        }
+        .onChange(of: client.loggedIn, perform: handleLoggedInChange)
+        .onChange(of: client.devMode?.isEnabled == true) { devModeEnabled in
+            if devModeEnabled == false && selectedSidebarItem == .dev {
+                selectedSidebarItem = .feed
+            }
         }
         #if os(iOS) || os(tvOS)
         .fullScreenCover(isPresented: $client.serverOffline, content: {
             ServerStatusOffline(client: client)
         })
-        .onChange(of: client.loggedIn, perform: {newValue in
-            print("changed client.loggedIn to \(newValue) regularLayoutView")
-            self.feedPosts.newClient(client: client)
-            self.feedPosts.getFeed()
-            if newValue == true {
-                selectedSidebarItem = .feed
-            } else {
-                selectedSidebarItem = nil
-            }
-        })
         .overlay(
-            IncomeNotificationView(client: client)
-                .frame(height: 50)
-                .padding(.top, 25),
+            Group {
+                if showsNotifications {
+                    IncomeNotificationView(client: client)
+                        .frame(height: 50)
+                        .padding(.top, 25)
+                }
+            },
             alignment: .top
         )
-        .navigationViewStyle(StackNavigationViewStyle())
         #endif
-
     }
 
     @ViewBuilder private var sidebarDetail: some View {
@@ -331,7 +351,7 @@ struct regularLayoutView : View {
             case .feed:
                 FeedPage(client: client, feedPosts: feedPosts)
             case .search:
-                SearchView(client: client)
+                SearchView(client: client, searchPlacement: .topNavigation)
             case .liveChat:
                 LiveChatView(client: client)
             case .profile:
@@ -340,10 +360,28 @@ struct regularLayoutView : View {
                 CreatePost(client: client)
             case .settings:
                 BasicSettings(client: client, feedPosts: feedPosts)
+            case .dev:
+                DevModeView(client: client)
             }
         } else {
             BeginPage(client: client)
         }
+    }
+
+    private func handleLoggedInChange(_ newValue: Bool) {
+        feedPosts.newClient(client: client)
+        feedPosts.getFeed()
+        selectedSidebarItem = newValue ? .feed : nil
+    }
+}
+
+struct regularLayoutView : View {
+    @ObservedObject var client: Client
+    @ObservedObject var feedPosts: FeedPosts
+    @State var horizontalSizeClass: UserInterfaceSizeClass?
+
+    var body: some View {
+        NativeSidebarShell(client: client, feedPosts: feedPosts, showsNotifications: true)
     }
 }
 
@@ -353,22 +391,7 @@ struct macLayoutView : View {
     @State var horizontalSizeClass: UserInterfaceSizeClass?
 
     @ViewBuilder var body: some View {
-        NavigationView {
-            VStack {
-                SystemView(client: client, feedPosts: feedPosts, presentation: .sidebar)
-            }
-            .onChange(of: client.loggedIn, perform: {newValue in
-                self.feedPosts.newClient(client: client)
-                self.feedPosts.getFeed()
-            })
-            if client.serverOffline {
-                ServerStatusOffline(client: client)
-            } else if client.loggedIn {
-                FeedPage(client: client, feedPosts: feedPosts)
-            } else {
-                BeginPage(client: client)
-            }
-        }
+        NativeSidebarShell(client: client, feedPosts: feedPosts, showsNotifications: false)
     }
 }
 
@@ -524,7 +547,7 @@ struct SideBarNavigation: View {
                     }
                     VStack {
                         NavigationLink {
-                            SearchView(client: client)
+                            SearchView(client: client, searchPlacement: .topNavigation)
                         } label: {
                             HStack {
                                 Image(systemName: "magnifyingglass")

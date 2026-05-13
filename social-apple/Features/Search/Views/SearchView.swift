@@ -8,12 +8,19 @@
 import SwiftUI
 
 struct SearchView: View {
+    enum SearchPlacementMode {
+        case topNavigation
+        case automatic
+    }
+
     @ObservedObject var client: Client
     @StateObject private var searchClass: SearchClass
     @State private var selectedProfile: SelectedProfileData = SelectedProfileData()
+    let searchPlacement: SearchPlacementMode
 
-    init(client: Client) {
+    init(client: Client, searchPlacement: SearchPlacementMode = .topNavigation) {
         self.client = client
+        self.searchPlacement = searchPlacement
         _searchClass = StateObject(wrappedValue: SearchClass(client: client))
     }
 
@@ -41,100 +48,101 @@ struct SearchView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 14) {
-                if searchClass.isLoading {
-                    HStack {
-                        ProgressView()
-                        Text("Loading...")
+        searchableContainer {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    if searchClass.isLoading {
+                        HStack {
+                            ProgressView()
+                            Text("Loading...")
+                        }
                     }
-                }
 
-                if let errorText = searchClass.errorText {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Failed to load explore/search")
-                            .font(.headline)
-                        Text(errorText)
-                            .font(.subheadline)
+                    if let errorText = searchClass.errorText {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Failed to load explore/search")
+                                .font(.headline)
+                            Text(errorText)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                            Button("Retry") {
+                                if isSearchMode {
+                                    searchClass.onSearchTextChanged(searchClass.searchText)
+                                } else {
+                                    searchClass.loadExplore()
+                                }
+                            }
+                        }
+                    }
+
+                    if !activeHashtags.isEmpty {
+                        sectionHeader(isSearchMode ? "Hashtags" : "Trending Hashtags")
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(activeHashtags) { tag in
+                                    Button {
+                                        searchClass.searchText = tag.displayText
+                                        searchClass.onSearchTextChanged(tag.displayText)
+                                    } label: {
+                                        Text(tag.displayText)
+                                            .font(.subheadline)
+                                            .padding(.horizontal, 10)
+                                            .padding(.vertical, 6)
+                                            .interactCardSurface(
+                                                cornerRadius: 10,
+                                                lineWidth: 1,
+                                                originalBackground: client.themeData.mainBackground,
+                                                originalBorder: .secondary
+                                            )
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                        }
+                    }
+
+                    if !activeUsers.isEmpty {
+                        sectionHeader(isSearchMode ? "Users" : "Newest Users")
+                        ForEach(activeUsers) { user in
+                            ExploreUserRow(client: client, user: user, isSearchMode: isSearchMode, searchClass: searchClass)
+                        }
+                    }
+
+                    if !activeTagGroups.isEmpty {
+                        sectionHeader("Posts for Hashtags")
+                        ForEach(Array(activeTagGroups.enumerated()), id: \.element.id) { tagIndex, tagGroup in
+                            Text("Posts for \(tagGroup.tag)")
+                                .font(.headline)
+
+                            if let posts = tagGroup.posts {
+                                ForEach(posts.indices, id: \.self) { postIndex in
+                                    if let postBinding = bindingForTaggedPost(tagIndex: tagIndex, postIndex: postIndex) {
+                                        PostPreView(client: client, feedData: postBinding, selectedProfile: $selectedProfile)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if activePostsCount > 0 {
+                        sectionHeader(isSearchMode ? "Posts" : "Newest Posts")
+                        ForEach(Array(0..<activePostsCount), id: \.self) { index in
+                            if let postBinding = bindingForPost(at: index) {
+                                PostPreView(client: client, feedData: postBinding, selectedProfile: $selectedProfile)
+                            }
+                        }
+                    }
+
+                    if !searchClass.isLoading && searchClass.errorText == nil && activeHashtags.isEmpty && activeUsers.isEmpty && activeTagGroups.isEmpty && activePostsCount == 0 {
+                        Text(isSearchMode ? "No results found" : "No explore content available")
                             .foregroundStyle(.secondary)
-                        Button("Retry") {
-                            if isSearchMode {
-                                searchClass.onSearchTextChanged(searchClass.searchText)
-                            } else {
-                                searchClass.loadExplore()
-                            }
-                        }
                     }
                 }
-
-                if !activeHashtags.isEmpty {
-                    sectionHeader(isSearchMode ? "Hashtags" : "Trending Hashtags")
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(activeHashtags) { tag in
-                                Button {
-                                    searchClass.searchText = tag.displayText
-                                    searchClass.onSearchTextChanged(tag.displayText)
-                                } label: {
-                                    Text(tag.displayText)
-                                        .font(.subheadline)
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 6)
-                                        .interactCardSurface(
-                                            cornerRadius: 10,
-                                            lineWidth: 1,
-                                            originalBackground: client.themeData.mainBackground,
-                                            originalBorder: .secondary
-                                        )
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                    }
-                }
-
-                if !activeUsers.isEmpty {
-                    sectionHeader(isSearchMode ? "Users" : "Newest Users")
-                    ForEach(activeUsers) { user in
-                        ExploreUserRow(client: client, user: user, isSearchMode: isSearchMode, searchClass: searchClass)
-                    }
-                }
-
-                if !activeTagGroups.isEmpty {
-                    sectionHeader("Posts for Hashtags")
-                    ForEach(Array(activeTagGroups.enumerated()), id: \.element.id) { tagIndex, tagGroup in
-                        Text("Posts for \(tagGroup.tag)")
-                            .font(.headline)
-
-                        if let posts = tagGroup.posts {
-                            ForEach(posts.indices, id: \.self) { postIndex in
-                                if let postBinding = bindingForTaggedPost(tagIndex: tagIndex, postIndex: postIndex) {
-                                    PostPreView(client: client, feedData: postBinding, selectedProfile: $selectedProfile)
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if activePostsCount > 0 {
-                    sectionHeader(isSearchMode ? "Posts" : "Newest Posts")
-                    ForEach(Array(0..<activePostsCount), id: \.self) { index in
-                        if let postBinding = bindingForPost(at: index) {
-                            PostPreView(client: client, feedData: postBinding, selectedProfile: $selectedProfile)
-                        }
-                    }
-                }
-
-                if !searchClass.isLoading && searchClass.errorText == nil && activeHashtags.isEmpty && activeUsers.isEmpty && activeTagGroups.isEmpty && activePostsCount == 0 {
-                    Text(isSearchMode ? "No results found" : "No explore content available")
-                        .foregroundStyle(.secondary)
-                }
+                .interactScrollableScreen()
             }
-            .interactScreenPadding()
+            .interactAppBackground()
+            .navigationTitle("Search")
         }
-        .interactAppBackground()
-        .navigationTitle("Search")
-        .searchable(text: $searchClass.searchText, prompt: "Search posts, users, hashtags")
         .onChange(of: searchClass.searchText) { newValue in
             searchClass.onSearchTextChanged(newValue)
         }
@@ -147,6 +155,34 @@ struct SearchView: View {
         }
         .navigationDestination(isPresented: $selectedProfile.showProfile) {
             ProfileView(client: client, userData: selectedProfile.profileData, userID: selectedProfile.userID)
+        }
+    }
+
+    @ViewBuilder
+    private func searchableContainer<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        switch searchPlacement {
+        case .automatic:
+            content()
+                .searchable(text: $searchClass.searchText, prompt: "Search posts, users, hashtags")
+        case .topNavigation:
+            #if os(iOS)
+            content()
+                .searchable(
+                    text: $searchClass.searchText,
+                    placement: .navigationBarDrawer(displayMode: .always),
+                    prompt: "Search posts, users, hashtags"
+                )
+            #elseif os(macOS)
+            content()
+                .searchable(
+                    text: $searchClass.searchText,
+                    placement: .toolbar,
+                    prompt: "Search posts, users, hashtags"
+                )
+            #else
+            content()
+                .searchable(text: $searchClass.searchText, prompt: "Search posts, users, hashtags")
+            #endif
         }
     }
 

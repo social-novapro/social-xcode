@@ -49,17 +49,17 @@ class AppPreferenceHandler {
                 return AppPreferencesData(
                     userID: normalizedID,
                     appearancePreference: InteractAppearancePreference(rawValue: appPreferences.appearancePreference ?? "") ?? .system,
-                    designPreference: InteractDesignPreference(rawValue: appPreferences.designPreference ?? "") ?? .original
+                    designPreference: resolvedDesignPreference(from: appPreferences.designPreference)
                 )
             }
         } catch {
-            print("Error fetching app preferences, defaulting original/system: \(error.localizedDescription)")
+            print("Error fetching app preferences, defaulting design/system: \(error.localizedDescription)")
         }
         
         return AppPreferencesData(
             userID: normalizedID,
             appearancePreference: .system,
-            designPreference: .original
+            designPreference: InteractDesignPreference.defaultPreference
         )
     }
     
@@ -84,5 +84,14 @@ class AppPreferenceHandler {
         }
         
         return userID
+    }
+
+    private func resolvedDesignPreference(from rawValue: String?) -> InteractDesignPreference {
+        guard let rawValue = rawValue?.trimmingCharacters(in: .whitespacesAndNewlines),
+              rawValue.isEmpty == false else {
+            return InteractDesignPreference.defaultPreference
+        }
+
+        return InteractDesignPreference(rawValue: rawValue) ?? InteractDesignPreference.defaultPreference
     }
 }

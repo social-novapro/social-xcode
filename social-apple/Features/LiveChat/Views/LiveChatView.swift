@@ -87,7 +87,7 @@ struct LiveChatView: View {
                     }
 
                     Color.clear
-                        .frame(height: 1)
+                        .frame(height: chatBottomAnchorHeight)
                         .interactPlainListRow(rowPadding: 0)
                         .id("chat-bottom-anchor")
                 }
@@ -235,6 +235,8 @@ struct LiveChatView: View {
         .padding(12)
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 14))
+        .frame(maxWidth: 620)
+        .frame(maxWidth: .infinity)
         .padding(.horizontal, 10)
         .padding(.bottom, composerBottomPadding)
     }
@@ -402,10 +404,11 @@ struct LiveChatView: View {
     }
 
     private var composerBottomPadding: CGFloat {
-        if #available(iOS 26, *) {
-            return 6
-        }
-        return 88
+        8
+    }
+
+    private var chatBottomAnchorHeight: CGFloat {
+        24
     }
 
     private func replyPreview(for message: LiveChatData) -> String? {
