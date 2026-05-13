@@ -758,6 +758,49 @@ private struct ProfileSectionPicker: View {
     }
 }
 
+private struct ProfileAvatarView: View {
+    let userData: UserData
+    let size: CGFloat
+
+    var body: some View {
+        if let profileURL = userData.profileURL, !profileURL.isEmpty {
+            AsyncImage(url: URL(string: profileURL)) { phase in
+                switch phase {
+                case .empty:
+                    ProgressView()
+                        .frame(width: size, height: size)
+                case .success(let image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: size, height: size)
+                        .clipShape(Circle())
+                case .failure:
+                    fallbackAvatar
+                @unknown default:
+                    fallbackAvatar
+                }
+            }
+            .frame(width: size, height: size)
+            .clipShape(Circle())
+        } else {
+            fallbackAvatar
+        }
+    }
+
+    private var fallbackAvatar: some View {
+        ZStack {
+            Circle()
+                .fill(Color.secondary.opacity(0.14))
+
+            Image(systemName: "person.fill")
+                .font(.system(size: size * 0.42))
+                .foregroundColor(.secondary)
+        }
+        .frame(width: size, height: size)
+    }
+}
+
 private struct ProfileHeaderView: View {
     @ObservedObject var client: Client
     @ObservedObject var profileData: ProfileViewClass
@@ -770,6 +813,8 @@ private struct ProfileHeaderView: View {
         VStack(alignment: .leading, spacing: 12) {
             if let userData = profileData.userData {
                 HStack(alignment: .top, spacing: 12) {
+                    ProfileAvatarView(userData: userData, size: 64)
+
                     VStack(alignment: .leading, spacing: 4) {
                         HStack(spacing: 6) {
                             Text(nonEmptyText(userData.displayName, fallback: "Unknown User"))
