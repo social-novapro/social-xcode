@@ -25,6 +25,27 @@ enum ProfileSection: Int, CaseIterable, Identifiable, Hashable {
     var id: Int {
         rawValue
     }
+
+    var title: String {
+        switch self {
+        case .quickInfo:
+            return "Info"
+        case .badges:
+            return "Badges"
+        case .pins:
+            return "Pins"
+        case .posts:
+            return "Posts"
+        case .mentions:
+            return "Mentions"
+        case .followLists:
+            return "Follows"
+        }
+    }
+
+    static var profileContentSections: [ProfileSection] {
+        [.posts, .pins, .mentions, .badges]
+    }
 }
 
 enum ProfileSectionLoadState: Equatable {

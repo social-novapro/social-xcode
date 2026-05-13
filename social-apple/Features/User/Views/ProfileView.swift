@@ -106,11 +106,19 @@ struct ProfileView : View {
     @State var userFollowerList: UserFollowListData?
     @State var selectedFollowList = 0
     @State private var loadedFollowListsForUserID: String?
-    @State private var selectedProfileSection: ProfileSection = .quickInfo
+    @State private var selectedProfileSection: ProfileSection = .posts
     @State private var followingLoadState: ProfileSectionLoadState = .loading
     @State private var followersLoadState: ProfileSectionLoadState = .loading
     @State private var followingRequestID = UUID()
     @State private var followersRequestID = UUID()
+    @State private var showingFollowList = false
+    @State private var editingProfile = false
+    @State private var editingResults: UserEditResponse?
+    @State private var showEditResults = false
+    @State private var followingLoadingNextIndex = false
+    @State private var followersLoadingNextIndex = false
+    @State private var sectionTransitionDirection = 1
+    @GestureState private var sectionDragOffset: CGFloat = 0
 
     init (client: Client, userData: UserData?, userID: String?) {
         self.client = client
@@ -131,175 +139,7 @@ struct ProfileView : View {
                     retryAction: nil
                 )
             case .loaded:
-                TabView(selection: $selectedProfileSection) {
-                    VStack {
-                        Text("Quick Info")
-
-                        ScrollView(.vertical, showsIndicators: false) {
-                            ProfileUserDataView(client: client, profileData: profileData)
-                                .padding(10)
-                        }
-                        .refreshable {
-                            await refreshProfileData()
-                        }
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .tag(ProfileSection.quickInfo)
-
-                    VStack {
-                        Text("User Badges")
-                        
-                        ScrollView(.vertical, showsIndicators: false) {
-                            switch profileData.badgesLoadState {
-                            case .loaded:
-                                ForEach(profileData.badgeData, id: \.id) { badge in
-                                    BadgeCardView(client: client, badgeData: badge)
-                                        .padding(10)
-                                }
-                                EmptyView()
-                                    .padding(.bottom, 20)
-                            default:
-                                ProfileSectionStatusView(state: profileData.badgesLoadState) {
-                                    profileData.refreshProfile(section: .badges)
-                                }
-                            }
-                        }
-                        .refreshable {
-                            await refreshProfileData(section: .badges)
-                        }
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .tag(ProfileSection.badges)
-
-                    VStack {
-                        Text("User Pins")
-
-                        List {
-                            switch profileData.pinsLoadState {
-                            case .loaded:
-                                ForEach(self.profileData.pinData, id: \.postData._id) { post in
-                                    let postID = post.postData._id
-
-                                    PostPreView(client: client, feedData: profilePostBinding(profileData: profileData, postID: postID, keyPath: \.pinData, fallback: post), selectedProfile: $selectedProfile)
-                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-#if !os(tvOS)
-                                        .listRowSeparator(.hidden)
-#endif
-                                        .listRowInsets(EdgeInsets())
-                                        .padding(10)
-                                }
-                                EmptyView()
-                                    .padding(.bottom, 20)
-                            default:
-                                ProfileSectionStatusView(state: profileData.pinsLoadState) {
-                                    profileData.refreshProfile(section: .pins)
-                                }
-#if !os(tvOS)
-                                .listRowSeparator(.hidden)
-#endif
-                                .listRowInsets(EdgeInsets())
-                            }
-                        }
-                        .listStyle(.plain)
-#if !os(tvOS)
-                        .listRowSeparator(.hidden)
-#endif
-                        .refreshable {
-                            await refreshProfileData(section: .pins)
-                        }
-
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .tag(ProfileSection.pins)
-
-                    VStack {
-                        Text("User Posts")
-
-                        List {
-                            switch profileData.postsLoadState {
-                            case .loaded:
-                                ForEach(self.profileData.postData, id: \.postData._id) { post in
-                                    let postID = post.postData._id
-
-                                    PostPreView(client: client, feedData: profilePostBinding(profileData: profileData, postID: postID, keyPath: \.postData, fallback: post), selectedProfile: $selectedProfile)
-                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-#if !os(tvOS)
-                                        .listRowSeparator(.hidden)
-#endif
-                                        .listRowInsets(EdgeInsets())
-                                        .padding(10)
-                                    
-                                        .onAppear(){
-                                            if (self.profileData.postData.last?.postData._id == postID) {
-                                                print("showing bottom")
-                                                self.profileData.nextUserPostsIndex()
-                                            }
-                                        }
-                                }
-                                if profileData.loadingNextIndex {
-                                    HStack {
-                                        Spacer()
-                                        ProgressView()
-                                        Spacer()
-                                    }
-                                    .padding(20)
-                                } else {
-                                    VStack {
-                                        
-                                    }
-                                    .padding(50)
-                                }
-                            default:
-                                ProfileSectionStatusView(state: profileData.postsLoadState) {
-                                    profileData.refreshProfile(section: .posts)
-                                }
-#if !os(tvOS)
-                                .listRowSeparator(.hidden)
-#endif
-                                .listRowInsets(EdgeInsets())
-                            }
-                        }
-                        .listStyle(.plain)
-#if !os(tvOS)
-                        .listRowSeparator(.hidden)
-#endif
-                        .refreshable {
-                            await refreshProfileData(section: .posts)
-                        }
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .tag(ProfileSection.posts)
-
-                    ProfileMentionView(client: client, profileData: profileData, loadState: profileData.mentionsLoadState, retryAction: {
-                        profileData.refreshProfile(section: .mentions)
-                    }, refreshAction: {
-                        await refreshProfileData(section: .mentions)
-                    })
-                    .tag(ProfileSection.mentions)
-
-                    FollowingFollowerView(
-                        client: client,
-                        userID: userID ?? "",
-                        userFollowingList: $userFollowingList,
-                        userFollowerList: $userFollowerList,
-                        selectedFollowList: $selectedFollowList,
-                        followingLoadState: followingLoadState,
-                        followersLoadState: followersLoadState,
-                        refreshFollowing: {
-                            await refreshFollowList(type: 0)
-                        },
-                        refreshFollowers: {
-                            await refreshFollowList(type: 1)
-                        }
-                    )
-                    .tag(ProfileSection.followLists)
-                    
-                }
-                .padding(15)
-#if os(iOS)
-                .tabViewStyle(PageTabViewStyle())
-                .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
-#endif
+                loadedProfileContent
             case .empty(let message):
                 ProfileStatusView(
                     title: "No user found",
@@ -325,6 +165,43 @@ struct ProfileView : View {
 
         }
         .navigationTitle(profileData.doneLoading ? "Profile of @" + (profileData.userData?.username ?? "unknown") : "Loading profile...")
+        .sheet(isPresented: $showingFollowList) {
+            NavigationView {
+                FollowingFollowerView(
+                    client: client,
+                    userID: userID ?? "",
+                    userFollowingList: $userFollowingList,
+                    userFollowerList: $userFollowerList,
+                    selectedFollowList: $selectedFollowList,
+                    followingLoadState: followingLoadState,
+                    followersLoadState: followersLoadState,
+                    refreshFollowing: {
+                        await refreshFollowList(type: 0)
+                    },
+                    refreshFollowers: {
+                        await refreshFollowList(type: 1)
+                    },
+                    followingLoadingNextIndex: followingLoadingNextIndex,
+                    followersLoadingNextIndex: followersLoadingNextIndex,
+                    loadNextFollowing: {
+                        loadNextFollowList(type: 0)
+                    },
+                    loadNextFollowers: {
+                        loadNextFollowList(type: 1)
+                    }
+                )
+                .navigationTitle(selectedFollowList == 0 ? "Following" : "Followers")
+                .toolbar {
+                    Button("Done") {
+                        showingFollowList = false
+                    }
+                }
+                .onAppear {
+                    let resolvedID = (profileData.userData?._id ?? profileData.userID).trimmingCharacters(in: .whitespacesAndNewlines)
+                    loadFollowListsIfNeeded(userID: resolvedID)
+                }
+            }
+        }
         .onAppear() {
             if let userData {
                 profileData.provBasic(userData: userData)
@@ -350,6 +227,8 @@ struct ProfileView : View {
             userFollowerList = nil
             followingLoadState = .loading
             followersLoadState = .loading
+            followingLoadingNextIndex = false
+            followersLoadingNextIndex = false
             profileData.refreshProfile()
 
             let resolvedID = (profileData.userData?._id ?? profileData.userID).trimmingCharacters(in: .whitespacesAndNewlines)
@@ -357,6 +236,294 @@ struct ProfileView : View {
                 loadFollowLists(userID: resolvedID)
             }
         }
+    }
+
+    private var loadedProfileContent: some View {
+        List {
+            ProfileHeaderView(
+                client: client,
+                profileData: profileData,
+                selectedFollowList: $selectedFollowList,
+                showingFollowList: $showingFollowList,
+                editingProfile: $editingProfile,
+                showEditResults: $showEditResults
+            )
+            .listRowInsets(EdgeInsets())
+            .listRowSeparator(.hidden)
+            .padding(.horizontal, 15)
+            .padding(.vertical, 12)
+
+            if editingProfile {
+                EditProfileView(
+                    client: client,
+                    profileData: profileData,
+                    editingProfile: $editingProfile,
+                    editingResults: $editingResults,
+                    showEditResults: $showEditResults
+                )
+                .listRowInsets(EdgeInsets())
+                .listRowSeparator(.hidden)
+                .padding(15)
+            } else if showEditResults {
+                EditProfileResults(
+                    client: client,
+                    profileData: profileData,
+                    editingResults: $editingResults,
+                    showEditResults: $showEditResults
+                )
+                .listRowInsets(EdgeInsets())
+                .listRowSeparator(.hidden)
+                .padding(15)
+            } else {
+                ProfileSectionPicker(selectedSection: $selectedProfileSection)
+                    .listRowInsets(EdgeInsets())
+                    .listRowSeparator(.hidden)
+                    .padding(.horizontal, 15)
+                    .padding(.bottom, 8)
+
+                sectionRowsWithSwipe
+            }
+        }
+        .listStyle(.plain)
+#if !os(tvOS)
+        .listRowSeparator(.hidden)
+#endif
+        .refreshable {
+            await refreshSelectedProfileSection()
+        }
+        .simultaneousGesture(sectionSwipeGesture)
+    }
+
+    @ViewBuilder
+    private var sectionRowsWithSwipe: some View {
+        Group {
+            selectedSectionRows
+        }
+        .id(selectedProfileSection)
+        .offset(x: interactiveSectionDragOffset)
+        .opacity(sectionDragOpacity)
+        .transition(sectionTransition)
+        .animation(.interactiveSpring(response: 0.28, dampingFraction: 0.86), value: sectionDragOffset)
+        .animation(.spring(response: 0.28, dampingFraction: 0.88), value: selectedProfileSection)
+    }
+
+    private var sectionSwipeGesture: some Gesture {
+        DragGesture(minimumDistance: 18, coordinateSpace: .local)
+            .updating($sectionDragOffset) { value, state, _ in
+                guard canTrackSectionDrag(value) else {
+                    state = 0
+                    return
+                }
+
+                state = boundedSectionDragOffset(value.translation.width)
+            }
+            .onEnded { value in
+                guard !editingProfile && !showEditResults else {
+                    return
+                }
+
+                let horizontalDistance = value.translation.width
+                let verticalDistance = value.translation.height
+                let predictedHorizontalDistance = value.predictedEndTranslation.width
+                let horizontalThreshold: CGFloat = 70
+                let mostlyHorizontal = abs(horizontalDistance) > abs(verticalDistance) * 1.4
+                let reachedDistance = abs(horizontalDistance) > horizontalThreshold
+                let reachedVelocity = abs(predictedHorizontalDistance) > 160
+
+                guard mostlyHorizontal && (reachedDistance || reachedVelocity) else {
+                    return
+                }
+
+                if (reachedVelocity ? predictedHorizontalDistance : horizontalDistance) < 0 {
+                    switchProfileSection(offset: 1)
+                } else {
+                    switchProfileSection(offset: -1)
+                }
+            }
+    }
+
+    private var interactiveSectionDragOffset: CGFloat {
+        sectionDragOffset
+    }
+
+    private var sectionDragOpacity: Double {
+        1 - min(Double(abs(sectionDragOffset) / 600), 0.18)
+    }
+
+    private var sectionTransition: AnyTransition {
+        let insertionEdge: Edge = sectionTransitionDirection >= 0 ? .trailing : .leading
+        let removalEdge: Edge = sectionTransitionDirection >= 0 ? .leading : .trailing
+
+        return .asymmetric(
+            insertion: .move(edge: insertionEdge).combined(with: .opacity),
+            removal: .move(edge: removalEdge).combined(with: .opacity)
+        )
+    }
+
+    @ViewBuilder
+    private var selectedSectionRows: some View {
+        switch selectedProfileSection {
+        case .posts:
+            profilePostRows(
+                posts: profileData.postData,
+                state: profileData.postsLoadState,
+                keyPath: \.postData,
+                section: .posts,
+                loadMoreOnBottom: true
+            )
+        case .pins:
+            profilePostRows(
+                posts: profileData.pinData,
+                state: profileData.pinsLoadState,
+                keyPath: \.pinData,
+                section: .pins,
+                loadMoreOnBottom: false
+            )
+        case .mentions:
+            profilePostRows(
+                posts: profileData.mentionData,
+                state: profileData.mentionsLoadState,
+                keyPath: \.mentionData,
+                section: .mentions,
+                loadMoreOnBottom: false
+            )
+        case .badges:
+            badgeRows
+        case .quickInfo, .followLists:
+            EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    private func profilePostRows(
+        posts: [AllPosts],
+        state: ProfileSectionLoadState,
+        keyPath: ReferenceWritableKeyPath<ProfileViewClass, [AllPosts]>,
+        section: ProfileSection,
+        loadMoreOnBottom: Bool
+    ) -> some View {
+        switch state {
+        case .loaded:
+            ForEach(posts, id: \.postData._id) { post in
+                let postID = post.postData._id
+
+                PostPreView(client: client, feedData: profilePostBinding(profileData: profileData, postID: postID, keyPath: keyPath, fallback: post), selectedProfile: $selectedProfile)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+#if !os(tvOS)
+                    .listRowSeparator(.hidden)
+#endif
+                    .listRowInsets(EdgeInsets())
+                    .padding(10)
+                    .onAppear {
+                        if loadMoreOnBottom && self.profileData.postData.last?.postData._id == postID {
+                            self.profileData.nextUserPostsIndex()
+                        }
+                    }
+            }
+
+            if loadMoreOnBottom && profileData.loadingNextIndex {
+                HStack {
+                    Spacer()
+                    ProgressView()
+                    Spacer()
+                }
+                .padding(20)
+                .listRowSeparator(.hidden)
+            } else {
+                EmptyView()
+                    .padding(.bottom, 30)
+                    .listRowSeparator(.hidden)
+            }
+        default:
+            ProfileSectionStatusView(state: state) {
+                profileData.refreshProfile(section: section)
+            }
+#if !os(tvOS)
+            .listRowSeparator(.hidden)
+#endif
+            .listRowInsets(EdgeInsets())
+        }
+    }
+
+    @ViewBuilder
+    private var badgeRows: some View {
+        switch profileData.badgesLoadState {
+        case .loaded:
+            ForEach(profileData.badgeData, id: \.id) { badge in
+                BadgeCardView(client: client, badgeData: badge)
+                    .padding(10)
+                    .listRowInsets(EdgeInsets())
+#if !os(tvOS)
+                    .listRowSeparator(.hidden)
+#endif
+            }
+            EmptyView()
+                .padding(.bottom, 30)
+                .listRowSeparator(.hidden)
+        default:
+            ProfileSectionStatusView(state: profileData.badgesLoadState) {
+                profileData.refreshProfile(section: .badges)
+            }
+#if !os(tvOS)
+            .listRowSeparator(.hidden)
+#endif
+            .listRowInsets(EdgeInsets())
+        }
+    }
+
+    private func refreshSelectedProfileSection() async {
+        switch selectedProfileSection {
+        case .posts, .pins, .mentions, .badges:
+            await refreshProfileData(section: selectedProfileSection)
+        case .quickInfo, .followLists:
+            await refreshProfileData()
+        }
+    }
+
+    private func switchProfileSection(offset: Int) {
+        let sections = ProfileSection.profileContentSections
+        guard let currentIndex = sections.firstIndex(of: selectedProfileSection) else {
+            return
+        }
+
+        let newIndex = currentIndex + offset
+        guard sections.indices.contains(newIndex) else {
+            return
+        }
+
+        client.hapticPress()
+        sectionTransitionDirection = offset
+        withAnimation(.easeInOut(duration: 0.2)) {
+            selectedProfileSection = sections[newIndex]
+        }
+    }
+
+    private func canTrackSectionDrag(_ value: DragGesture.Value) -> Bool {
+        guard !editingProfile && !showEditResults else {
+            return false
+        }
+
+        let horizontalDistance = value.translation.width
+        let verticalDistance = value.translation.height
+
+        return abs(horizontalDistance) > 12 && abs(horizontalDistance) > abs(verticalDistance) * 1.25
+    }
+
+    private func boundedSectionDragOffset(_ translation: CGFloat) -> CGFloat {
+        let offset = translation < 0 ? 1 : -1
+        let canMove = canSwitchProfileSection(offset: offset)
+        let dampedTranslation = canMove ? translation : translation * 0.18
+
+        return min(max(dampedTranslation, -180), 180)
+    }
+
+    private func canSwitchProfileSection(offset: Int) -> Bool {
+        let sections = ProfileSection.profileContentSections
+        guard let currentIndex = sections.firstIndex(of: selectedProfileSection) else {
+            return false
+        }
+
+        return sections.indices.contains(currentIndex + offset)
     }
 
     private func refreshProfileData(section: ProfileSection? = nil) async {
@@ -399,6 +566,8 @@ struct ProfileView : View {
         userFollowerList = nil
         followingLoadState = .loading
         followersLoadState = .loading
+        followingLoadingNextIndex = false
+        followersLoadingNextIndex = false
 
         Task {
             await loadFollowList(userID: resolvedID, type: 0, requestID: nextFollowingRequestID)
@@ -425,10 +594,12 @@ struct ProfileView : View {
                 followingRequestID = requestID
                 userFollowingList = nil
                 followingLoadState = .loading
+                followingLoadingNextIndex = false
             } else {
                 followersRequestID = requestID
                 userFollowerList = nil
                 followersLoadState = .loading
+                followersLoadingNextIndex = false
             }
         }
 
@@ -446,22 +617,52 @@ struct ProfileView : View {
         await loadFollowList(userID: resolvedID, type: type, requestID: requestID)
     }
 
-    private func loadFollowList(userID: String, type: Int, requestID: UUID) async {
+    private func loadNextFollowList(type: Int) {
+        let currentList = type == 0 ? userFollowingList : userFollowerList
+        let isLoadingNext = type == 0 ? followingLoadingNextIndex : followersLoadingNextIndex
+
+        guard !isLoadingNext,
+              let prevIndexID = currentList?.prevIndexID,
+              !prevIndexID.isEmpty else {
+            return
+        }
+
+        let resolvedID = (currentList?.userID ?? profileData.userData?._id ?? profileData.userID).trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !resolvedID.isEmpty else {
+            return
+        }
+
+        let requestID = type == 0 ? followingRequestID : followersRequestID
+
+        if type == 0 {
+            followingLoadingNextIndex = true
+        } else {
+            followersLoadingNextIndex = true
+        }
+
+        Task {
+            await loadFollowList(userID: resolvedID, type: type, requestID: requestID, indexID: prevIndexID, append: true)
+        }
+    }
+
+    private func loadFollowList(userID: String, type: Int, requestID: UUID, indexID: String? = nil, append: Bool = false) async {
         do {
-            let list = try await client.api.users.followingFollowerList(userID: userID, type: type)
+            let list = try await client.api.users.followingFollowerList(userID: userID, type: type, indexID: indexID)
 
             await MainActor.run {
                 guard isCurrentFollowListRequest(type: type, requestID: requestID, userID: userID) else {
+                    setFollowListLoadingNext(false, type: type)
                     return
                 }
 
                 if type == 0 {
-                    userFollowingList = list
-                    followingLoadState = followListState(list: list, type: type)
+                    userFollowingList = append ? mergedFollowList(current: userFollowingList, next: list) : list
+                    followingLoadState = followListState(list: userFollowingList ?? list, type: type)
                 } else {
-                    userFollowerList = list
-                    followersLoadState = followListState(list: list, type: type)
+                    userFollowerList = append ? mergedFollowList(current: userFollowerList, next: list) : list
+                    followersLoadState = followListState(list: userFollowerList ?? list, type: type)
                 }
+                setFollowListLoadingNext(false, type: type)
             }
         } catch {
             let message = userFacingErrorMessage(error, fallback: "We could not load this list.")
@@ -469,16 +670,55 @@ struct ProfileView : View {
 
             await MainActor.run {
                 guard isCurrentFollowListRequest(type: type, requestID: requestID, userID: userID) else {
+                    setFollowListLoadingNext(false, type: type)
                     return
                 }
 
-                if type == 0 {
-                    followingLoadState = .failed(message)
-                } else {
-                    followersLoadState = .failed(message)
+                if !append {
+                    if type == 0 {
+                        followingLoadState = .failed(message)
+                    } else {
+                        followersLoadState = .failed(message)
+                    }
                 }
+                setFollowListLoadingNext(false, type: type)
             }
         }
+    }
+
+    private func setFollowListLoadingNext(_ isLoading: Bool, type: Int) {
+        if type == 0 {
+            followingLoadingNextIndex = isLoading
+        } else {
+            followersLoadingNextIndex = isLoading
+        }
+    }
+
+    private func mergedFollowList(current: UserFollowListData?, next: UserFollowListData) -> UserFollowListData {
+        var mergedData = current?.data ?? []
+
+        for nextDataPoint in next.data ?? [] {
+            guard !mergedData.contains(where: { $0.followData._id == nextDataPoint.followData._id }) else {
+                continue
+            }
+            mergedData.append(nextDataPoint)
+        }
+
+        return UserFollowListData(
+            found: next.found || !mergedData.isEmpty,
+            followIndexID: next.followIndexID ?? current?.followIndexID,
+            prevIndexID: next.prevIndexID,
+            nextIndexID: next.nextIndexID,
+            timestamp: next.timestamp ?? current?.timestamp,
+            current: next.current ?? current?.current,
+            type: next.type ?? current?.type,
+            userID: next.userID ?? current?.userID,
+            userData: next.userData ?? current?.userData,
+            amount: next.amount ?? current?.amount,
+            includedIndexes: next.includedIndexes ?? current?.includedIndexes,
+            follows: next.follows ?? current?.follows,
+            data: mergedData
+        )
     }
 
     private func isCurrentFollowListRequest(type: Int, requestID: UUID, userID: String) -> Bool {
@@ -496,11 +736,166 @@ struct ProfileView : View {
 
     private func followListState(list: UserFollowListData, type: Int) -> ProfileSectionLoadState {
         let data = list.data ?? []
-        if list.found == false || data.isEmpty {
+        if data.isEmpty {
             return .empty(type == 0 ? "No following found." : "No followers found.")
         }
 
         return .loaded
+    }
+}
+
+private struct ProfileSectionPicker: View {
+    @Binding var selectedSection: ProfileSection
+
+    var body: some View {
+        Picker("Profile section", selection: $selectedSection) {
+            ForEach(ProfileSection.profileContentSections) { section in
+                Text(section.title)
+                    .tag(section)
+            }
+        }
+        .pickerStyle(.segmented)
+    }
+}
+
+private struct ProfileHeaderView: View {
+    @ObservedObject var client: Client
+    @ObservedObject var profileData: ProfileViewClass
+    @Binding var selectedFollowList: Int
+    @Binding var showingFollowList: Bool
+    @Binding var editingProfile: Bool
+    @Binding var showEditResults: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            if let userData = profileData.userData {
+                HStack(alignment: .top, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 6) {
+                            Text(nonEmptyText(userData.displayName, fallback: "Unknown User"))
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                            if userData.verified == true {
+                                Image(systemName: "checkmark.seal.fill")
+                                    .foregroundColor(.accentColor)
+                            }
+                        }
+
+                        Text("@" + nonEmptyText(userData.username, fallback: "unknown"))
+                            .foregroundColor(.secondary)
+                    }
+
+                    Spacer()
+
+                    profileAction(userData: userData)
+                }
+
+                if let description = userData.description?.trimmingCharacters(in: .whitespacesAndNewlines), !description.isEmpty {
+                    Text(description)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                if let statusTitle = userData.statusTitle?.trimmingCharacters(in: .whitespacesAndNewlines), !statusTitle.isEmpty {
+                    Text(statusTitle)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+
+                if let creationTimestamp = userData.creationTimestamp {
+                    Label("Joined " + int64TimeFormatter(timestamp: creationTimestamp), systemImage: "calendar")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 18) {
+                        followCountButton(count: userData.followingCount ?? 0, title: "Following", type: 0)
+                        followCountButton(count: userData.followerCount ?? 0, title: "Followers", type: 1)
+
+                        if let totalPosts = userData.totalPosts {
+                            countLabel(count: totalPosts, title: "Posts")
+                        }
+                        if let totalReplies = userData.totalReplies {
+                            countLabel(count: totalReplies, title: "Replies")
+                        }
+                        if let totalQuotes = userData.totalQuotes {
+                            countLabel(count: totalQuotes, title: "Quotes")
+                        }
+                    }
+                }
+            } else {
+                Text("Profile details unavailable")
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func profileAction(userData: UserData) -> some View {
+        if profileData.isClient {
+            Button("Edit Profile") {
+                client.hapticPress()
+                showEditResults = false
+                editingProfile = true
+            }
+            .buttonStyle(.bordered)
+        } else if let profileUserID = userData._id, !profileUserID.isEmpty {
+            Button(profileData.followed ? "Unfollow" : "Follow") {
+                toggleFollow(profileUserID: profileUserID)
+            }
+            .buttonStyle(.borderedProminent)
+        }
+    }
+
+    private func followCountButton(count: Int64, title: String, type: Int) -> some View {
+        Button {
+            client.hapticPress()
+            selectedFollowList = type
+            showingFollowList = true
+        } label: {
+            countLabel(count: count, title: title)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func countLabel(count: Int64, title: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(String(count))
+                .font(.subheadline)
+                .fontWeight(.semibold)
+            Text(title)
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+    }
+
+    private func toggleFollow(profileUserID: String) {
+        client.hapticPress()
+        Task {
+            if profileData.followed {
+                do {
+                    _ = try await client.api.users.unFollowUser(userID: profileUserID)
+                    await MainActor.run {
+                        profileData.followed = false
+                    }
+                } catch let error as ErrorData {
+                    print("ErrorData: \(error.code), \(error.msg)")
+                } catch {
+                    print("Unexpected error: \(error)")
+                }
+            } else {
+                do {
+                    _ = try await client.api.users.followUser(userID: profileUserID)
+                    await MainActor.run {
+                        profileData.followed = true
+                    }
+                } catch let error as ErrorData {
+                    print("ErrorData: \(error.code), \(error.msg)")
+                } catch {
+                    print("Unexpected error: \(error)")
+                }
+            }
+        }
     }
 }
 
@@ -558,200 +953,6 @@ struct ProfileMentionView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-}
-
-struct ProfileUserDataView: View {
-    @ObservedObject var client: Client
-    @ObservedObject var profileData: ProfileViewClass
-    @State var editingProfile: Bool = false
-    @State var editingResults: UserEditResponse?
-    @State var showEditResults: Bool = false
-
-    init(client: Client, profileData: ProfileViewClass) {
-        self.client = client
-        self.profileData = profileData
-    }
-    
-    var body: some View {
-        VStack {
-            if (profileData.isClient == true && editingProfile == false && showEditResults == false) {
-                HStack {
-                    Button(action: {
-                        client.hapticPress()
-                        DispatchQueue.main.async {
-                            editingProfile=true
-                        }
-                    }) {
-                        HStack {
-                            Text("Edit Profile")
-                        }
-                        .foregroundColor(.secondary)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
-            }
-            else if (profileData.isClient == true && editingProfile == true) {
-                EditProfileView(client: client, profileData: profileData, editingProfile: $editingProfile, editingResults: $editingResults, showEditResults: $showEditResults)
-                
-            }
-            if (showEditResults) {
-                EditProfileResults(client: client, profileData: profileData, editingResults: $editingResults, showEditResults: $showEditResults)
-            }
-            if (!editingProfile && !showEditResults) {
-                if let userData = profileData.userData {
-                    HStack {
-                        Text(nonEmptyText(userData.displayName, fallback: "Unknown User"))
-                        Text("@" + nonEmptyText(userData.username, fallback: "unknown"))
-                        if (userData.verified == true) {
-                            Image(systemName: "checkmark.seal.fill")
-                        }
-                        Spacer()
-                    }
-
-                    if let description = userData.description?.trimmingCharacters(in: .whitespacesAndNewlines), !description.isEmpty {
-                        HStack {
-                            Text(description)
-                            Spacer()
-                        }
-                    }
-
-                    HStack {
-                        Text(String(userData.followingCount ?? 0) + " Following")
-                        Text("|")
-                        Text(String(userData.followerCount ?? 0) + " Followers")
-                        
-                        if let profileUserID = userData._id, !profileUserID.isEmpty, profileUserID != self.client.userTokens.userID {
-                            Button(action: {
-                                client.hapticPress()
-                                print(profileData.followed)
-                                DispatchQueue.main.async {
-                                    Task {
-                                        if (profileData.followed == true) {
-                                            do {
-                                                _ = try await client.api.users.unFollowUser(userID: profileUserID)
-                                                profileData.followed = false
-                                            } catch let error as ErrorData {
-                                                print("ErrorData: \(error.code), \(error.msg)")
-                                            } catch {
-                                                print("Unexpected error: \(error)")
-                                            }
-                                        } else {
-                                            do {
-                                                //self.profileData.userDataFull?.extraData?.followed
-                                                _ = try await client.api.users.followUser(userID: profileUserID)
-                                                profileData.followed = true
-                                            } catch let error as ErrorData {
-                                                print("ErrorData: \(error.code), \(error.msg)")
-                                            } catch {
-                                                print("Unexpected error: \(error)")
-                                            }
-                                        }
-                                    }
-                                }
-                            }) {
-                                Text("|")
-                                if (profileData.followed == true) {
-                                    Text("Unfollow User")
-                                } else {
-                                    Text("Follow User")
-                                }
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                        }
-                        Spacer()
-                    }
-                    if let likeCount = userData.likeCount {
-                        HStack {
-                            Text(String(likeCount) + " Likes")
-                            Spacer()
-                        }
-                    }
-                    if let likedCount = userData.likedCount {
-                        HStack {
-                            Text(String(likedCount) + " Liked Posts")
-                            Spacer()
-                        }
-                    }
-                    if let statusTitle = userData.statusTitle?.trimmingCharacters(in: .whitespacesAndNewlines), !statusTitle.isEmpty {
-                        HStack {
-                            Text("Activity Status: " + statusTitle)
-                            Spacer()
-                        }
-                    }
-                    if let creationTimestamp = userData.creationTimestamp {
-                        HStack {
-                            Text("Created " + int64TimeFormatter(timestamp: creationTimestamp))
-                            Spacer()
-                        }
-                    }
-                    if let totalPosts = userData.totalPosts {
-                        HStack {
-                            Text(String(totalPosts) + " Total Posts")
-                            Spacer()
-                        }
-                    }
-                    if let totalReplies = userData.totalReplies {
-                        HStack {
-                            Text(String(totalReplies) + " Total Replies")
-                            Spacer()
-                        }
-                        
-                    }
-                    if let totalQuotes = userData.totalQuotes {
-                        HStack {
-                            Text(String(totalQuotes) + " Total Quote Posts")
-                            Spacer()
-                        }
-                    }
-                } else {
-                    HStack {
-                        Text("Profile details unavailable")
-                            .foregroundColor(.secondary)
-                        Spacer()
-                    }
-                }
-            }
-        }
-        // update for confirming cancel or complete
-        /*
-        .confirmationDialog("Delete Post", isPresented: $deletePostConfirm) {
-                Button("Delete") {
-                    client.hapticPress()
-                    print("pretend delete")
-                    self.deletePostConfirm = false
-                    
-    //                client.api.posts.deletePost(postID: feedData.postData._id) { result in
-    //                    print("api rquest login:")
-    //                    switch result {
-    //                    case .success(let res):
-    //                        if (res.deleted) {
-    //                            DispatchQueue.main.async {
-    //                                self.feedData.postLiveData.deleted = true
-    //                            }
-    //                        }
-    //                    case .failure(let error):
-    //                        DispatchQueue.main.async {
-    //                            self.feedData.postLiveData.deleted = false
-    //                        }
-    //                        print("Error: \(error.localizedDescription)")
-    //                    }
-    //                }
-
-                    DispatchQueue.main.async {
-                        self.feedData.postLiveData.deleted = true;
-                    }
-                }
-                .foregroundColor(.red)
-                Button("Cancel", role: .cancel) {
-                    client.hapticPress()
-                    self.feedData.postLiveData.deleted = false
-                }
-            } message: {
-                Text("Confirm Post Deletion")
-            }
-        }*/
-        Spacer()
     }
 }
 
@@ -1046,6 +1247,10 @@ struct FollowingFollowerView: View {
     let followersLoadState: ProfileSectionLoadState
     let refreshFollowing: () async -> Void
     let refreshFollowers: () async -> Void
+    let followingLoadingNextIndex: Bool
+    let followersLoadingNextIndex: Bool
+    let loadNextFollowing: () -> Void
+    let loadNextFollowers: () -> Void
     @State var isLoading: Bool = true
     @State var failed: Bool = false
     
@@ -1075,9 +1280,9 @@ struct FollowingFollowerView: View {
                     
                 }
                 if (selectedFollowList == 0) {
-                    FollowingFollowerListView(client: client, userList: $userFollowingList, selectedFollowList: $selectedFollowList, loadState: followingLoadState, refreshAction: refreshFollowing)
+                    FollowingFollowerListView(client: client, userList: $userFollowingList, selectedFollowList: $selectedFollowList, loadState: followingLoadState, isLoadingNext: followingLoadingNextIndex, refreshAction: refreshFollowing, loadNextAction: loadNextFollowing)
                 } else if (selectedFollowList == 1) {
-                    FollowingFollowerListView(client: client, userList: $userFollowerList, selectedFollowList: $selectedFollowList, loadState: followersLoadState, refreshAction: refreshFollowers)
+                    FollowingFollowerListView(client: client, userList: $userFollowerList, selectedFollowList: $selectedFollowList, loadState: followersLoadState, isLoadingNext: followersLoadingNextIndex, refreshAction: refreshFollowers, loadNextAction: loadNextFollowers)
                 }
             }
         }
@@ -1181,7 +1386,9 @@ struct FollowingFollowerListView: View {
     @Binding var userList: UserFollowListData?
     @Binding var selectedFollowList: Int
     let loadState: ProfileSectionLoadState
+    let isLoadingNext: Bool
     let refreshAction: () async -> Void
+    let loadNextAction: () -> Void
 
     var body: some View {
         VStack {
@@ -1214,6 +1421,27 @@ struct FollowingFollowerListView: View {
                         }
                         EmptyView()
                             .padding(.bottom, 40)
+
+                        if userList?.prevIndexID != nil {
+                            HStack {
+                                Spacer()
+                                if isLoadingNext {
+                                    ProgressView()
+                                } else {
+                                    ProgressView()
+                                        .opacity(0)
+                                        .onAppear {
+                                            loadNextAction()
+                                        }
+                                }
+                                Spacer()
+                            }
+                            .padding(20)
+#if !os(tvOS)
+                            .listRowSeparator(.hidden)
+#endif
+                            .listRowInsets(EdgeInsets())
+                        }
                     }
                 default:
                     ProfileSectionStatusView(state: loadState) {
