@@ -96,6 +96,8 @@ struct BasicSettings: View {
                 }
                 .padding(10)
                 #endif
+                appearanceSection
+                
                 Button(action: {
                     client.hapticPress()
                     self.subSettings = true
@@ -209,14 +211,10 @@ struct BasicSettings: View {
                 .padding(20)
             }
             .padding(15)
-            .background(client.themeData.mainBackground)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.accentColor, lineWidth: 3)
-            )
+            .interactCardSurface(tone: .selected, cornerRadius: 20, lineWidth: 3)
             .padding(10)
         }
+        .interactAppBackground()
         .onChange(of: enabledDevMode) { newValue in
             client.devMode = client.devModeManager.swapMode()
             client.themeData.updateThemes(devMode: client.devMode ?? DevModeData(isEnabled: false))
@@ -241,6 +239,41 @@ struct BasicSettings: View {
         }
         .padding(10)
         .navigationTitle("Settings")
+    }
+    
+    private var appearanceSection: some View {
+        InteractConnectedCardSection(tone: .selected) {
+            InteractConnectedCardRow {
+                HStack(spacing: 12) {
+                    Image(systemName: "circle.lefthalf.filled")
+                        .foregroundStyle(.secondary)
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Appearance")
+                        Text("Use system, light, or dark mode.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    
+                    Spacer(minLength: 12)
+                    
+                    Picker(
+                        "Appearance",
+                        selection: Binding(
+                            get: { client.appearancePreference },
+                            set: { client.setAppearancePreference($0) }
+                        )
+                    ) {
+                        ForEach(InteractAppearancePreference.allCases) { preference in
+                            Text(preference.title).tag(preference)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .labelsHidden()
+                }
+            }
+        }
+        .padding(10)
     }
 }
 

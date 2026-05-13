@@ -17,6 +17,9 @@
 		650C383A2B797393002956DA /* UsersThemes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650C38392B797393002956DA /* UsersThemes.swift */; };
 		650C383C2B797462002956DA /* UserThemesData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650C383B2B797462002956DA /* UserThemesData.swift */; };
 		651262EC2F730B5D0031C65E /* DebugHarness.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651262EB2F730B5A0031C65E /* DebugHarness.swift */; };
+		66A100032F80000000000000 /* InteractAppearancePreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A100022F80000000000000 /* InteractAppearancePreference.swift */; };
+		66A100052F80000000000000 /* InteractThemePalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A100042F80000000000000 /* InteractThemePalette.swift */; };
+		66A100072F80000000000000 /* InteractDesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A100062F80000000000000 /* InteractDesignSystem.swift */; };
 		651262EE2F7335E00031C65E /* PostStateData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651262ED2F7335C70031C65E /* PostStateData.swift */; };
 		651262F02F7335F30031C65E /* PostModelsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651262EF2F7335ED0031C65E /* PostModelsData.swift */; };
 		651263002F7401000031C65E /* UserStateData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651262FF2F7400F00031C65E /* UserStateData.swift */; };
@@ -100,6 +103,9 @@
 		650C38392B797393002956DA /* UsersThemes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersThemes.swift; sourceTree = "<group>"; };
 		650C383B2B797462002956DA /* UserThemesData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserThemesData.swift; sourceTree = "<group>"; };
 		651262EB2F730B5A0031C65E /* DebugHarness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugHarness.swift; sourceTree = "<group>"; };
+		66A100022F80000000000000 /* InteractAppearancePreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractAppearancePreference.swift; sourceTree = "<group>"; };
+		66A100042F80000000000000 /* InteractThemePalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractThemePalette.swift; sourceTree = "<group>"; };
+		66A100062F80000000000000 /* InteractDesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractDesignSystem.swift; sourceTree = "<group>"; };
 		651262ED2F7335C70031C65E /* PostStateData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostStateData.swift; sourceTree = "<group>"; };
 		651262EF2F7335ED0031C65E /* PostModelsData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostModelsData.swift; sourceTree = "<group>"; };
 		651262FF2F7400F00031C65E /* UserStateData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStateData.swift; sourceTree = "<group>"; };
@@ -212,6 +218,7 @@
 		655AB60729F0720500C61F3A /* social-apple */ = {
 			isa = PBXGroup;
 			children = (
+				66A100002F80000000000000 /* Shared */,
 				65B375752F731DF800FB5E6F /* Utility */,
 				65B375532F731AAF00FB5E6F /* Features */,
 				651262EA2F730B4F0031C65E /* Debug */,
@@ -225,6 +232,24 @@
 				655AB61429F0720600C61F3A /* Preview Content */,
 			);
 			path = "social-apple";
+			sourceTree = "<group>";
+		};
+		66A100002F80000000000000 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				66A100012F80000000000000 /* DesignSystem */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		66A100012F80000000000000 /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				66A100022F80000000000000 /* InteractAppearancePreference.swift */,
+				66A100042F80000000000000 /* InteractThemePalette.swift */,
+				66A100062F80000000000000 /* InteractDesignSystem.swift */,
+			);
+			path = DesignSystem;
 			sourceTree = "<group>";
 		};
 		655AB61429F0720600C61F3A /* Preview Content */ = {
@@ -845,6 +870,9 @@
 				650C38342B796FD7002956DA /* Analytics.swift in Sources */,
 				651757EC2A006D6900E90FBA /* AnalyticData.swift in Sources */,
 				651262EC2F730B5D0031C65E /* DebugHarness.swift in Sources */,
+				66A100032F80000000000000 /* InteractAppearancePreference.swift in Sources */,
+				66A100052F80000000000000 /* InteractThemePalette.swift in Sources */,
+				66A100072F80000000000000 /* InteractDesignSystem.swift in Sources */,
 				65CC79352B697CE0002B5ADA /* PollsData.swift in Sources */,
 				65989CED2C88DD940039763D /* API_Base.swift in Sources */,
 				655AB60B29F0720500C61F3A /* Persistence.swift in Sources */,

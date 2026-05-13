@@ -41,11 +41,7 @@ struct FeedPage: View {
                             let postID = post.postData._id
                             
                             PostFeedPreView(client: client, feedData: postBinding(for: postID, fallback: post), selectedPostID: $selectedPostID, selectedPost: $selectedPost, selectedProfile: $selectedProfile)
-                                #if !os(tvOS)
-                                .listRowSeparator(.hidden)
-                                #endif
-                                .listRowInsets(EdgeInsets())
-                                .padding(10)
+                                .interactPlainListRow()
 //                                .onpress
                                 /*.swipeActions(allowsFullSwipe: false) {
                                     Button {
@@ -77,10 +73,7 @@ struct FeedPage: View {
 
                         }
                     })
-                    .listStyle(.plain)
-                    #if !os(tvOS)
-                    .listRowSeparator(.hidden)
-                    #endif
+                    .interactCardListScreen()
                     .refreshable {
                         client.hapticPress()
                         DispatchQueue.main.async {
@@ -93,6 +86,7 @@ struct FeedPage: View {
                     Text("loading feed")
                 }
             }
+            .interactAppBackground()
             .navigationDestination(isPresented: $selectedPost) {
                 if let selectedPostID,
                    let selectedPostBinding = currentPostBinding(for: selectedPostID) {

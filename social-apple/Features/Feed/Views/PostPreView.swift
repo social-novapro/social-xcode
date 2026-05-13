@@ -84,15 +84,14 @@ struct PostPreView: View {
                 print ("showing")
             }
             .padding(15)
-            .background(client.themeData.mainBackground)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.gray, lineWidth: 3)
-            )
+            .interactCardSurface(tone: postCardTone, cornerRadius: 20, lineWidth: 3)
         if (self.feedData.postLiveData.actionExpanded == true) {
             ExpandedPostView(client: client, feedData: $feedData)
         }
+    }
+    
+    private var postCardTone: InteractSectionTone {
+        feedData.postLiveData.isOwner == true ? .owner : .normal
     }
 }
 
@@ -160,15 +159,14 @@ struct PostFeedPreView: View {
                 }
             }
             .padding(15)
-            .background(client.themeData.mainBackground)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.gray, lineWidth: 3)
-            )
+            .interactCardSurface(tone: postCardTone, cornerRadius: 20, lineWidth: 3)
         if (self.feedData.postLiveData.actionExpanded == true) {
             ExpandedPostView(client: client, postActiveData: postActiveData, feedData: $feedData)
         }
+    }
+    
+    private var postCardTone: InteractSectionTone {
+        feedData.postLiveData.isOwner == true ? .owner : .normal
     }
 }
 
