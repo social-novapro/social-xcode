@@ -20,6 +20,14 @@ struct LoginPage: View {
         !username.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
         !password.isEmpty
     }
+
+    private var backButtonPlacement: ToolbarItemPlacement {
+#if os(macOS)
+        .automatic
+#else
+        .navigationBarLeading
+#endif
+    }
     
     var body: some View {
         VStack {
@@ -29,7 +37,7 @@ struct LoginPage: View {
                         Spacer()
                         Image(systemName: "person.circle")
                         TextField("Username", text: $username)
-                            .textInputAutocapitalization(.never)
+//                            .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                             .interactInputSurface()
                         Spacer()
@@ -66,11 +74,12 @@ struct LoginPage: View {
                 
                 Spacer()
             }
+            .interactScreenPadding(maxWidth: 520)
         }
         .interactAppBackground()
         .navigationTitle("Login")
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            ToolbarItem(placement: backButtonPlacement) {
                 Button("Back") {
                     client.hapticPress()
                     client.changeBeginSetting(value: 1)

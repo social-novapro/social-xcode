@@ -34,8 +34,6 @@ struct SystemView: View {
                 if client.devMode?.isEnabled == true {
                     developerSection
                 }
-
-                aboutSection
             }
             .interactScreenPadding(maxWidth: presentation.maxWidth)
         }
@@ -66,7 +64,7 @@ struct SystemView: View {
     }
 
     private var settingsSection: some View {
-        SystemSection(title: "System", subtitle: "Local app settings and account actions.") {
+        SystemSection(title: "System", subtitle: "Local app settings and saved accounts.") {
             SystemNavigationItem(
                 title: "Settings",
                 subtitle: "Appearance, app, and developer options.",
@@ -83,17 +81,6 @@ struct SystemView: View {
                 systemImage: "person.2"
             ) {
                 AccountsView(client: client, feedPosts: feedPosts)
-            }
-
-            InteractConnectedCardDivider(leadingInset: 56)
-
-            SystemNavigationItem(
-                title: "Logout",
-                subtitle: "Log out of the current or all accounts.",
-                systemImage: "x.circle",
-                tone: .destructive
-            ) {
-                LogoutView(client: client, feedPosts: feedPosts)
             }
         }
     }
@@ -142,17 +129,6 @@ struct SystemView: View {
         }
     }
 
-    private var aboutSection: some View {
-        SystemSection(title: "About") {
-            SystemNavigationItem(
-                title: "About Interact",
-                subtitle: "Version, build, and project details.",
-                systemImage: "info.circle"
-            ) {
-                AboutView(client: client)
-            }
-        }
-    }
 }
 
 enum SystemPresentation {

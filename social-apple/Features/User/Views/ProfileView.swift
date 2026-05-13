@@ -252,6 +252,7 @@ struct ProfileView : View {
             )
             .listRowInsets(EdgeInsets())
             .listRowSeparator(.hidden)
+            .listRowBackground(Color.clear)
             .padding(.horizontal, 15)
             .padding(.vertical, 12)
 
@@ -265,6 +266,7 @@ struct ProfileView : View {
                 )
                 .listRowInsets(EdgeInsets())
                 .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
                 .padding(15)
             } else if showEditResults {
                 EditProfileResults(
@@ -275,15 +277,18 @@ struct ProfileView : View {
                 )
                 .listRowInsets(EdgeInsets())
                 .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
                 .padding(15)
             } else {
                 ProfileSectionPicker(selectedSection: $selectedProfileSection)
                     .listRowInsets(EdgeInsets())
                     .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
                     .padding(.horizontal, 15)
                     .padding(.bottom, 8)
 
                 sectionRowsWithSwipe
+                profileBottomSpacer
             }
         }
 #if !os(tvOS)
@@ -307,6 +312,14 @@ struct ProfileView : View {
         .transition(sectionTransition)
         .animation(.interactiveSpring(response: 0.28, dampingFraction: 0.86), value: sectionDragOffset)
         .animation(.spring(response: 0.28, dampingFraction: 0.88), value: selectedProfileSection)
+    }
+
+    private var profileBottomSpacer: some View {
+        Color.clear
+            .frame(height: 92)
+            .listRowInsets(EdgeInsets())
+            .listRowSeparator(.hidden)
+            .listRowBackground(Color.clear)
     }
 
     private var sectionSwipeGesture: some Gesture {
@@ -415,6 +428,7 @@ struct ProfileView : View {
                     .listRowSeparator(.hidden)
 #endif
                     .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
                     .padding(10)
                     .onAppear {
                         if loadMoreOnBottom && self.profileData.postData.last?.postData._id == postID {
@@ -431,10 +445,14 @@ struct ProfileView : View {
                 }
                 .padding(20)
                 .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
             } else {
                 EmptyView()
                     .padding(.bottom, 30)
                     .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
             }
         default:
             ProfileSectionStatusView(state: state) {
@@ -444,6 +462,7 @@ struct ProfileView : View {
             .listRowSeparator(.hidden)
 #endif
             .listRowInsets(EdgeInsets())
+            .listRowBackground(Color.clear)
         }
     }
 
@@ -455,6 +474,7 @@ struct ProfileView : View {
                 BadgeCardView(client: client, badgeData: badge)
                     .padding(10)
                     .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
 #if !os(tvOS)
                     .listRowSeparator(.hidden)
 #endif
@@ -462,6 +482,8 @@ struct ProfileView : View {
             EmptyView()
                 .padding(.bottom, 30)
                 .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
         default:
             ProfileSectionStatusView(state: profileData.badgesLoadState) {
                 profileData.refreshProfile(section: .badges)
@@ -470,6 +492,7 @@ struct ProfileView : View {
             .listRowSeparator(.hidden)
 #endif
             .listRowInsets(EdgeInsets())
+            .listRowBackground(Color.clear)
         }
     }
 
@@ -979,16 +1002,21 @@ struct ProfileMentionView: View {
                             .listRowSeparator(.hidden)
 #endif
                             .listRowInsets(EdgeInsets())
+                            .listRowBackground(Color.clear)
                             .padding(10)
                     }
                     EmptyView()
                         .padding(.bottom, 20)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
                 default:
                     ProfileSectionStatusView(state: loadState, retryAction: retryAction)
 #if !os(tvOS)
                         .listRowSeparator(.hidden)
 #endif
                         .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
                 }
             }
             #if !os(tvOS)
@@ -1449,6 +1477,7 @@ struct FollowingFollowerListView: View {
                         .listRowSeparator(.hidden)
 #endif
                         .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
                     } else {
                         ForEach(followRows, id: \.followData._id) { followDataPoint in
                             FollowingFollowerProfilePreview(client: client, followDataPoint: followDataPoint)
@@ -1456,6 +1485,7 @@ struct FollowingFollowerListView: View {
                                 .listRowSeparator(.hidden)
 #endif
                                 .listRowInsets(EdgeInsets())
+                                .listRowBackground(Color.clear)
                                 .padding(10)
                                 .onAppear(){
                                     client.hapticPress()
@@ -1464,6 +1494,9 @@ struct FollowingFollowerListView: View {
                         }
                         EmptyView()
                             .padding(.bottom, 40)
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets())
+                            .listRowBackground(Color.clear)
 
                         if userList?.prevIndexID != nil {
                             HStack {
@@ -1484,6 +1517,7 @@ struct FollowingFollowerListView: View {
                             .listRowSeparator(.hidden)
 #endif
                             .listRowInsets(EdgeInsets())
+                            .listRowBackground(Color.clear)
                         }
                     }
                 default:
@@ -1496,6 +1530,7 @@ struct FollowingFollowerListView: View {
                     .listRowSeparator(.hidden)
 #endif
                     .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
                 }
             }
 #if !os(tvOS)

@@ -573,18 +573,39 @@ private struct InteractCardListScreenModifier: ViewModifier {
         let style = (designOverride ?? environmentDesign).listScreenStyle(maxWidth: maxWidth)
 
         if style.centersContent, let maxWidth = style.maxWidth {
-            content
+            applyListContentMargins(
+                content
                 .listStyle(.plain)
                 .frame(maxWidth: maxWidth, alignment: .leading)
-                .padding(.horizontal, style.horizontalPadding)
-                .padding(.vertical, style.verticalPadding)
-                .frame(maxWidth: .infinity, alignment: .center)
+                .frame(maxWidth: .infinity, alignment: .center),
+                style: style
+            )
         } else {
-            content
-                .listStyle(.plain)
-                .padding(.horizontal, style.horizontalPadding)
-                .padding(.vertical, style.verticalPadding)
+            applyListContentMargins(content.listStyle(.plain), style: style)
         }
+    }
+
+    @ViewBuilder
+    private func applyListContentMargins<V: View>(_ view: V, style: InteractListScreenStyle) -> some View {
+        #if os(iOS) || os(tvOS)
+        if #available(iOS 17.0, tvOS 17.0, *) {
+            view
+                .contentMargins(.horizontal, style.horizontalPadding, for: .scrollContent)
+                .contentMargins(.vertical, style.verticalPadding, for: .scrollContent)
+        } else {
+            view
+        }
+        #elseif os(macOS)
+        if #available(macOS 14.0, *) {
+            view
+                .contentMargins(.horizontal, style.horizontalPadding, for: .scrollContent)
+                .contentMargins(.vertical, style.verticalPadding, for: .scrollContent)
+        } else {
+            view
+        }
+        #else
+        view
+        #endif
     }
 }
 
@@ -608,6 +629,7 @@ private struct InteractPlainListRowModifier: ViewModifier {
             content
                 .listRowInsets(style.insets)
                 .listRowSeparator(style.hidesSeparator ? .hidden : .visible)
+                .listRowBackground(Color.clear)
                 .padding(style.padding)
         }
         #else
@@ -619,6 +641,7 @@ private struct InteractPlainListRowModifier: ViewModifier {
         } else {
             content
                 .listRowInsets(style.insets)
+                .listRowBackground(Color.clear)
                 .padding(style.padding)
         }
         #endif

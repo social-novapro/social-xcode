@@ -28,6 +28,7 @@ struct BasicSettings: View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 12) {
                 preferencesSection
+                accountSection
                 appSection
                 developerSection
             }
@@ -98,21 +99,47 @@ struct BasicSettings: View {
                 InteractConnectedCardDivider(leadingInset: 56)
                 
                 InteractNavigationRow(
-                    title: "Connected Accounts",
-                    subtitle: "Add, switch, and log out of saved accounts.",
-                    systemImage: "person.2"
-                ) {
-                    AccountsView(client: client, feedPosts: feedPosts)
-                }
-                
-                InteractConnectedCardDivider(leadingInset: 56)
-                
-                InteractNavigationRow(
                     title: "Notifications",
                     subtitle: "Register this device and manage push settings.",
                     systemImage: "bell.badge"
                 ) {
                     PushNotifications(client: client)
+                }
+
+                InteractConnectedCardDivider(leadingInset: 56)
+
+                InteractNavigationRow(
+                    title: "About",
+                    subtitle: "Version, build, website, and project details.",
+                    systemImage: "info.circle"
+                ) {
+                    AboutView(client: client)
+                }
+            }
+        }
+    }
+
+    private var accountSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            InteractSectionHeader(title: "Account", subtitle: "Saved accounts and session actions.")
+
+            InteractConnectedCardSection {
+                InteractNavigationRow(
+                    title: "Connected Accounts",
+                    subtitle: "Add, switch, and manage saved accounts.",
+                    systemImage: "person.2"
+                ) {
+                    AccountsView(client: client, feedPosts: feedPosts)
+                }
+
+                InteractConnectedCardDivider(leadingInset: 56)
+
+                InteractNavigationRow(
+                    title: "Logout",
+                    subtitle: "Log out of the current or all accounts.",
+                    systemImage: "x.circle"
+                ) {
+                    LogoutView(client: client, feedPosts: feedPosts)
                 }
             }
         }

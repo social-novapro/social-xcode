@@ -27,6 +27,14 @@ struct CreateUserPage: View {
         !displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
         !password.isEmpty
     }
+
+    private var backButtonPlacement: ToolbarItemPlacement {
+#if os(macOS)
+        .automatic
+#else
+        .navigationBarLeading
+#endif
+    }
     
     var body: some View {
         VStack {
@@ -35,7 +43,9 @@ struct CreateUserPage: View {
                     Spacer()
                     Image(systemName: "envelope.circle")
                     TextField("Email (optional)", text: $email)
+#if os(iOS)
                         .textInputAutocapitalization(.never)
+#endif
                         .autocorrectionDisabled()
                         .interactInputSurface()
                     Spacer()
@@ -46,7 +56,9 @@ struct CreateUserPage: View {
                     Spacer()
                     Image(systemName: "person.circle")
                     TextField("Username (required)", text: $username)
+#if os(iOS)
                         .textInputAutocapitalization(.never)
+#endif
                         .autocorrectionDisabled()
                         .interactInputSurface()
                     Spacer()
@@ -133,7 +145,7 @@ struct CreateUserPage: View {
         .interactAppBackground()
         .navigationTitle("Sign up")
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            ToolbarItem(placement: backButtonPlacement) {
                 Button("Back") {
                     client.hapticPress()
                     client.changeBeginSetting(value: 1)

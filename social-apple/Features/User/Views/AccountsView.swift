@@ -175,7 +175,9 @@ struct AccountsView: View {
                         HStack {
                             Image(systemName: "person.circle")
                             TextField("Username", text: $username)
+#if os(iOS)
                                 .textInputAutocapitalization(.never)
+#endif
                                 .autocorrectionDisabled()
                         }
                         
@@ -213,7 +215,9 @@ struct AccountsView: View {
             HStack {
                 Image(systemName: "person.circle")
                 TextField("Username", text: $username)
+#if os(iOS)
                     .textInputAutocapitalization(.never)
+#endif
                     .autocorrectionDisabled()
             }
             .padding(.top, 8)

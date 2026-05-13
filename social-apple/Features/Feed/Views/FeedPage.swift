@@ -62,6 +62,10 @@ struct FeedPage: View {
                                     }
                                 }
                         }
+
+                        Color.clear
+                            .frame(height: 92)
+                            .interactPlainListRow(rowPadding: 0)
                     }
                     .onChange(of: client.loggedIn, perform: { newValue in
                         if (newValue == true) {

@@ -19,11 +19,7 @@ struct AdminErrorView: View {
                         VStack {
                             AdminErrorIssueView(client: client, issueData: $adminErrorFeed.issues[index])
                         }
-#if !os(tvOS)
-                        .listRowSeparator(.hidden)
-#endif
-                        .listRowInsets(EdgeInsets())
-                        .padding(10)
+                        .interactPlainListRow()
                         .onAppear(){
                             if (self.adminErrorFeed.errorIndex.foundIssues.last?.id == adminErrorFeed.issues[index].id && self.adminErrorFeed.loadingScroll == false) {
                                 client.hapticPress()
