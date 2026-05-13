@@ -20,6 +20,7 @@
     </entity>
     <entity name="UserTokens" representedClassName="UserTokens" syncable="YES" codeGenerationType="class">
         <attribute name="accessToken" optional="YES" attributeType="String"/>
+        <attribute name="active" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="userID" optional="YES" attributeType="String"/>
         <attribute name="userToken" optional="YES" attributeType="String"/>
     </entity>

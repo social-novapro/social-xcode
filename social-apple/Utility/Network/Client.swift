@@ -33,8 +33,9 @@ class Client: ObservableObject {
     var navigationManager = CurrentNavigationHandler(persistentContainer: PersistenceController.shared.container)
     var hapticModeManager = HapticModeHandler(persistentContainer: PersistenceController.shared.container)
 
-    var userTokens: UserTokenData
-    var userData: UserData?
+    @Published var userTokens: UserTokenData
+    @Published var userData: UserData?
+    @Published var savedUserTokens: [UserTokenData] = []
     var themeData: ThemeData = ThemeData(devMode: DevModeData(isEnabled: false))
 
     @Published var cache = CacheManager();
@@ -44,15 +45,17 @@ class Client: ObservableObject {
     
     init() {
         let tokensFound = userTokenManager.getUserTokens()
+        let initialUserTokens: UserTokenData
         if (tokensFound != nil) {
-            self.userTokens = tokensFound!
+            initialUserTokens = tokensFound!
             self.loggedIn = true
         } else {
-            self.userTokens = UserTokenData(accessToken: "", userToken: "", userID: "")
+            initialUserTokens = UserTokenData(accessToken: "", userToken: "", userID: "")
             self.loggedIn = false
         }
+        self.userTokens = initialUserTokens
         
-        let apiHelper = API_Helper(userTokensProv: self.userTokens)
+        let apiHelper = API_Helper(userTokensProv: initialUserTokens)
         self.api = ApiClient(apiHelper: apiHelper)
 
         // other navigation
@@ -63,15 +66,7 @@ class Client: ObservableObject {
 //        self.api.apiHelper.provideError(error: ErrorData(code: "Z004", msg: "Testing error from client", error: true))
         
         if (self.loggedIn == true) {
-            self.api.users.getByID(userID: userTokens.userID) { result in
-                print("Done")
-                switch result {
-                    case .success(let results):
-                        self.userData = results;
-                    case .failure(let error):
-                        print("Error: \(error.localizedDescription)")
-                }
-            }
+            self.loadCurrentUserData()
         } else {
             self.changeBeginSetting(value: 1)
         }
@@ -79,21 +74,47 @@ class Client: ObservableObject {
         self.checkServerStatus()
     }
     
-    func provideTokens(userLoginResponse: UserLoginResponse) {
+    func provideTokens(userLoginResponse: UserLoginResponse, completion: (() -> Void)? = nil) {
         /* sets up tokens */
         print("Providing tokens")
         DispatchQueue.main.async {
-            self.userTokens = UserTokenData(
+            let newTokens = UserTokenData(
                 accessToken: userLoginResponse.accessToken,
                 userToken: userLoginResponse.userToken,
                 userID: userLoginResponse.userID
             )
             
+            self.userTokens = newTokens
             self.userData = userLoginResponse.publicData
-            self.userTokenManager.saveUserTokens(userTokenData: self.userTokens)
+            self.userTokenManager.saveUserTokens(userTokenData: newTokens)
+            self.savedUserTokens = self.userTokenManager.getAllUserTokens()
             self.api.updateUserTokens(userTokens: self.userTokens)
             self.loggedIn = true
+            self.loginUser = false
+            self.createUser = false
+            self.beginPageMode = 0
+            completion?()
         }
+    }
+    
+    @discardableResult
+    func switchAccount(userID: String, completion: (() -> Void)? = nil) -> Bool {
+        guard let switchedTokens = userTokenManager.switchActiveUser(userID: userID) else {
+            return false
+        }
+        
+        DispatchQueue.main.async {
+            self.applyUserTokens(switchedTokens)
+            self.userData = nil
+            self.savedUserTokens = self.userTokenManager.getAllUserTokens()
+            self.loggedIn = true
+            self.beginPageMode = 0
+            self.loginUser = false
+            self.createUser = false
+            self.loadCurrentUserData()
+            completion?()
+        }
+        return true
     }
     
     func changeBeginSetting(value: Int) {
@@ -116,13 +137,32 @@ class Client: ObservableObject {
         }
     }
     
-    func logout() {
+    func logoutCurrentAccount(completion: (() -> Void)? = nil) {
         DispatchQueue.main.async {
-            self.userTokenManager.deleteUserToken()
-            self.loggedIn = false
-            self.api.userTokens = UserTokenData(accessToken: "", userToken: "", userID: "");
-            self.userTokens = UserTokenData(accessToken: "", userToken: "", userID: "");
+            if let nextTokens = self.userTokenManager.deleteCurrentUserToken() {
+                self.applyUserTokens(nextTokens)
+                self.userData = nil
+                self.savedUserTokens = self.userTokenManager.getAllUserTokens()
+                self.loggedIn = true
+                self.beginPageMode = 0
+                self.loadCurrentUserData()
+            } else {
+                self.clearCurrentSession()
+            }
+            completion?()
         }
+    }
+    
+    func logoutAllAccounts(completion: (() -> Void)? = nil) {
+        DispatchQueue.main.async {
+            self.userTokenManager.deleteAllUserTokens()
+            self.clearCurrentSession()
+            completion?()
+        }
+    }
+    
+    func logout() {
+        logoutCurrentAccount()
     }
     
     func hapticPress() {
@@ -172,5 +212,46 @@ class Client: ObservableObject {
     
     func dismissError() {
         self.api.apiHelper.dismissError()
+    }
+    
+    private func applyUserTokens(_ userTokens: UserTokenData) {
+        self.userTokens = userTokens
+        self.api.updateUserTokens(userTokens: userTokens)
+    }
+    
+    private func clearCurrentSession() {
+        let emptyTokens = UserTokenData(accessToken: "", userToken: "", userID: "")
+        self.userTokens = emptyTokens
+        self.userData = nil
+        self.savedUserTokens = []
+        self.api.updateUserTokens(userTokens: emptyTokens)
+        self.loggedIn = false
+        self.beginPageMode = 1
+        self.loginUser = false
+        self.createUser = false
+    }
+    
+    private func loadCurrentUserData() {
+        guard !self.userTokens.userID.isEmpty else {
+            self.userData = nil
+            return
+        }
+        
+        let loadingUserID = self.userTokens.userID
+        
+        self.api.users.getByID(userID: loadingUserID) { result in
+            DispatchQueue.main.async {
+                guard self.userTokens.userID == loadingUserID else {
+                    return
+                }
+                
+                switch result {
+                case .success(let results):
+                    self.userData = results
+                case .failure(let error):
+                    print("Error: \(error.localizedDescription)")
+                }
+            }
+        }
     }
 }

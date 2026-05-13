@@ -66,7 +66,7 @@ struct DevModeView: View {
                     client.devModeManager.deleteDevMode()
                     client.navigationManager.deleteCurrentNavigation()
                     client.devMode = client.devModeManager.getDevMode()
-                    client.logout()
+                    client.logoutAllAccounts()
                 }
                 .padding(15)
                 .background(Color.red)
@@ -85,4 +85,3 @@ struct DevModeView: View {
         #endif
     }
 }
-

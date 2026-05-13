@@ -484,7 +484,7 @@ struct SideBarNavigation: View {
                 }
                 VStack {
                     NavigationLink {
-                        LogoutView(client: client)
+                        LogoutView(client: client, feedPosts: feedPosts)
                     } label: {
                         HStack {
                             Image(systemName: "x.circle")

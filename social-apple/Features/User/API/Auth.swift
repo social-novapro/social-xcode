@@ -25,6 +25,7 @@ class AuthApi: API_Base {
                 completion(.success(userLoginData))
             case .failure(let error):
                 print("Error: \(error)")
+                completion(.failure(error))
             }
         }
     }
@@ -39,6 +40,7 @@ class AuthApi: API_Base {
                 completion(.success(userLoginData))
             case .failure(let error):
                 print("Error: \(error)")
+                completion(.failure(error))
             }
         }
     }
