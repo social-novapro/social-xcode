@@ -14,8 +14,6 @@ struct BasicSettings: View {
 
     @State var enabledDevMode:Bool
     @State var enabledHaptic:Bool
-    @State var subSettings:Bool = false;
-    @State var settingsTab:Int64 = 0;
     @State var runningDebugChecks: Bool = false
     @State var debugReport: DebugContractCheckReport?
     
@@ -27,198 +25,13 @@ struct BasicSettings: View {
     }
     
     var body: some View {
-        VStack {
-            VStack {
-                HStack {
-                    Text("Interact Settings")
-                    Spacer()
-                }
-                HStack {
-                    Text("Here you can change a few application settings, some are local, and some are site wide.")
-                    Spacer()
-                }
-            }
-            .padding(10)
-            
-            ScrollView {
-                VStack {
-                    Toggle("DevMode", isOn: $enabledDevMode)
-                    HStack {
-                        Text("DevMode is currently: " + String(client.devMode?.isEnabled ?? false))
-                        Spacer()
-                    }
-
-                    Button(action: {
-                        client.hapticPress()
-                        runningDebugChecks = true
-
-                        DispatchQueue.global(qos: .userInitiated).async {
-                            let report = DebugHarness.runContractBaselineChecks()
-                            DispatchQueue.main.async {
-                                debugReport = report
-                                runningDebugChecks = false
-                            }
-                        }
-                    }) {
-                        HStack {
-                            Text(runningDebugChecks ? "Running contract debug tests..." : "Run Contract Debug Tests")
-                            Spacer()
-                            Image(systemName: "play.circle")
-                        }
-                    }
-                    .buttonStyle(.plain)
-
-                    if let debugReport {
-                        HStack {
-                            Text("Contract checks: \(debugReport.passedCount)/\(debugReport.results.count) passed")
-                            Spacer()
-                        }
-
-                        ForEach(debugReport.results) { result in
-                            HStack {
-                                Text(result.passed ? "PASS" : "FAIL")
-                                    .foregroundStyle(result.passed ? Color.green : Color.red)
-                                Text(result.name)
-                                Spacer()
-                            }
-                        }
-                    }
-
-                }
-                .padding(10)
-                #if os(iOS)
-                VStack {
-                    Toggle("Haptics", isOn: $enabledHaptic)
-                    HStack {
-                        Text("Haptics is currently: " + String(client.haptic?.isEnabled ?? true))
-                        Spacer()
-                    }
-                }
-                .padding(10)
-                #endif
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 12) {
                 preferencesSection
-                
-                Button(action: {
-                    client.hapticPress()
-                    self.subSettings = true
-                    self.settingsTab = 1
-                }) {
-                    VStack {
-                        VStack {
-                            HStack {
-                                Text("Search")
-                                Spacer()
-                                Image(systemName: "arrow.forward.circle")
-                            }
-                            HStack {
-                                Text("Press to open search settings.")
-                                Spacer()
-                            }
-                        }
-                    }
-                }
-                .buttonStyle(.plain)
-                .padding(10)
-                Button(action: {
-                    client.hapticPress()
-                    self.subSettings = true
-                    self.settingsTab = 2
-                }) {
-                    VStack {
-                        VStack {
-                            HStack {
-                                Text("Developer")
-                                Spacer()
-                                Image(systemName: "arrow.forward.circle")
-                            }
-                            HStack {
-                                Text("Press to open developer settings.")
-                                Spacer()
-                            }
-                        }
-                    }
-                }
-                .buttonStyle(.plain)
-                .padding(10)
-                Button(action: {
-                    client.hapticPress()
-                    self.subSettings = true
-                    self.settingsTab = 3
-                }) {
-                    VStack {
-                        VStack {
-                            HStack {
-                                Text("Account")
-                                Spacer()
-                                Image(systemName: "arrow.forward.circle")
-                            }
-                            HStack {
-                                Text("Press to open account settings.")
-                                Spacer()
-                            }
-                        }
-                    }
-                }
-                .buttonStyle(.plain)
-                .padding(10)
-                Button(action: {
-                    client.hapticPress()
-                    self.subSettings = true
-                    self.settingsTab = 4
-                }) {
-                    VStack {
-                        VStack {
-                            HStack {
-                                Text("Notifications")
-                                Spacer()
-                                Image(systemName: "arrow.forward.circle")
-                            }
-                            HStack {
-                                Text("Press to open push notification settings.")
-                                Spacer()
-                            }
-                        }
-                    }
-                }
-                .buttonStyle(.plain)
-                .padding(10)
-                
-                Button(action: {
-                    client.hapticPress()
-                    self.subSettings = true
-                    self.settingsTab = 5
-                }) {
-                    VStack {
-                        VStack {
-                            HStack {
-                                Text("Admin Issues")
-                                Spacer()
-                                Image(systemName: "arrow.forward.circle")
-                            }
-                            HStack {
-                                Text("Press to open admin issues.")
-                                Spacer()
-                            }
-                        }
-                    }
-                }
-                .buttonStyle(.plain)
-                .padding(10)
-                
-                VStack {
-                    
-                }
-                .padding(20)
+                appSection
+                developerSection
             }
-            .padding(15)
-            .interactCardSurface(
-                tone: client.designPreference == .new ? .selected : .normal,
-                cornerRadius: 20,
-                lineWidth: 3,
-                originalBackground: client.themeData.mainBackground,
-                originalBorder: .accentColor
-            )
-            .padding(10)
+            .interactScreenPadding()
         }
         .interactAppBackground()
         .onChange(of: enabledDevMode) { newValue in
@@ -230,46 +43,154 @@ struct BasicSettings: View {
             client.haptic = client.hapticModeManager.swapMode()
         }
         #endif
-        .navigationDestination(isPresented: $subSettings) {
-            if (settingsTab==1) {
-                SearchSettingPage(client: client)
-            } else if (settingsTab==2) {
-                DeveloperSettingsView(client: client)
-            } else if (settingsTab==3) {
-                AccountsView(client: client, feedPosts: feedPosts)
-            } else if (settingsTab==4) {
-                PushNotifications(client: client)
-            } else if (settingsTab==5) {
-                AdminErrorView(client: client, adminErrorFeed: adminErrorFeed)
-            }
-        }
-        .padding(10)
         .navigationTitle("Settings")
     }
     
     private var preferencesSection: some View {
-        Group {
-            if client.designPreference == .new {
-                InteractConnectedCardSection(tone: .selected) {
-                    InteractConnectedCardRow {
-                        appearancePickerRow
+        VStack(alignment: .leading, spacing: 8) {
+            InteractSectionHeader(
+                title: "Preferences",
+                subtitle: "Local display options for this account."
+            )
+            
+            InteractConnectedCardSection(tone: .selected) {
+                InteractConnectedCardRow {
+                    appearancePickerRow
+                }
+                
+                InteractConnectedCardDivider(leadingInset: 56)
+                
+                InteractConnectedCardRow {
+                    designPickerRow
+                }
+            }
+        }
+    }
+    
+    private var appSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            InteractSectionHeader(title: "App", subtitle: "Common app navigation and device preferences.")
+            
+            InteractConnectedCardSection {
+                #if os(iOS)
+                InteractConnectedCardRow {
+                    Toggle(isOn: $enabledHaptic) {
+                        InteractSettingsRowLabel(
+                            title: "Haptics",
+                            subtitle: "Currently \(client.haptic?.isEnabled == true ? "enabled" : "disabled").",
+                            systemImage: "hand.tap",
+                            showsChevron: false
+                        )
                     }
-                    
+                }
+                
+                InteractConnectedCardDivider(leadingInset: 56)
+                #endif
+                
+                InteractNavigationRow(
+                    title: "Search",
+                    subtitle: "Change your default search algorithm.",
+                    systemImage: "magnifyingglass"
+                ) {
+                    SearchSettingPage(client: client)
+                }
+                
+                InteractConnectedCardDivider(leadingInset: 56)
+                
+                InteractNavigationRow(
+                    title: "Connected Accounts",
+                    subtitle: "Add, switch, and log out of saved accounts.",
+                    systemImage: "person.2"
+                ) {
+                    AccountsView(client: client, feedPosts: feedPosts)
+                }
+                
+                InteractConnectedCardDivider(leadingInset: 56)
+                
+                InteractNavigationRow(
+                    title: "Notifications",
+                    subtitle: "Register this device and manage push settings.",
+                    systemImage: "bell.badge"
+                ) {
+                    PushNotifications(client: client)
+                }
+            }
+        }
+    }
+    
+    private var developerSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            InteractSectionHeader(
+                title: "Developer",
+                subtitle: "Debug tools and developer-only account options."
+            )
+            
+            InteractConnectedCardSection(tone: client.devMode?.isEnabled == true ? .destructive : .normal) {
+                InteractConnectedCardRow {
+                    Toggle(isOn: $enabledDevMode) {
+                        InteractSettingsRowLabel(
+                            title: "Dev Mode",
+                            subtitle: "Currently \(client.devMode?.isEnabled == true ? "enabled" : "disabled").",
+                            systemImage: "hammer",
+                            showsChevron: false
+                        )
+                    }
+                }
+                
+                InteractConnectedCardDivider(leadingInset: 56)
+                
+                InteractActionRow(
+                    title: runningDebugChecks ? "Running Contract Debug Tests..." : "Run Contract Debug Tests",
+                    subtitle: "Check local request and response contracts.",
+                    systemImage: "play.circle"
+                ) {
+                    runContractChecks()
+                }
+                .disabled(runningDebugChecks)
+                
+                if let debugReport {
                     InteractConnectedCardDivider(leadingInset: 56)
                     
                     InteractConnectedCardRow {
-                        designPickerRow
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Contract checks: \(debugReport.passedCount)/\(debugReport.results.count) passed")
+                                .font(.headline)
+                            
+                            ForEach(debugReport.results) { result in
+                                HStack(spacing: 8) {
+                                    Text(result.passed ? "PASS" : "FAIL")
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(result.passed ? Color.green : Color.red)
+                                    Text(result.name)
+                                        .font(.caption)
+                                    Spacer()
+                                }
+                            }
+                        }
                     }
                 }
-            } else {
-                VStack(spacing: 12) {
-                    appearancePickerRow
-                    designPickerRow
+                
+                InteractConnectedCardDivider(leadingInset: 56)
+                
+                InteractNavigationRow(
+                    title: "Developer Settings",
+                    subtitle: "Manage developer tokens and connected apps.",
+                    systemImage: "curlybraces"
+                ) {
+                    DeveloperSettingsView(client: client)
                 }
-                .padding(10)
+                
+                InteractConnectedCardDivider(leadingInset: 56)
+                
+                InteractNavigationRow(
+                    title: "Admin Issues",
+                    subtitle: "Review backend error reports.",
+                    systemImage: "exclamationmark.triangle"
+                ) {
+                    AdminErrorView(client: client, adminErrorFeed: adminErrorFeed)
+                }
             }
         }
-        .padding(10)
     }
     
     private var appearancePickerRow: some View {
@@ -331,6 +252,19 @@ struct BasicSettings: View {
             .labelsHidden()
         }
     }
+    
+    private func runContractChecks() {
+        client.hapticPress()
+        runningDebugChecks = true
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            let report = DebugHarness.runContractBaselineChecks()
+            DispatchQueue.main.async {
+                debugReport = report
+                runningDebugChecks = false
+            }
+        }
+    }
 }
 
 
@@ -341,44 +275,38 @@ struct SearchSettingPage : View {
     @State var currentSetting: String? = "v1"
 
     var body : some View {
-        VStack {
-            if (self.ready == false) {
-                Text("Loading...")
-                    .onAppear(perform: {
-                        client.api.search.searchSetting() { result in
-                            print("search setting request")
-                            switch result {
-                            case .success(let results):
-                                self.searchSetting = results
-                                for searchType in self.searchSetting?.possibleSearch ?? [] {
-                                    if (searchType.name == self.searchSetting?.currentSearch.preferredSearch) {
-                                        currentSetting = searchType.niceName
-                                    }
-                                }
-                                
-                                self.ready = true
-                            case .failure(let error):
-                                print("Error: \(error.localizedDescription)")
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 12) {
+                if (self.ready == false) {
+                    InteractConnectedCardSection {
+                        InteractConnectedCardRow {
+                            HStack(spacing: 10) {
+                                ProgressView()
+                                Text("Loading search settings...")
+                                    .foregroundStyle(.secondary)
                             }
                         }
-                    })
-            } else {
-                VStack {
-                    ScrollView {
-                        HStack {
-                            Text("Change your default search algorithm")
-                            Spacer()
+                    }
+                } else {
+                    InteractSectionHeader(
+                        title: "Search Algorithm",
+                        subtitle: "Change the default search algorithm used by the app."
+                    )
+                    
+                    InteractConnectedCardSection(tone: .selected) {
+                        InteractConnectedCardRow {
+                            InteractSettingsRowLabel(
+                                title: "Current Search",
+                                subtitle: currentSetting ?? "Unknown",
+                                systemImage: "magnifyingglass.circle",
+                                showsChevron: false
+                            )
                         }
                         
-                        HStack {
-                            Text("Current default search is:")
-                            Text(currentSetting ?? "Unknown")
-                            Spacer()
-
-                        }
+                        InteractConnectedCardDivider(leadingInset: 56)
 
                         ForEach (self.searchSetting?.possibleSearch ?? []) { searchType in
-                            Button(action: {
+                            Button {
                                 client.api.search.changeSearchSetting(newSearch: searchType.name) { result in
                                     print("change setting")
                                     switch result {
@@ -394,35 +322,48 @@ struct SearchSettingPage : View {
                                         print("Error: \(error.localizedDescription)")
                                     }
                                 }
-                            }) {
-                                HStack {
-                                    VStack {
-                                        HStack {
-                                            Text(searchType.description)
-                                        }
-                                        HStack {
-                                            Text("\(searchType.name) - \(searchType.niceName)")
-                                        }
-                                    }
-                                    Spacer()
+                            } label: {
+                                InteractConnectedCardRow {
+                                    InteractSettingsRowLabel(
+                                        title: searchType.niceName,
+                                        subtitle: "\(searchType.name) - \(searchType.description)",
+                                        systemImage: "slider.horizontal.3",
+                                        showsChevron: false
+                                    )
                                 }
                             }
-                            .padding(15)
-                            .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
-                            .cornerRadius(20)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(Color.accentColor, lineWidth: 3)
-                            )
-                            .padding(10)
+                            .buttonStyle(.plain)
                         }
                     }
                 }
-                Spacer()
             }
-            
+            .interactScreenPadding()
         }
-        .padding(10)
+        .interactAppBackground()
+        .onAppear(perform: loadSearchSettings)
         .navigationTitle("Search Setting")
+    }
+    
+    private func loadSearchSettings() {
+        guard ready == false else {
+            return
+        }
+        
+        client.api.search.searchSetting() { result in
+            print("search setting request")
+            switch result {
+            case .success(let results):
+                self.searchSetting = results
+                for searchType in self.searchSetting?.possibleSearch ?? [] {
+                    if (searchType.name == self.searchSetting?.currentSearch.preferredSearch) {
+                        currentSetting = searchType.niceName
+                    }
+                }
+                
+                self.ready = true
+            case .failure(let error):
+                print("Error: \(error.localizedDescription)")
+            }
+        }
     }
 }

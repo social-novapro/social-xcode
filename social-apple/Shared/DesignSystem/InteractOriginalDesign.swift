@@ -7,68 +7,49 @@
 
 import SwiftUI
 
-struct InteractOriginalDesign: InteractDesignProtocol {
-    static let preference: InteractDesignPreference = .original
-}
-
-struct InteractOriginalAppBackgroundModifier: ViewModifier {
-    func body(content: Content) -> some View {
-        content
+final class InteractOriginalDesign: InteractAppDesign {
+    init() {
+        super.init(preference: .original)
     }
-}
 
-struct InteractOriginalCardSurfaceModifier: ViewModifier {
-    let tone: InteractSectionTone
-    let cornerRadius: CGFloat
-    let lineWidth: CGFloat
-    let background: Color
-    let border: Color
+    override var connectedDividerVisible: Bool { false }
+    override var defaultCardCornerRadius: CGFloat { 20 }
+    override var defaultCardLineWidth: CGFloat { 3 }
+    override var connectedCardCornerRadius: CGFloat { 20 }
+    override var connectedCardLineWidth: CGFloat { 3 }
 
-    func body(content: Content) -> some View {
-        content
-            .background(background)
-            .cornerRadius(cornerRadius)
-            .overlay(
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .stroke(tone.borderColor(defaultBorder: border), lineWidth: lineWidth)
-            )
+    override func appBackgroundStyle(colorScheme: ColorScheme) -> InteractAppBackgroundStyle {
+        InteractAppBackgroundStyle(
+            baseColor: .clear,
+            gradientColors: [],
+            gradientHeight: 0,
+            ignoresSafeArea: false
+        )
     }
-}
 
-struct InteractOriginalScreenPaddingModifier: ViewModifier {
-    func body(content: Content) -> some View {
-        content.padding(10)
+    override func screenPaddingStyle(maxWidth: CGFloat) -> InteractScreenPaddingStyle {
+        InteractScreenPaddingStyle(
+            maxWidth: nil,
+            horizontal: 10,
+            vertical: 10,
+            centersContent: false
+        )
     }
-}
 
-struct InteractOriginalCardListScreenModifier: ViewModifier {
-    @ViewBuilder
-    func body(content: Content) -> some View {
-        #if !os(tvOS)
-        content
-            .listStyle(.plain)
-            .listRowSeparator(.hidden)
-        #else
-        content
-            .listStyle(.plain)
-        #endif
+    override func listScreenStyle(maxWidth: CGFloat) -> InteractListScreenStyle {
+        InteractListScreenStyle(
+            maxWidth: nil,
+            centersContent: false,
+            hidesScrollBackground: false
+        )
     }
-}
 
-struct InteractOriginalPlainListRowModifier: ViewModifier {
-    let rowPadding: CGFloat
-
-    @ViewBuilder
-    func body(content: Content) -> some View {
-        #if !os(tvOS)
-        content
-            .listRowSeparator(.hidden)
-            .listRowInsets(EdgeInsets())
-            .padding(rowPadding)
-        #else
-        content
-            .listRowInsets(EdgeInsets())
-            .padding(rowPadding)
-        #endif
+    override func listRowStyle(rowPadding: CGFloat) -> InteractListRowStyle {
+        InteractListRowStyle(
+            insets: EdgeInsets(),
+            padding: rowPadding,
+            hidesSeparator: true,
+            clearBackground: false
+        )
     }
 }

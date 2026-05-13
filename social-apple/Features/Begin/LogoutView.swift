@@ -19,54 +19,68 @@ struct LogoutView: View {
                 BeginPage(client: client)
             }
             else {
-                Text("Choose how you want to log out.")
-                
-                Button(action: {
-                    client.hapticPress()
-                    client.logoutCurrentAccount {
-                        refreshFeedForCurrentAccount()
-                        logoutMessage = "Logged out of the current account."
+                InteractConnectedCardSection(tone: .destructive) {
+                    InteractConnectedCardRow {
+                        Text("Choose how you want to log out.")
+                            .foregroundStyle(.secondary)
                     }
-                }) {
-                    Text("Log out current account")
-                        .padding(15)
-                        .cornerRadius(20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.accentColor, lineWidth: 3)
-                        )
-                }
-                
-                Button(role: .destructive, action: {
-                    client.hapticPress()
-                    client.logoutAllAccounts {
-                        feedPosts?.resetForAccountChange()
-                        logoutMessage = "Logged out of all accounts."
+                    
+                    InteractConnectedCardDivider()
+                    
+                    InteractActionRow(
+                        title: "Log out current account",
+                        subtitle: "Remove only the active account from this device.",
+                        systemImage: "person.crop.circle.badge.minus"
+                    ) {
+                        client.hapticPress()
+                        client.logoutCurrentAccount {
+                            refreshFeedForCurrentAccount()
+                            logoutMessage = "Logged out of the current account."
+                        }
                     }
-                }) {
-                    Text("Log out all accounts")
-                        .padding(15)
-                        .cornerRadius(20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.red, lineWidth: 3)
-                        )
-                }
-                
-                Button("Cancel") {
-                    client.hapticPress()
-                    dismiss()
-                }
-                
-                if !logoutMessage.isEmpty {
-                    Text(logoutMessage)
-                        .font(.caption)
+                    
+                    InteractConnectedCardDivider(leadingInset: 56)
+                    
+                    InteractActionRow(
+                        title: "Log out all accounts",
+                        subtitle: "Remove every saved account and return to Begin.",
+                        systemImage: "x.circle",
+                        role: .destructive
+                    ) {
+                        client.hapticPress()
+                        client.logoutAllAccounts {
+                            feedPosts?.resetForAccountChange()
+                            logoutMessage = "Logged out of all accounts."
+                        }
+                    }
+                    
+                    InteractConnectedCardDivider(leadingInset: 56)
+                    
+                    InteractActionRow(
+                        title: "Cancel",
+                        subtitle: nil,
+                        systemImage: "arrow.uturn.backward"
+                    ) {
+                        client.hapticPress()
+                        dismiss()
+                    }
+                    
+                    if !logoutMessage.isEmpty {
+                        InteractConnectedCardDivider()
+                        InteractConnectedCardRow {
+                            Text(logoutMessage)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                 }
                 
                 Spacer()
             }
             
         }
+        .interactScreenPadding()
+        .interactAppBackground()
         .navigationTitle("Logout")
 
     }

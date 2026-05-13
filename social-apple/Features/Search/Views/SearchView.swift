@@ -80,12 +80,12 @@ struct SearchView: View {
                                         .font(.subheadline)
                                         .padding(.horizontal, 10)
                                         .padding(.vertical, 6)
-                                        .background(client.themeData.mainBackground)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 10)
-                                                .stroke(Color.secondary, lineWidth: 1)
+                                        .interactCardSurface(
+                                            cornerRadius: 10,
+                                            lineWidth: 1,
+                                            originalBackground: client.themeData.mainBackground,
+                                            originalBorder: .secondary
                                         )
-                                        .cornerRadius(10)
                                 }
                                 .buttonStyle(.plain)
                             }
@@ -132,6 +132,7 @@ struct SearchView: View {
             }
             .padding(10)
         }
+        .interactAppBackground()
         .navigationTitle("Search")
         .searchable(text: $searchClass.searchText, prompt: "Search posts, users, hashtags")
         .onChange(of: searchClass.searchText) { newValue in
@@ -311,11 +312,12 @@ private struct ExploreUserRow: View {
             }
         }
         .padding(12)
-        .background(client.themeData.mainBackground)
-        .cornerRadius(14)
-        .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(Color.secondary, lineWidth: 1)
+        .interactCardSurface(
+            tone: user._id == client.userTokens.userID ? .owner : .normal,
+            cornerRadius: 14,
+            lineWidth: 1,
+            originalBackground: client.themeData.mainBackground,
+            originalBorder: .secondary
         )
         .navigationDestination(isPresented: $profileShowing) {
             ProfileView(client: client, userData: user, userID: user._id)

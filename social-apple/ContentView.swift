@@ -47,7 +47,7 @@ struct ContentView: View {
 #endif
         }
         .preferredColorScheme(client.appearancePreference.colorScheme)
-        .interactDesignPreference(client.designPreference)
+        .interactDesign(InteractDesignRegistry.design(for: client.designPreference))
         .onAppear {
             print("serveroffline \(client.serverOffline)")
             print ("devMode: \(client.devMode!)")
@@ -313,34 +313,29 @@ struct IncomeNotificationView: View {
     var body: some View {
         VStack {
             if $client.api.apiHelper.errorShow.wrappedValue == true {
-                HStack (alignment: .center) {
-                    VStack {
-                        Text("\(client.api.apiHelper.errorFound.code)")
-                        Text("\(client.api.apiHelper.errorFound.msg)")
-                    }
-                    
-                    Button(action: {
-                        DispatchQueue.main.async {
-                            self.client.dismissError()
-                            $client.api.apiHelper.errorShow.wrappedValue = false
+                InteractStatusBanner(tone: .destructive) {
+                    HStack(alignment: .center, spacing: 12) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("\(client.api.apiHelper.errorFound.code)")
+                                .font(.caption.weight(.semibold))
+                            Text("\(client.api.apiHelper.errorFound.msg)")
+                                .font(.caption)
                         }
-                        print("pressed dismiss")
-                    }, label: {
-                        Image(systemName: "x.circle")
-                            .font(.system(size: 22))
-                    })
+                        
+                        Button(action: {
+                            DispatchQueue.main.async {
+                                self.client.dismissError()
+                                $client.api.apiHelper.errorShow.wrappedValue = false
+                            }
+                            print("pressed dismiss")
+                        }, label: {
+                            Image(systemName: "x.circle")
+                                .font(.system(size: 22))
+                        })
+                        .buttonStyle(.plain)
+                    }
                 }
-
-                .padding(.vertical, self.expand ? 10 : 10)
-                .padding(.horizontal, self.expand ? 10 : 8)
-                .background(.regularMaterial)
-                .clipShape(Capsule())
-                .overlay(
-                    RoundedRectangle(cornerRadius: 35)
-                        .stroke(Color.accentColor, lineWidth: 2)
-                )
                 .padding(22)
-                .background(client.themeData.mainBackground)
                 .onLongPressGesture {
                     DispatchQueue.main.async {
                         self.client.dismissError()
@@ -365,30 +360,22 @@ struct IncomeNotificationView: View {
 //            }
 #if os(iOS)
             if self.newNotification==true {
-                HStack (alignment: .center) {
-                    VStack {
+                InteractStatusBanner(tone: .selected) {
+                    HStack(alignment: .center, spacing: 12) {
                         Text("\(notificationBody)")
+                            .font(.caption)
+                        
+                        Button(action: {
+                            self.newNotification = false
+                            self.notificationBody = ""
+                        }, label: {
+                            Image(systemName: "x.circle")
+                                .font(.system(size: 22))
+                        })
+                        .buttonStyle(.plain)
                     }
-                    
-                    Button(action: {
-                        self.newNotification = false
-                        self.notificationBody = ""
-                    }, label: {
-                        Image(systemName: "x.circle")
-                            .font(.system(size: 22))
-                    })
                 }
-
-                .padding(.vertical, self.expand ? 10 : 10)
-                .padding(.horizontal, self.expand ? 10 : 8)
-                .background(.regularMaterial)
-                .clipShape(Capsule())
-                .overlay(
-                    RoundedRectangle(cornerRadius: 35)
-                        .stroke(Color.accentColor, lineWidth: 2)
-                )
                 .padding(22)
-                .background(client.themeData.mainBackground)
                 .onLongPressGesture {
                     self.newNotification = false
                     self.notificationBody = ""
@@ -690,12 +677,7 @@ struct CustomTabView : View {
         }
         .padding(.vertical, client.navigation?.expanded ?? false ? 10 : 10)
         .padding(.horizontal, client.navigation?.expanded ?? false ? 10 : 8)
-        .background(.regularMaterial)
-        .clipShape(Capsule())
-        .overlay(
-            RoundedRectangle(cornerRadius: 35)
-                .stroke(Color.accentColor, lineWidth: 2)
-        )
+        .interactFloatingSurface(tone: .selected)
         .padding(22)
         .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
     }

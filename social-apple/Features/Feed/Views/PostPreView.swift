@@ -371,11 +371,11 @@ struct ReplyParentPostView : View {
             }
         }
         .padding(15)
-        .background(client.themeData.mainBackground)
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.gray, lineWidth: 3)
+        .interactCardSurface(
+            cornerRadius: 20,
+            lineWidth: 3,
+            originalBackground: client.themeData.mainBackground,
+            originalBorder: .gray
         )
     }
 }
@@ -868,11 +868,11 @@ struct ExpandedPostView: View {
                 }
             }
             .padding(15)
-            .background(client.themeData.mainBackground)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.gray, lineWidth: 3)
+            .interactCardSurface(
+                cornerRadius: 20,
+                lineWidth: 3,
+                originalBackground: client.themeData.mainBackground,
+                originalBorder: .gray
             )
             
 //            .onChange(of: feedData.postLiveData.subAction) {
@@ -950,11 +950,11 @@ struct SubExpandedPostView: View {
             }
         }
         .padding(15)
-        .background(client.themeData.mainBackground)
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.gray, lineWidth: 3)
+        .interactCardSurface(
+            cornerRadius: 20,
+            lineWidth: 3,
+            originalBackground: client.themeData.mainBackground,
+            originalBorder: .gray
         )
     }
 }
@@ -996,11 +996,7 @@ struct CrapPostView: View {
             }
         }
         .padding(15)
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.gray, lineWidth: 3)
-        )
+        .interactCardSurface(cornerRadius: 20, lineWidth: 3, originalBorder: .gray)
 
     }
 }
@@ -1461,11 +1457,11 @@ struct EditPostPopover: View {
                     }
                 }
                 .padding(15)
-                .background(client.themeData.mainBackground)
-                .cornerRadius(20)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.gray, lineWidth: 3)
+                .interactCardSurface(
+                    cornerRadius: 20,
+                    lineWidth: 3,
+                    originalBackground: client.themeData.mainBackground,
+                    originalBorder: .gray
                 )
                 
                 VStack {
@@ -1523,11 +1519,7 @@ struct EditPostPopover: View {
                     }
                 }
                 .padding(15)
-                .cornerRadius(20)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.gray, lineWidth: 3)
-                )
+                .interactCardSurface(cornerRadius: 20, lineWidth: 3, originalBorder: .gray)
             }
             Spacer()
         }
@@ -1582,11 +1574,11 @@ struct PopoverPostAction: View {
                 }
             }
             .padding(15)
-            .background(client.themeData.mainBackground)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.gray, lineWidth: 3)
+            .interactCardSurface(
+                cornerRadius: 20,
+                lineWidth: 3,
+                originalBackground: client.themeData.mainBackground,
+                originalBorder: .gray
             )
             
             VStack {
@@ -1625,11 +1617,7 @@ struct PopoverPostAction: View {
                 }
             }
             .padding(15)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.gray, lineWidth: 3)
-            )
+            .interactCardSurface(cornerRadius: 20, lineWidth: 3, originalBorder: .gray)
             Spacer()
 
         }

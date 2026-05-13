@@ -7,10 +7,6 @@
 
 import SwiftUI
 
-protocol InteractDesignProtocol {
-    static var preference: InteractDesignPreference { get }
-}
-
 enum InteractDesignPreference: String, CaseIterable, Identifiable, Codable {
     case original
     case new
@@ -27,17 +23,6 @@ enum InteractDesignPreference: String, CaseIterable, Identifiable, Codable {
     }
 }
 
-private struct InteractDesignPreferenceKey: EnvironmentKey {
-    static let defaultValue: InteractDesignPreference = .original
-}
-
-extension EnvironmentValues {
-    var interactDesignPreference: InteractDesignPreference {
-        get { self[InteractDesignPreferenceKey.self] }
-        set { self[InteractDesignPreferenceKey.self] = newValue }
-    }
-}
-
 enum InteractSectionTone {
     case normal
     case owner
@@ -45,9 +30,85 @@ enum InteractSectionTone {
     case selected
     case destructive
     case custom(Color)
+}
 
-    func borderColor(defaultBorder: Color) -> Color {
-        switch self {
+struct InteractShadowStyle {
+    let color: Color
+    let radius: CGFloat
+    let x: CGFloat
+    let y: CGFloat
+}
+
+struct InteractAppBackgroundStyle {
+    let baseColor: Color
+    let gradientColors: [Color]
+    let gradientHeight: CGFloat
+    let ignoresSafeArea: Bool
+}
+
+struct InteractSurfaceStyle {
+    let cornerRadius: CGFloat
+    let lineWidth: CGFloat
+    let fill: AnyShapeStyle
+    let lightOverlay: Color?
+    let toneOverlay: Color?
+    let borderColor: Color
+    let shadow: InteractShadowStyle?
+    let clipsToShape: Bool
+}
+
+struct InteractScreenPaddingStyle {
+    let maxWidth: CGFloat?
+    let horizontal: CGFloat
+    let vertical: CGFloat
+    let centersContent: Bool
+}
+
+struct InteractListScreenStyle {
+    let maxWidth: CGFloat?
+    let centersContent: Bool
+    let hidesScrollBackground: Bool
+}
+
+struct InteractListRowStyle {
+    let insets: EdgeInsets
+    let padding: CGFloat
+    let hidesSeparator: Bool
+    let clearBackground: Bool
+}
+
+struct InteractConnectedRowStyle {
+    let padding: EdgeInsets
+    let appliesPadding: Bool
+}
+
+struct InteractFloatingSurfaceStyle {
+    let fill: AnyShapeStyle
+    let borderColor: Color
+    let lineWidth: CGFloat
+    let shadow: InteractShadowStyle?
+}
+
+class InteractAppDesign {
+    let preference: InteractDesignPreference
+
+    init(preference: InteractDesignPreference) {
+        self.preference = preference
+    }
+
+    var connectedDividerVisible: Bool { false }
+    var sectionHeaderHorizontalPadding: CGFloat { 4 }
+    var defaultCardCornerRadius: CGFloat { 20 }
+    var defaultCardLineWidth: CGFloat { 3 }
+    var connectedCardCornerRadius: CGFloat { 20 }
+    var connectedCardLineWidth: CGFloat { 3 }
+    var connectedSectionContentPadding: CGFloat? { 15 }
+
+    func toneBorderColor(
+        tone: InteractSectionTone,
+        defaultBorder: Color
+    ) -> Color {
+        switch tone {
         case .normal:
             return defaultBorder
         case .owner, .current, .selected:
@@ -59,330 +120,143 @@ enum InteractSectionTone {
         }
     }
 
-    func fillOverlay(colorScheme: ColorScheme) -> Color? {
-        let opacity = colorScheme == .dark ? 0.18 : 0.12
-
-        switch self {
+    func toneFillOverlay(
+        tone: InteractSectionTone,
+        colorScheme: ColorScheme
+    ) -> Color? {
+        switch tone {
         case .normal:
             return nil
         case .owner, .current, .selected:
-            return Color.accentColor.opacity(opacity)
+            return Color.accentColor.opacity(colorScheme == .dark ? 0.18 : 0.12)
         case .destructive:
-            return Color.red.opacity(opacity)
+            return Color.red.opacity(colorScheme == .dark ? 0.18 : 0.12)
         case .custom(let color):
-            return color.opacity(opacity)
+            return color.opacity(colorScheme == .dark ? 0.18 : 0.12)
         }
     }
-}
 
-struct InteractConnectedCardSection<Content: View>: View {
-    @Environment(\.interactDesignPreference) private var environmentDesign
-    let designOverride: InteractDesignPreference?
-    let tone: InteractSectionTone
-    let content: Content
-
-    init(
-        design: InteractDesignPreference? = nil,
-        tone: InteractSectionTone = .normal,
-        @ViewBuilder content: () -> Content
-    ) {
-        self.designOverride = design
-        self.tone = tone
-        self.content = content()
-    }
-
-    var body: some View {
-        switch currentDesign {
-        case .original:
-            VStack(alignment: .leading, spacing: 0) {
-                content
-            }
-            .padding(15)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(tone.borderColor(defaultBorder: .accentColor), lineWidth: 3)
-            )
-        case .new:
-            VStack(alignment: .leading, spacing: 0) {
-                content
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(InteractNewCardBackground(tone: tone))
-            .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        }
-    }
-    
-    private var currentDesign: InteractDesignPreference {
-        designOverride ?? environmentDesign
-    }
-}
-
-struct InteractConnectedCardRow<Content: View>: View {
-    @Environment(\.interactDesignPreference) private var environmentDesign
-    let designOverride: InteractDesignPreference?
-    let content: Content
-
-    init(
-        design: InteractDesignPreference? = nil,
-        @ViewBuilder content: () -> Content
-    ) {
-        self.designOverride = design
-        self.content = content()
-    }
-
-    var body: some View {
-        switch currentDesign {
-        case .original:
-            content
-                .frame(maxWidth: .infinity, alignment: .leading)
-        case .new:
-            content
-                .padding(14)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-    }
-    
-    private var currentDesign: InteractDesignPreference {
-        designOverride ?? environmentDesign
-    }
-}
-
-struct InteractConnectedCardDivider: View {
-    @Environment(\.interactDesignPreference) private var environmentDesign
-    let designOverride: InteractDesignPreference?
-    var leadingInset: CGFloat = 14
-    
-    init(
-        design: InteractDesignPreference? = nil,
-        leadingInset: CGFloat = 14
-    ) {
-        self.designOverride = design
-        self.leadingInset = leadingInset
-    }
-
-    var body: some View {
-        switch currentDesign {
-        case .original:
-            EmptyView()
-        case .new:
-            Divider()
-                .padding(.leading, leadingInset)
-        }
-    }
-    
-    private var currentDesign: InteractDesignPreference {
-        designOverride ?? environmentDesign
-    }
-}
-
-struct InteractSectionHeader: View {
-    let title: String
-    var subtitle: String?
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text(title)
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary)
-
-            if let subtitle {
-                Text(subtitle)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 4)
-        .accessibilityAddTraits(.isHeader)
-    }
-}
-
-struct InteractEmptyStateView: View {
-    @Environment(\.interactDesignPreference) private var environmentDesign
-    let designOverride: InteractDesignPreference?
-    let title: String
-    let systemImage: String
-    let message: String
-    
-    init(
-        design: InteractDesignPreference? = nil,
-        title: String,
-        systemImage: String,
-        message: String
-    ) {
-        self.designOverride = design
-        self.title = title
-        self.systemImage = systemImage
-        self.message = message
-    }
-
-    var body: some View {
-        VStack(spacing: 10) {
-            Image(systemName: systemImage)
-                .font(.title2)
-                .foregroundStyle(.secondary)
-
-            Text(title)
-                .font(.headline)
-
-            Text(message)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 10)
-        .padding(14)
-        .interactCardSurface(design: designOverride ?? environmentDesign)
-        .accessibilityElement(children: .combine)
-    }
-}
-
-extension View {
-    func interactDesignPreference(_ design: InteractDesignPreference) -> some View {
-        environment(\.interactDesignPreference, design)
-    }
-
-    func interactAppBackground(design: InteractDesignPreference? = nil) -> some View {
-        modifier(InteractAppBackgroundModifier(design: design))
-    }
-
-    func interactCardSurface(
-        design: InteractDesignPreference? = nil,
-        tone: InteractSectionTone = .normal,
-        cornerRadius: CGFloat = 16,
-        lineWidth: CGFloat = 1,
-        originalBackground: Color = .clear,
-        originalBorder: Color = .gray
-    ) -> some View {
-        modifier(
-            InteractCardSurfaceModifier(
-                design: design,
-                tone: tone,
-                cornerRadius: cornerRadius,
-                lineWidth: lineWidth,
-                originalBackground: originalBackground,
-                originalBorder: originalBorder
-            )
+    func appBackgroundStyle(colorScheme: ColorScheme) -> InteractAppBackgroundStyle {
+        InteractAppBackgroundStyle(
+            baseColor: .clear,
+            gradientColors: [],
+            gradientHeight: 0,
+            ignoresSafeArea: false
         )
     }
 
-    func interactScreenPadding(
-        design: InteractDesignPreference? = nil,
-        maxWidth: CGFloat = 620
-    ) -> some View {
-        modifier(InteractScreenPaddingModifier(design: design, maxWidth: maxWidth))
+    func surfaceStyle(
+        tone: InteractSectionTone,
+        colorScheme: ColorScheme,
+        cornerRadius: CGFloat,
+        lineWidth: CGFloat,
+        originalBackground: Color,
+        originalBorder: Color
+    ) -> InteractSurfaceStyle {
+        InteractSurfaceStyle(
+            cornerRadius: cornerRadius,
+            lineWidth: lineWidth,
+            fill: AnyShapeStyle(originalBackground),
+            lightOverlay: nil,
+            toneOverlay: nil,
+            borderColor: toneBorderColor(tone: tone, defaultBorder: originalBorder),
+            shadow: nil,
+            clipsToShape: false
+        )
     }
 
-    func interactCardListScreen(
-        design: InteractDesignPreference? = nil,
-        maxWidth: CGFloat = 620
-    ) -> some View {
-        modifier(InteractCardListScreenModifier(design: design, maxWidth: maxWidth))
+    func connectedSectionStyle(
+        tone: InteractSectionTone,
+        colorScheme: ColorScheme
+    ) -> InteractSurfaceStyle {
+        surfaceStyle(
+            tone: tone,
+            colorScheme: colorScheme,
+            cornerRadius: connectedCardCornerRadius,
+            lineWidth: connectedCardLineWidth,
+            originalBackground: .clear,
+            originalBorder: .accentColor
+        )
     }
 
-    func interactPlainListRow(
-        design: InteractDesignPreference? = nil,
-        rowPadding: CGFloat = 10
-    ) -> some View {
-        modifier(InteractPlainListRowModifier(design: design, rowPadding: rowPadding))
+    func connectedRowStyle() -> InteractConnectedRowStyle {
+        InteractConnectedRowStyle(
+            padding: EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0),
+            appliesPadding: false
+        )
+    }
+
+    func screenPaddingStyle(maxWidth: CGFloat) -> InteractScreenPaddingStyle {
+        InteractScreenPaddingStyle(
+            maxWidth: nil,
+            horizontal: 10,
+            vertical: 10,
+            centersContent: false
+        )
+    }
+
+    func listScreenStyle(maxWidth: CGFloat) -> InteractListScreenStyle {
+        InteractListScreenStyle(
+            maxWidth: nil,
+            centersContent: false,
+            hidesScrollBackground: false
+        )
+    }
+
+    func listRowStyle(rowPadding: CGFloat) -> InteractListRowStyle {
+        InteractListRowStyle(
+            insets: EdgeInsets(),
+            padding: rowPadding,
+            hidesSeparator: true,
+            clearBackground: false
+        )
+    }
+
+    func inputSurfaceStyle(colorScheme: ColorScheme) -> InteractSurfaceStyle {
+        surfaceStyle(
+            tone: .normal,
+            colorScheme: colorScheme,
+            cornerRadius: defaultCardCornerRadius,
+            lineWidth: defaultCardLineWidth,
+            originalBackground: .clear,
+            originalBorder: .accentColor
+        )
+    }
+
+    func floatingSurfaceStyle(
+        tone: InteractSectionTone,
+        colorScheme: ColorScheme
+    ) -> InteractFloatingSurfaceStyle {
+        InteractFloatingSurfaceStyle(
+            fill: AnyShapeStyle(.regularMaterial),
+            borderColor: toneBorderColor(tone: tone, defaultBorder: .accentColor),
+            lineWidth: 2,
+            shadow: nil
+        )
     }
 }
 
-private struct InteractAppBackgroundModifier: ViewModifier {
-    @Environment(\.interactDesignPreference) private var environmentDesign
-    let design: InteractDesignPreference?
+enum InteractDesignRegistry {
+    private static let originalDesign = InteractOriginalDesign()
+    private static let newDesign = InteractNewDesign()
 
-    @ViewBuilder
-    func body(content: Content) -> some View {
-        switch design ?? environmentDesign {
+    static func design(for preference: InteractDesignPreference) -> InteractAppDesign {
+        switch preference {
         case .original:
-            content.modifier(InteractOriginalAppBackgroundModifier())
+            return originalDesign
         case .new:
-            content.modifier(InteractNewAppBackgroundModifier())
+            return newDesign
         }
     }
 }
 
-private struct InteractCardSurfaceModifier: ViewModifier {
-    @Environment(\.interactDesignPreference) private var environmentDesign
-    let design: InteractDesignPreference?
-    let tone: InteractSectionTone
-    let cornerRadius: CGFloat
-    let lineWidth: CGFloat
-    let originalBackground: Color
-    let originalBorder: Color
-
-    @ViewBuilder
-    func body(content: Content) -> some View {
-        switch design ?? environmentDesign {
-        case .original:
-            content.modifier(
-                InteractOriginalCardSurfaceModifier(
-                    tone: tone,
-                    cornerRadius: cornerRadius,
-                    lineWidth: lineWidth,
-                    background: originalBackground,
-                    border: originalBorder
-                )
-            )
-        case .new:
-            content.modifier(
-                InteractNewCardSurfaceModifier(
-                    tone: tone,
-                    cornerRadius: cornerRadius,
-                    lineWidth: lineWidth
-                )
-            )
-        }
-    }
+private struct InteractDesignKey: EnvironmentKey {
+    static let defaultValue: InteractAppDesign = InteractDesignRegistry.design(for: .original)
 }
 
-private struct InteractScreenPaddingModifier: ViewModifier {
-    @Environment(\.interactDesignPreference) private var environmentDesign
-    let design: InteractDesignPreference?
-    let maxWidth: CGFloat
-
-    @ViewBuilder
-    func body(content: Content) -> some View {
-        switch design ?? environmentDesign {
-        case .original:
-            content.modifier(InteractOriginalScreenPaddingModifier())
-        case .new:
-            content.modifier(InteractNewScreenPaddingModifier(maxWidth: maxWidth))
-        }
-    }
-}
-
-private struct InteractCardListScreenModifier: ViewModifier {
-    @Environment(\.interactDesignPreference) private var environmentDesign
-    let design: InteractDesignPreference?
-    let maxWidth: CGFloat
-
-    @ViewBuilder
-    func body(content: Content) -> some View {
-        switch design ?? environmentDesign {
-        case .original:
-            content.modifier(InteractOriginalCardListScreenModifier())
-        case .new:
-            content.modifier(InteractNewCardListScreenModifier(maxWidth: maxWidth))
-        }
-    }
-}
-
-private struct InteractPlainListRowModifier: ViewModifier {
-    @Environment(\.interactDesignPreference) private var environmentDesign
-    let design: InteractDesignPreference?
-    let rowPadding: CGFloat
-
-    @ViewBuilder
-    func body(content: Content) -> some View {
-        switch design ?? environmentDesign {
-        case .original:
-            content.modifier(InteractOriginalPlainListRowModifier(rowPadding: rowPadding))
-        case .new:
-            content.modifier(InteractNewPlainListRowModifier(rowPadding: rowPadding))
-        }
+extension EnvironmentValues {
+    var interactDesign: InteractAppDesign {
+        get { self[InteractDesignKey.self] }
+        set { self[InteractDesignKey.self] = newValue }
     }
 }

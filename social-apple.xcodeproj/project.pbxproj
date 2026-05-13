@@ -23,6 +23,7 @@
 		66A1000B2F80000000000000 /* InteractOriginalDesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A1000A2F80000000000000 /* InteractOriginalDesign.swift */; };
 		66A1000D2F80000000000000 /* InteractNewDesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A1000C2F80000000000000 /* InteractNewDesign.swift */; };
 		66A1000F2F80000000000000 /* AppPreferenceHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A1000E2F80000000000000 /* AppPreferenceHandler.swift */; };
+		66A100112F80000000000000 /* InteractDesignViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A100102F80000000000000 /* InteractDesignViews.swift */; };
 		651262EE2F7335E00031C65E /* PostStateData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651262ED2F7335C70031C65E /* PostStateData.swift */; };
 		651262F02F7335F30031C65E /* PostModelsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651262EF2F7335ED0031C65E /* PostModelsData.swift */; };
 		651263002F7401000031C65E /* UserStateData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651262FF2F7400F00031C65E /* UserStateData.swift */; };
@@ -112,6 +113,7 @@
 		66A1000A2F80000000000000 /* InteractOriginalDesign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractOriginalDesign.swift; sourceTree = "<group>"; };
 		66A1000C2F80000000000000 /* InteractNewDesign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractNewDesign.swift; sourceTree = "<group>"; };
 		66A1000E2F80000000000000 /* AppPreferenceHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferenceHandler.swift; sourceTree = "<group>"; };
+		66A100102F80000000000000 /* InteractDesignViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractDesignViews.swift; sourceTree = "<group>"; };
 		651262ED2F7335C70031C65E /* PostStateData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostStateData.swift; sourceTree = "<group>"; };
 		651262EF2F7335ED0031C65E /* PostModelsData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostModelsData.swift; sourceTree = "<group>"; };
 		651262FF2F7400F00031C65E /* UserStateData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStateData.swift; sourceTree = "<group>"; };
@@ -254,6 +256,7 @@
 				66A100082F80000000000000 /* InteractDesignProtocol.swift */,
 				66A1000A2F80000000000000 /* InteractOriginalDesign.swift */,
 				66A1000C2F80000000000000 /* InteractNewDesign.swift */,
+				66A100102F80000000000000 /* InteractDesignViews.swift */,
 				66A100022F80000000000000 /* InteractAppearancePreference.swift */,
 				66A100042F80000000000000 /* InteractThemePalette.swift */,
 			);
@@ -885,6 +888,7 @@
 				66A1000B2F80000000000000 /* InteractOriginalDesign.swift in Sources */,
 				66A1000D2F80000000000000 /* InteractNewDesign.swift in Sources */,
 				66A1000F2F80000000000000 /* AppPreferenceHandler.swift in Sources */,
+				66A100112F80000000000000 /* InteractDesignViews.swift in Sources */,
 				65CC79352B697CE0002B5ADA /* PollsData.swift in Sources */,
 				65989CED2C88DD940039763D /* API_Base.swift in Sources */,
 				655AB60B29F0720500C61F3A /* Persistence.swift in Sources */,

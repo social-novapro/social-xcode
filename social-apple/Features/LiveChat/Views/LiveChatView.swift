@@ -83,8 +83,7 @@ struct LiveChatView: View {
                             }
                         )
                         .id(messageRowID(message))
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 6, leading: 10, bottom: 6, trailing: 10))
+                        .interactPlainListRow(rowPadding: 6)
                     }
 
                     Color.clear
@@ -93,7 +92,7 @@ struct LiveChatView: View {
                         .listRowInsets(EdgeInsets())
                         .id("chat-bottom-anchor")
                 }
-                .listStyle(.plain)
+                .interactCardListScreen()
                 .onAppear {
                     scrollToBottom(proxy: proxy, animated: false)
                 }
@@ -102,6 +101,7 @@ struct LiveChatView: View {
                 }
             }
         }
+        .interactAppBackground()
         .safeAreaInset(edge: .bottom, spacing: 0) {
             composerBar
         }
@@ -481,11 +481,12 @@ struct ChatMessageRow: View {
             }
         }
         .padding(15)
-        .background(client.themeData.mainBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
-        .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(Color.gray, lineWidth: 3)
+        .interactCardSurface(
+            tone: isOwnMessage ? .owner : .normal,
+            cornerRadius: 14,
+            lineWidth: 3,
+            originalBackground: client.themeData.mainBackground,
+            originalBorder: .gray
         )
         .overlay(alignment: .leading) {
             if isOwnMessage {

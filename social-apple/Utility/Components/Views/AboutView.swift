@@ -13,88 +13,65 @@ struct AboutView: View {
 
     var body: some View {
         ScrollView {
-            VStack {
-                HStack {
-                    Text("Nova Productions Project")
-                        .fontWeight(.heavy)
-                    Spacer()
-                }
-                HStack {
-                    Text("https://novapro.net")
-                        .underline()
-                    Spacer()
-                }
-            }
-            .padding(20)
-            
-            VStack {
-                HStack {
-                    Text("About Interact")
-                        .fontWeight(.heavy)
-                    Spacer()
-                }
-                HStack {
-                    Text("The project was developed by Daniel Kravec at Nova Productions. Interact is a social network, started in July 2021. Interact has an open API, letting anyone develop for it.")
-                    Spacer()
-                }
-            }
-            .padding(20)
-            
-            VStack {
-                HStack {
-                    Text("Interact Mobile Project")
-                        .fontWeight(.heavy)
-                    Spacer()
-                }
-                HStack {
-                    Text("Thank you for downloading the mobile version of Interact!This version of the application works on macOS, iOS, and iPadOS.")
-                    Spacer()
-                }
-            }
-            .padding(20)
-
-            VStack {
-                HStack {
-                    Text("Version")
-                        .fontWeight(.heavy)
-                    Spacer()
-                }
-                HStack {
-                    Text("\(appVersion) b\(buildNumber)")
-                    Spacer()
-                }
-            }
-            .padding(20)
-
-
-            VStack {
-                HStack{
-                    if (client.devMode?.isEnabled == true) {
-                        Text("Disable DevMode")
-                            .fontWeight(.heavy)
+            LazyVStack(alignment: .leading, spacing: 12) {
+                InteractConnectedCardSection {
+                    InteractConnectedCardRow {
+                        InteractSettingsRowLabel(
+                            title: "Nova Productions Project",
+                            subtitle: "https://novapro.net",
+                            systemImage: "network",
+                            showsChevron: false
+                        )
                     }
-                    else {
-                        Text("Enable DevMode")
-                            .fontWeight(.heavy)
+                    
+                    InteractConnectedCardDivider(leadingInset: 56)
+                    
+                    InteractConnectedCardRow {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("About Interact")
+                                .font(.headline)
+                            Text("The project was developed by Daniel Kravec at Nova Productions. Interact is a social network, started in July 2021. Interact has an open API, letting anyone develop for it.")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
                     }
-
-                    Spacer()
+                    
+                    InteractConnectedCardDivider()
+                    
+                    InteractConnectedCardRow {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Interact Mobile Project")
+                                .font(.headline)
+                            Text("Thank you for downloading the mobile version of Interact! This version of the application works on macOS, iOS, and iPadOS.")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    
+                    InteractConnectedCardDivider()
+                    
+                    InteractConnectedCardRow {
+                        InteractSettingsRowLabel(
+                            title: "Version",
+                            subtitle: "\(appVersion) b\(buildNumber)",
+                            systemImage: "number",
+                            showsChevron: false
+                        )
+                    }
                 }
-                Button(action: {
+                
+                InteractActionRow(
+                    title: client.devMode?.isEnabled == true ? "Disable Dev Mode" : "Enable Dev Mode",
+                    subtitle: "Toggle local developer-only tools.",
+                    systemImage: "hammer"
+                ) {
                     client.devMode = client.devModeManager.swapMode()
                     client.themeData.updateThemes(devMode: client.devMode ?? DevModeData(isEnabled: false))
-                }) {
-                    HStack {
-                        Text("Dev Mode")
-                        Spacer()
-                    }
                 }
             }
-            .padding(20)
-            .background(client.themeData.greenBackground)
-
+            .interactScreenPadding()
         }
-        .padding(10)
+        .interactAppBackground()
         .navigationTitle("About Interact")
     }
     

@@ -13,7 +13,7 @@ struct BeginPage: View {
     
     var body: some View {
         NavigationStack {
-            VStack {
+            VStack(spacing: 16) {
                 if (client.loggedIn == false) {
                     if (client.beginPageMode == 2) {
                         LoginPage(client: client)
@@ -29,11 +29,7 @@ struct BeginPage: View {
                         }, label: {
                             Text("Login")
                                 .padding(15)
-                                .cornerRadius(20)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .stroke(Color.accentColor, lineWidth: 3)
-                                )
+                                .interactCardSurface(tone: .selected, cornerRadius: 20, lineWidth: 3, originalBorder: .accentColor)
                         })
                         
                         Button(action: {
@@ -42,11 +38,7 @@ struct BeginPage: View {
                         }, label: {
                             Text("Sign up")
                                 .padding(15)
-                                .cornerRadius(20)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .stroke(Color.accentColor, lineWidth: 3)
-                                )
+                                .interactCardSurface(tone: .selected, cornerRadius: 20, lineWidth: 3, originalBorder: .accentColor)
                         })
                     }
                 } else {
@@ -65,7 +57,9 @@ struct BeginPage: View {
             .onChange(of: client.loggedIn) { _ in
                 print("changed client.loggedin")
             }
+            .interactScreenPadding()
         }
+        .interactAppBackground()
         .navigationTitle("Welcome")
     }
 }

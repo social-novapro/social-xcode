@@ -78,20 +78,20 @@ struct AdminErrorIssueView : View {
                 }
             }
             .padding(15)
-            .background(client.themeData.mainBackground)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.gray, lineWidth: 3)
+            .interactCardSurface(
+                cornerRadius: 20,
+                lineWidth: 3,
+                originalBackground: client.themeData.mainBackground,
+                originalBorder: .gray
             )
             AdminErrorIssueSubData(client: client, issueData: $issueData)
         }
         .padding(15)
-        .background(client.themeData.mainBackground)
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.gray, lineWidth: 3)
+        .interactCardSurface(
+            cornerRadius: 20,
+            lineWidth: 3,
+            originalBackground: client.themeData.mainBackground,
+            originalBorder: .gray
         )
     }
 }
@@ -147,11 +147,11 @@ struct AdminErrorIssueSubData : View {
             }
         }
         .padding(15)
-        .background(client.themeData.mainBackground)
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.gray, lineWidth: 3)
+        .interactCardSurface(
+            cornerRadius: 20,
+            lineWidth: 3,
+            originalBackground: client.themeData.mainBackground,
+            originalBorder: .gray
         )
     }
 }

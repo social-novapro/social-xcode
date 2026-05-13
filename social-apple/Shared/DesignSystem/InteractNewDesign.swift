@@ -15,35 +15,124 @@ import UIKit
 import AppKit
 #endif
 
-struct InteractNewDesign: InteractDesignProtocol {
-    static let preference: InteractDesignPreference = .new
-}
-
-struct InteractNewAppBackgroundModifier: ViewModifier {
-    func body(content: Content) -> some View {
-        content.background(InteractNewAppBackgroundView())
-    }
-}
-
-struct InteractNewAppBackgroundView: View {
-    @Environment(\.colorScheme) private var colorScheme
-
-    var body: some View {
-        ZStack(alignment: .top) {
-            backgroundBase
-
-            LinearGradient(
-                colors: gradientStops,
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .frame(height: colorScheme == .dark ? 360 : 320)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        }
-        .ignoresSafeArea()
+final class InteractNewDesign: InteractAppDesign {
+    init() {
+        super.init(preference: .new)
     }
 
-    private var backgroundBase: Color {
+    override var connectedDividerVisible: Bool { true }
+    override var defaultCardCornerRadius: CGFloat { 16 }
+    override var defaultCardLineWidth: CGFloat { 1 }
+    override var connectedCardCornerRadius: CGFloat { 16 }
+    override var connectedCardLineWidth: CGFloat { 1 }
+    override var connectedSectionContentPadding: CGFloat? { nil }
+
+    override func appBackgroundStyle(colorScheme: ColorScheme) -> InteractAppBackgroundStyle {
+        InteractAppBackgroundStyle(
+            baseColor: backgroundBase(colorScheme: colorScheme),
+            gradientColors: gradientStops(colorScheme: colorScheme),
+            gradientHeight: colorScheme == .dark ? 360 : 320,
+            ignoresSafeArea: true
+        )
+    }
+
+    override func surfaceStyle(
+        tone: InteractSectionTone,
+        colorScheme: ColorScheme,
+        cornerRadius: CGFloat,
+        lineWidth: CGFloat,
+        originalBackground: Color,
+        originalBorder: Color
+    ) -> InteractSurfaceStyle {
+        InteractSurfaceStyle(
+            cornerRadius: cornerRadius,
+            lineWidth: lineWidth,
+            fill: cardFill(colorScheme: colorScheme),
+            lightOverlay: colorScheme == .light ? Color.white.opacity(0.24) : nil,
+            toneOverlay: toneFillOverlay(tone: tone, colorScheme: colorScheme),
+            borderColor: toneBorderColor(tone: tone, defaultBorder: cardBorder(colorScheme: colorScheme)),
+            shadow: colorScheme == .dark
+                ? nil
+                : InteractShadowStyle(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4),
+            clipsToShape: true
+        )
+    }
+
+    override func connectedSectionStyle(
+        tone: InteractSectionTone,
+        colorScheme: ColorScheme
+    ) -> InteractSurfaceStyle {
+        surfaceStyle(
+            tone: tone,
+            colorScheme: colorScheme,
+            cornerRadius: connectedCardCornerRadius,
+            lineWidth: connectedCardLineWidth,
+            originalBackground: .clear,
+            originalBorder: cardBorder(colorScheme: colorScheme)
+        )
+    }
+
+    override func connectedRowStyle() -> InteractConnectedRowStyle {
+        InteractConnectedRowStyle(
+            padding: EdgeInsets(top: 14, leading: 14, bottom: 14, trailing: 14),
+            appliesPadding: true
+        )
+    }
+
+    override func screenPaddingStyle(maxWidth: CGFloat) -> InteractScreenPaddingStyle {
+        InteractScreenPaddingStyle(
+            maxWidth: maxWidth,
+            horizontal: 16,
+            vertical: 12,
+            centersContent: true
+        )
+    }
+
+    override func listScreenStyle(maxWidth: CGFloat) -> InteractListScreenStyle {
+        InteractListScreenStyle(
+            maxWidth: maxWidth,
+            centersContent: true,
+            hidesScrollBackground: true
+        )
+    }
+
+    override func listRowStyle(rowPadding: CGFloat) -> InteractListRowStyle {
+        InteractListRowStyle(
+            insets: EdgeInsets(),
+            padding: rowPadding,
+            hidesSeparator: true,
+            clearBackground: true
+        )
+    }
+
+    override func inputSurfaceStyle(colorScheme: ColorScheme) -> InteractSurfaceStyle {
+        surfaceStyle(
+            tone: .normal,
+            colorScheme: colorScheme,
+            cornerRadius: 14,
+            lineWidth: 1,
+            originalBackground: .clear,
+            originalBorder: cardBorder(colorScheme: colorScheme)
+        )
+    }
+
+    override func floatingSurfaceStyle(
+        tone: InteractSectionTone,
+        colorScheme: ColorScheme
+    ) -> InteractFloatingSurfaceStyle {
+        InteractFloatingSurfaceStyle(
+            fill: colorScheme == .dark
+                ? AnyShapeStyle(Color.white.opacity(0.08))
+                : AnyShapeStyle(.regularMaterial),
+            borderColor: toneBorderColor(tone: tone, defaultBorder: cardBorder(colorScheme: colorScheme)),
+            lineWidth: 1,
+            shadow: colorScheme == .dark
+                ? nil
+                : InteractShadowStyle(color: Color.black.opacity(0.10), radius: 10, x: 0, y: 4)
+        )
+    }
+
+    private func backgroundBase(colorScheme: ColorScheme) -> Color {
         #if canImport(UIKit)
         return colorScheme == .dark ? Color(UIColor.systemBackground) : Color(UIColor.systemGroupedBackground)
         #elseif canImport(AppKit)
@@ -53,7 +142,7 @@ struct InteractNewAppBackgroundView: View {
         #endif
     }
 
-    private var gradientStops: [Color] {
+    private func gradientStops(colorScheme: ColorScheme) -> [Color] {
         if colorScheme == .dark {
             return [
                 Color.accentColor.opacity(0.22),
@@ -67,42 +156,8 @@ struct InteractNewAppBackgroundView: View {
             Color.clear
         ]
     }
-}
 
-struct InteractNewCardBackground: View {
-    @Environment(\.colorScheme) private var colorScheme
-    var tone: InteractSectionTone = .normal
-    var cornerRadius: CGFloat = 16
-    var lineWidth: CGFloat = 1
-
-    var body: some View {
-        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-            .fill(cardFill)
-            .overlay {
-                if colorScheme == .light {
-                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .fill(Color.white.opacity(0.24))
-                }
-            }
-            .overlay {
-                if let fillOverlay = tone.fillOverlay(colorScheme: colorScheme) {
-                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .fill(fillOverlay)
-                }
-            }
-            .overlay(
-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .stroke(tone.borderColor(defaultBorder: cardBorder), lineWidth: lineWidth)
-            )
-            .shadow(
-                color: colorScheme == .dark ? Color.clear : Color.black.opacity(0.08),
-                radius: 8,
-                x: 0,
-                y: 4
-            )
-    }
-
-    private var cardFill: AnyShapeStyle {
+    private func cardFill(colorScheme: ColorScheme) -> AnyShapeStyle {
         if colorScheme == .dark {
             return AnyShapeStyle(Color.white.opacity(0.08))
         }
@@ -110,77 +165,7 @@ struct InteractNewCardBackground: View {
         return AnyShapeStyle(.regularMaterial)
     }
 
-    private var cardBorder: Color {
+    private func cardBorder(colorScheme: ColorScheme) -> Color {
         colorScheme == .dark ? Color.white.opacity(0.15) : Color.black.opacity(0.10)
-    }
-}
-
-struct InteractNewCardSurfaceModifier: ViewModifier {
-    let tone: InteractSectionTone
-    let cornerRadius: CGFloat
-    let lineWidth: CGFloat
-
-    func body(content: Content) -> some View {
-        content
-            .background(
-                InteractNewCardBackground(
-                    tone: tone,
-                    cornerRadius: cornerRadius,
-                    lineWidth: lineWidth
-                )
-            )
-            .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-    }
-}
-
-struct InteractNewScreenPaddingModifier: ViewModifier {
-    let maxWidth: CGFloat
-
-    func body(content: Content) -> some View {
-        content
-            .frame(maxWidth: maxWidth, alignment: .leading)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .frame(maxWidth: .infinity, alignment: .center)
-    }
-}
-
-struct InteractNewCardListScreenModifier: ViewModifier {
-    let maxWidth: CGFloat
-
-    @ViewBuilder
-    func body(content: Content) -> some View {
-        #if os(iOS) || os(tvOS)
-        content
-            .listStyle(.plain)
-            .scrollContentBackground(.hidden)
-            .frame(maxWidth: maxWidth, alignment: .leading)
-            .frame(maxWidth: .infinity, alignment: .center)
-        #else
-        content
-            .listStyle(.plain)
-            .frame(maxWidth: maxWidth, alignment: .leading)
-            .frame(maxWidth: .infinity, alignment: .center)
-        #endif
-    }
-}
-
-struct InteractNewPlainListRowModifier: ViewModifier {
-    let rowPadding: CGFloat
-
-    @ViewBuilder
-    func body(content: Content) -> some View {
-        #if os(iOS) || os(tvOS)
-        content
-            .listRowInsets(EdgeInsets())
-            .listRowSeparator(.hidden)
-            .listRowBackground(Color.clear)
-            .padding(rowPadding)
-        #else
-        content
-            .listRowInsets(EdgeInsets())
-            .listRowBackground(Color.clear)
-            .padding(rowPadding)
-        #endif
     }
 }

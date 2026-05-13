@@ -18,79 +18,77 @@ struct PushNotifications: View {
     var body: some View {
         #if os(iOS)
 
-        VStack {
-            Text("Welcome to Notification Panel")
-            Text("Press register to sign up for notifications! You will be able to deregister, and change what notifications to recieve!")
-            Button(action: {
-                #if os(iOS)
-                if let appDelegate = MyAppDelegate.shared ?? (UIApplication.shared.delegate as? MyAppDelegate) {
-                    appDelegate.registerPushNotifications(client: client)
-                    self.registered = true
-                } else {
-                    print("Unable to access shared MyAppDelegate for push registration")
-                }
-                #endif
-            }, label: {
-                Text("Register")
-            })
-            if (self.registered == true && self.isLoading == true) {
-                Button(action: {
-                    client.api.notifications.refreshDeviceToken()
-                    client.api.notifications.getDeviceSettings() { result in
-                        print("get device settings")
-                        
-                        switch result {
-                        case .success(let foundResults):
-                            self.deviceSettings = foundResults
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 12) {
+                InteractSectionHeader(
+                    title: "Push Notifications",
+                    subtitle: "Register this device and choose which notifications it receives."
+                )
+                
+                InteractConnectedCardSection(tone: registered ? .selected : .normal) {
+                    InteractActionRow(
+                        title: "Register Device",
+                        subtitle: "Sign this device up for notifications.",
+                        systemImage: "bell.badge"
+                    ) {
+                        #if os(iOS)
+                        if let appDelegate = MyAppDelegate.shared ?? (UIApplication.shared.delegate as? MyAppDelegate) {
+                            appDelegate.registerPushNotifications(client: client)
                             self.registered = true
-                            print("Done")
-                            self.isLoading = false
-                        case .failure(let error):
-                            print("Error: \(error.localizedDescription)")
+                        } else {
+                            print("Unable to access shared MyAppDelegate for push registration")
                         }
+                        #endif
                     }
-
-                }, label: {
-                    Text("Click here to show settings")
-                })
-                .onAppear() {
-                    self.client.api.notifications.refreshDeviceToken()
-                    self.getDeviceSettings()
-                }
-            }
-            Button(action: {
-                client.api.notifications.deregisterDevice() { result in
-                    print (result)
-                    self.isLoading = true
-                    self.registered = false
-                }
-            }, label: {
-                Text("Deregister")
-            })
-            if (!isLoading) {
-                if changed == true {
-                    Text("this was changed")
-                }
-                ScrollView {
-                    ForEach(deviceSettings!) { deviceSetting in
-                        VStack {
-                            ChildNotificationDevice(client: client, deviceSettingIn: deviceSetting)
-                        }
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets())
-                        .padding(10)
-                    }
-                    EmptyView()
-                        .frame(height: 200, alignment: .bottom)
-                    VStack {
+                    
+                    if (self.registered == true && self.isLoading == true) {
+                        InteractConnectedCardDivider(leadingInset: 56)
                         
+                        InteractActionRow(
+                            title: "Show Settings",
+                            subtitle: "Refresh this device token and load notification options.",
+                            systemImage: "arrow.clockwise"
+                        ) {
+                            client.api.notifications.refreshDeviceToken()
+                            getDeviceSettings()
+                        }
+                        .onAppear() {
+                            self.client.api.notifications.refreshDeviceToken()
+                            self.getDeviceSettings()
+                        }
                     }
-                    .padding(50)
+                    
+                    InteractConnectedCardDivider(leadingInset: 56)
+                    
+                    InteractActionRow(
+                        title: "Deregister Device",
+                        subtitle: "Stop this device from receiving push notifications.",
+                        systemImage: "bell.slash",
+                        role: .destructive
+                    ) {
+                        client.api.notifications.deregisterDevice() { result in
+                            print (result)
+                            self.isLoading = true
+                            self.registered = false
+                        }
+                    }
                 }
-                .listStyle(.plain)
-                .listRowSeparator(.hidden)
+                
+                if (!isLoading) {
+                    if changed == true {
+                        InteractStatusBanner(tone: .selected) {
+                            Text("Notification setting changed.")
+                        }
+                    }
+                    
+                    ForEach(deviceSettings ?? []) { deviceSetting in
+                            ChildNotificationDevice(client: client, deviceSettingIn: deviceSetting)
+                    }
+                }
             }
+            .interactScreenPadding()
         }
+        .interactAppBackground()
         .onAppear {
             #if os(iOS)
             if let appDelegate = MyAppDelegate.shared ?? (UIApplication.shared.delegate as? MyAppDelegate) {
@@ -104,6 +102,7 @@ struct PushNotifications: View {
         VStack {
             Text("Can't sign up for notifications on macOS")
         }
+        .interactAppBackground()
         #endif
         
     }
@@ -157,12 +156,7 @@ struct ChildNotificationDevice: View {
             }
         }
         .padding(15)
-        .background(client.themeData.mainBackground)
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.accentColor, lineWidth: 3)
-        )
+        .interactCardSurface(cornerRadius: 20, lineWidth: 3, originalBackground: client.themeData.mainBackground, originalBorder: .accentColor)
         .onAppear {
             self.isActive = deviceSettingIn.value ? deviceSettingIn.value : false
         }

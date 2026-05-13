@@ -111,11 +111,12 @@ struct PollOptionView: View {
             }
             .buttonStyle(.plain)
             .padding(15)
-            .background(option._id == feedData.voteData?.pollOptionID ? Color.accentColor : Color.clear)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.gray, lineWidth: 3)
+            .interactCardSurface(
+                tone: option._id == feedData.voteData?.pollOptionID ? .selected : .normal,
+                cornerRadius: 20,
+                lineWidth: 3,
+                originalBackground: option._id == feedData.voteData?.pollOptionID ? Color.accentColor : Color.clear,
+                originalBorder: .gray
             )
         }
     }
@@ -178,10 +179,6 @@ struct PollCreatorView: View {
             }
         }
         .padding(15)
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.accentColor, lineWidth: 3)
-        )
+        .interactCardSurface(cornerRadius: 20, lineWidth: 3, originalBorder: .accentColor)
     }
 }

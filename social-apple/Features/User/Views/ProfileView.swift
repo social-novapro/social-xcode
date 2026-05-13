@@ -1049,11 +1049,11 @@ struct EditChange: View {
                     Spacer()
                 }
                 .padding(10)
-                .background(client.themeData.mainBackground)
-                .cornerRadius(20)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.gray, lineWidth: 3)
+                .interactCardSurface(
+                    cornerRadius: 20,
+                    lineWidth: 3,
+                    originalBackground: client.themeData.mainBackground,
+                    originalBorder: .gray
                 )
             }
         }
@@ -1271,11 +1271,11 @@ struct BadgeCardView : View {
             Spacer()
         }
         .padding(10)
-        .background(client.themeData.mainBackground)
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.gray, lineWidth: 3)
+        .interactCardSurface(
+            cornerRadius: 20,
+            lineWidth: 3,
+            originalBackground: client.themeData.mainBackground,
+            originalBorder: .gray
         )
     }
 }
@@ -1315,11 +1315,7 @@ struct FollowingFollowerView: View {
                         Text("Switch to \(selectedFollowList == 0 ? "Followers" : "Following") List")
                             .foregroundColor(.primary)
                             .padding(15)
-                            .cornerRadius(20)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(Color.accentColor, lineWidth: 3)
-                            )
+                            .interactCardSurface(tone: .selected, cornerRadius: 20, lineWidth: 3, originalBorder: .accentColor)
                             .padding(5)
                     }
                     
@@ -1417,11 +1413,11 @@ struct FollowingFollowerProfilePreview: View {
             }
         }
         .padding(15)
-        .background(client.themeData.mainBackground)
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.gray, lineWidth: 3)
+        .interactCardSurface(
+            cornerRadius: 20,
+            lineWidth: 3,
+            originalBackground: client.themeData.mainBackground,
+            originalBorder: .gray
         )
 
     }

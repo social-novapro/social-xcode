@@ -37,12 +37,7 @@ struct CreateUserPage: View {
                     TextField("Email (optional)", text: $email)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
-                        .padding(15)
-                        .cornerRadius(20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.accentColor, lineWidth: 3)
-                        )
+                        .interactInputSurface()
                     Spacer()
                 }
                 .padding(5)
@@ -53,12 +48,7 @@ struct CreateUserPage: View {
                     TextField("Username (required)", text: $username)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
-                        .padding(15)
-                        .cornerRadius(20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.accentColor, lineWidth: 3)
-                        )
+                        .interactInputSurface()
                     Spacer()
                 }
                 .padding(5)
@@ -67,12 +57,7 @@ struct CreateUserPage: View {
                     Spacer()
                     Image(systemName: "magnifyingglass.circle")
                     TextField("Display Name (required)", text: $displayName)
-                        .padding(15)
-                        .cornerRadius(20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.accentColor, lineWidth: 3)
-                        )
+                        .interactInputSurface()
                     Spacer()
                 }
                 .padding(5)
@@ -81,12 +66,7 @@ struct CreateUserPage: View {
                     Spacer()
                     Image(systemName: "lock.circle")
                     SecureField("Password (required)", text: $password)
-                        .padding(15)
-                        .cornerRadius(20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.accentColor, lineWidth: 3)
-                        )
+                        .interactInputSurface()
                     Spacer()
                 }
                 .padding(5)
@@ -95,12 +75,7 @@ struct CreateUserPage: View {
                     Spacer()
                     Image(systemName: "line.3.horizontal.decrease.circle")
                     TextField("Description (optional)", text: $description)
-                        .padding(15)
-                        .cornerRadius(20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.accentColor, lineWidth: 3)
-                        )
+                        .interactInputSurface()
                     Spacer()
                 }
                 .padding(5)
@@ -122,12 +97,7 @@ struct CreateUserPage: View {
                     Spacer()
                     Image(systemName: "pencil.tip.crop.circle")
                     TextField("Pronouns (optional)", text: $pronouns)
-                        .padding(15)
-                        .cornerRadius(20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.accentColor, lineWidth: 3)
-                        )
+                        .interactInputSurface()
                     Spacer()
                 }
                 .padding(5)
@@ -136,12 +106,7 @@ struct CreateUserPage: View {
                     Spacer()
                     Image(systemName: "info.circle")
                     TextField("Activity Status (optional)", text: $status)
-                        .padding(15)
-                        .cornerRadius(20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.accentColor, lineWidth: 3)
-                        )
+                        .interactInputSurface()
                     Spacer()
                 }
                 .padding(5)
@@ -151,11 +116,7 @@ struct CreateUserPage: View {
                 }) {
                     Text(isCreatingUser ? "Creating..." : "Sign up")
                         .padding(15)
-                        .cornerRadius(20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.accentColor, lineWidth: 3)
-                        )
+                        .interactCardSurface(tone: .selected, cornerRadius: 20, lineWidth: 3, originalBorder: .accentColor)
                 }
                 .disabled(!canSubmit)
                 
@@ -168,6 +129,7 @@ struct CreateUserPage: View {
                 Spacer()
             }
         }
+        .interactAppBackground()
         .navigationTitle("Sign up")
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
