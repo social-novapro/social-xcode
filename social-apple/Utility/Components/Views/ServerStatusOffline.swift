@@ -45,6 +45,6 @@ struct ServerStatusOffline: View {
             Spacer()
         }
         .navigationTitle("Interact Offline")
-        .background(.background)
+        .interactAppBackground()
     }
 }

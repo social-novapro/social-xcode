@@ -20,6 +20,14 @@ struct LoginPage: View {
         !username.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
         !password.isEmpty
     }
+
+    private var backButtonPlacement: ToolbarItemPlacement {
+#if os(macOS)
+        .automatic
+#else
+        .navigationBarLeading
+#endif
+    }
     
     var body: some View {
         VStack {
@@ -29,14 +37,9 @@ struct LoginPage: View {
                         Spacer()
                         Image(systemName: "person.circle")
                         TextField("Username", text: $username)
-                            .textInputAutocapitalization(.never)
+//                            .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
-                            .padding(15)
-                            .cornerRadius(20)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(Color.accentColor, lineWidth: 3)
-                            )
+                            .interactInputSurface()
                         Spacer()
                     }
                 }
@@ -48,12 +51,7 @@ struct LoginPage: View {
                         Image(systemName: "lock.circle")
                         
                         SecureField("Password", text: $password)
-                            .padding(15)
-                            .cornerRadius(20)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(Color.accentColor, lineWidth: 3)
-                            )
+                            .interactInputSurface()
                         Spacer()
                     }
                 }
@@ -64,11 +62,7 @@ struct LoginPage: View {
                 }) {
                     Text(isLoggingIn ? "Logging in..." : "Login")
                         .padding(15)
-                        .cornerRadius(20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.accentColor, lineWidth: 3)
-                        )
+                        .interactCardSurface(tone: .selected, cornerRadius: 20, lineWidth: 3, originalBorder: .accentColor)
                 }
                 .disabled(!canSubmit)
                 
@@ -80,10 +74,12 @@ struct LoginPage: View {
                 
                 Spacer()
             }
+            .interactScreenPadding(maxWidth: 520)
         }
+        .interactAppBackground()
         .navigationTitle("Login")
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            ToolbarItem(placement: backButtonPlacement) {
                 Button("Back") {
                     client.hapticPress()
                     client.changeBeginSetting(value: 1)

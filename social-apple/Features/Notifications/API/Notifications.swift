@@ -17,6 +17,14 @@ class NotificationsApi: API_Base {
 
     private var deviceToken:String? = UserDefaults.standard.string(forKey: "deviceToken")
 
+    private func deviceTokenError() -> NSError {
+        NSError(
+            domain: "NotificationsApi",
+            code: -1,
+            userInfo: [NSLocalizedDescriptionKey: "No device token is registered on this device."]
+        )
+    }
+
     func refreshDeviceToken() {
         self.deviceToken = UserDefaults.standard.string(forKey: "deviceToken")
     }
@@ -46,6 +54,7 @@ class NotificationsApi: API_Base {
                 completion(.success(response))
             case .failure(let error):
                 print("Error: \(error)")
+                completion(.failure(error))
             }
         }
     }
@@ -65,44 +74,58 @@ class NotificationsApi: API_Base {
     
     func deregisterDevice(completion: @escaping (Result<PushNotificationRes, Error>) -> Void) {
         print("deregister device request")
+        refreshDeviceToken()
+        guard let deviceToken, deviceToken.isEmpty == false else {
+            completion(.failure(deviceTokenError()))
+            return
+        }
+
         let APIUrl = baseAPIurl + Route.deregister
-        let depushNotifications = DePushNotificationSend(deviceToken: self.deviceToken ?? "", userID: self.apiHelper.userTokens.userID)
+        let depushNotifications = DePushNotificationSend(deviceToken: deviceToken, userID: self.apiHelper.userTokens.userID)
         
         
         self.apiHelper.requestDataWithBody(urlString: APIUrl, httpMethod: "DELETE", httpBody: depushNotifications) { (result: Result<PushNotificationRes, Error>) in
             switch result {
             case .success(let response):
                 print("Deregistered device")
+                UserDefaults.standard.removeObject(forKey: "deviceToken")
+                self.refreshDeviceToken()
                 completion(.success(response))
             case .failure(let error):
                 print("Error: \(error)")
+                completion(.failure(error))
             }
         }
     }
     
     func getDeviceSettings(completion: @escaping (Result<[NotificationDeviceSetting], Error>) -> Void) {
-        if ((self.deviceToken == nil)){
+        refreshDeviceToken()
+        guard let deviceToken, deviceToken.isEmpty == false else {
+            completion(.failure(deviceTokenError()))
             return
         }
         let APIUrl = baseAPIurl + Route.deviceSettings
 
-        self.apiHelper.requestDataWithBody(urlString: APIUrl, httpMethod: "POST", httpBody: NotificationDataDeviceTokenSend(deviceToken: self.deviceToken ?? "")) { (result: Result<[NotificationDeviceSetting], Error>) in
+        self.apiHelper.requestDataWithBody(urlString: APIUrl, httpMethod: "POST", httpBody: NotificationDataDeviceTokenSend(deviceToken: deviceToken)) { (result: Result<[NotificationDeviceSetting], Error>) in
             switch result {
             case .success(let response):
                 print("got device settings")
                 completion(.success(response))
             case .failure(let error):
                 print("Error: \(error)")
+                completion(.failure(error))
             }
         }
     }
     
     func putDeviceSettings(notificationSettingChange: SubmitPushNotificationNewSetting, completion: @escaping (Result<[NotificationDeviceSetting], Error>) -> Void) {
-        if ((self.deviceToken == nil)){
+        refreshDeviceToken()
+        guard let deviceToken, deviceToken.isEmpty == false else {
+            completion(.failure(deviceTokenError()))
             return
         }
         let APIUrl = baseAPIurl + Route.update
-        let sendBody = SubmitPushNotificationSendSetting(newSettings: [notificationSettingChange], deviceToken: self.deviceToken ?? "")
+        let sendBody = SubmitPushNotificationSendSetting(newSettings: [notificationSettingChange], deviceToken: deviceToken)
 
         self.apiHelper.requestDataWithBody(urlString: APIUrl, httpMethod: "PUT", httpBody: sendBody) { (result: Result<[NotificationDeviceSetting], Error>) in
             switch result {
@@ -111,6 +134,7 @@ class NotificationsApi: API_Base {
                 completion(.success(response))
             case .failure(let error):
                 print("Error: \(error)")
+                completion(.failure(error))
             }
         }
     }

@@ -63,11 +63,12 @@ struct PostView: View {
                     }
                 }
                 .padding(15)
-                .background(client.themeData.mainBackground)
-                .cornerRadius(20)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.gray, lineWidth: 3)
+                .interactCardSurface(
+                    tone: feedData.postLiveData.isOwner == true ? .owner : .normal,
+                    cornerRadius: 20,
+                    lineWidth: 3,
+                    originalBackground: client.themeData.mainBackground,
+                    originalBorder: .gray
                 )
                 
                 if (self.feedData.postLiveData.actionExpanded == true) {
@@ -91,7 +92,7 @@ struct PostView: View {
             }
             .padding(10)
         }
+        .interactAppBackground()
         .navigationTitle("Post by @\(feedData.userData?.username ?? "Unknown)")")
     }
 }
-

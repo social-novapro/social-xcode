@@ -12,6 +12,12 @@ struct HapticModeData: Decodable, Encodable {
     var isEnabled: Bool
 }
 
+struct AppPreferencesData: Decodable, Encodable {
+    var userID: String
+    var appearancePreference: InteractAppearancePreference
+    var designPreference: InteractDesignPreference
+}
+
 enum API: Error {
     case invalidResponse
     case decodingError(Error)

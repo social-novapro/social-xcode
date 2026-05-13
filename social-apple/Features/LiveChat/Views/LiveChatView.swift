@@ -29,6 +29,8 @@ struct SendLiveChatView: View {
 
 struct LiveChatView: View {
     @ObservedObject var client: Client
+    @Environment(\.interactDesign) private var design
+    @Environment(\.customTabBarReserveIsActive) private var customTabBarReserveIsActive
 
     @State private var messages: [LiveChatData] = []
     @State private var typers: [LiveChatTypers] = []
@@ -83,17 +85,23 @@ struct LiveChatView: View {
                             }
                         )
                         .id(messageRowID(message))
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 6, leading: 10, bottom: 6, trailing: 10))
+                        .interactPlainListRow(rowPadding: 6)
                     }
 
                     Color.clear
-                        .frame(height: 1)
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets())
+                        .frame(height: chatBottomAnchorHeight)
+                        .interactPlainListRow(rowPadding: 0)
                         .id("chat-bottom-anchor")
                 }
-                .listStyle(.plain)
+                .interactCardListScreen()
+                #if os(iOS)
+                .scrollDismissesKeyboard(.interactively)
+                .simultaneousGesture(
+                    TapGesture().onEnded {
+                        composerFocused = false
+                    }
+                )
+                #endif
                 .onAppear {
                     scrollToBottom(proxy: proxy, animated: false)
                 }
@@ -102,10 +110,21 @@ struct LiveChatView: View {
                 }
             }
         }
+        .interactAppBackground()
         .safeAreaInset(edge: .bottom, spacing: 0) {
             composerBar
         }
         .navigationTitle("Live Chat")
+        #if os(iOS)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") {
+                    composerFocused = false
+                }
+            }
+        }
+        #endif
         .onAppear {
             if self.isInitialized {
                 return
@@ -218,6 +237,8 @@ struct LiveChatView: View {
         .padding(12)
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 14))
+        .frame(maxWidth: 620)
+        .frame(maxWidth: .infinity)
         .padding(.horizontal, 10)
         .padding(.bottom, composerBottomPadding)
     }
@@ -385,10 +406,15 @@ struct LiveChatView: View {
     }
 
     private var composerBottomPadding: CGFloat {
-        if #available(iOS 26, *) {
-            return 6
-        }
-        return 88
+        8 + customTabBarBottomReserve
+    }
+
+    private var chatBottomAnchorHeight: CGFloat {
+        24 + customTabBarBottomReserve
+    }
+
+    private var customTabBarBottomReserve: CGFloat {
+        customTabBarReserveIsActive ? design.customTabBarBottomContentInset : 0
     }
 
     private func replyPreview(for message: LiveChatData) -> String? {
@@ -481,11 +507,12 @@ struct ChatMessageRow: View {
             }
         }
         .padding(15)
-        .background(client.themeData.mainBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
-        .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(Color.gray, lineWidth: 3)
+        .interactCardSurface(
+            tone: isOwnMessage ? .owner : .normal,
+            cornerRadius: 14,
+            lineWidth: 3,
+            originalBackground: client.themeData.mainBackground,
+            originalBorder: .gray
         )
         .overlay(alignment: .leading) {
             if isOwnMessage {

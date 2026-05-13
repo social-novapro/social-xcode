@@ -19,11 +19,7 @@ struct AdminErrorView: View {
                         VStack {
                             AdminErrorIssueView(client: client, issueData: $adminErrorFeed.issues[index])
                         }
-#if !os(tvOS)
-                        .listRowSeparator(.hidden)
-#endif
-                        .listRowInsets(EdgeInsets())
-                        .padding(10)
+                        .interactPlainListRow()
                         .onAppear(){
                             if (self.adminErrorFeed.errorIndex.foundIssues.last?.id == adminErrorFeed.issues[index].id && self.adminErrorFeed.loadingScroll == false) {
                                 client.hapticPress()
@@ -38,10 +34,7 @@ struct AdminErrorView: View {
                         }
                     }
                 }
-#if !os(tvOS)
-                .listStyle(.plain)
-                .listRowSeparator(.hidden)
-#endif
+                .interactCardListScreen()
                 .refreshable {
                     client.hapticPress()
                     DispatchQueue.main.async {
@@ -53,6 +46,7 @@ struct AdminErrorView: View {
                 Text("loading errors")
             }
         }
+        .interactAppBackground()
         .onAppear {
             self.adminErrorFeed.getFeed()
             self.adminErrorFeed.isLoading = false
@@ -78,20 +72,20 @@ struct AdminErrorIssueView : View {
                 }
             }
             .padding(15)
-            .background(client.themeData.mainBackground)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.gray, lineWidth: 3)
+            .interactCardSurface(
+                cornerRadius: 20,
+                lineWidth: 3,
+                originalBackground: client.themeData.mainBackground,
+                originalBorder: .gray
             )
             AdminErrorIssueSubData(client: client, issueData: $issueData)
         }
         .padding(15)
-        .background(client.themeData.mainBackground)
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.gray, lineWidth: 3)
+        .interactCardSurface(
+            cornerRadius: 20,
+            lineWidth: 3,
+            originalBackground: client.themeData.mainBackground,
+            originalBorder: .gray
         )
     }
 }
@@ -147,11 +141,11 @@ struct AdminErrorIssueSubData : View {
             }
         }
         .padding(15)
-        .background(client.themeData.mainBackground)
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.gray, lineWidth: 3)
+        .interactCardSurface(
+            cornerRadius: 20,
+            lineWidth: 3,
+            originalBackground: client.themeData.mainBackground,
+            originalBorder: .gray
         )
     }
 }

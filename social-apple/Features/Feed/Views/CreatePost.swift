@@ -63,11 +63,12 @@ struct CreatePost: View {
                             }
                         }
                         .padding(15)
-                        .background(client.themeData.mainBackground)
-                        .cornerRadius(20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.accentColor, lineWidth: 3)
+                        .interactCardSurface(
+                            tone: .selected,
+                            cornerRadius: 20,
+                            lineWidth: 3,
+                            originalBackground: client.themeData.mainBackground,
+                            originalBorder: .accentColor
                         )
                     }
                     
@@ -143,11 +144,7 @@ struct CreatePost: View {
                         }
                     }
                     .padding(15)
-                    .cornerRadius(20)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.accentColor, lineWidth: 3)
-                    )
+                    .interactCardSurface(cornerRadius: 20, lineWidth: 3, originalBorder: .accentColor)
                     VStack {
                         HStack {
                             Text("Options")
@@ -188,11 +185,7 @@ struct CreatePost: View {
                         }
                     }
                     .padding(15)
-                    .cornerRadius(20)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.accentColor, lineWidth: 3)
-                    )
+                    .interactCardSurface(cornerRadius: 20, lineWidth: 3, originalBorder: .accentColor)
                     
                     if (postCreation.possibleTags != nil) {
                         TagSuggestionsView(client: client, postCreation: postCreation)
@@ -209,11 +202,7 @@ struct CreatePost: View {
                                 Spacer()
                             }
                             .padding(15)
-                            .cornerRadius(20)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(Color.accentColor, lineWidth: 3)
-                            )
+                            .interactCardSurface(cornerRadius: 20, lineWidth: 3, originalBorder: .accentColor)
                         } else {
                             PollCreatorView(client: client, tempPollCreator: $postCreation.tempPollCreator)
                         }
@@ -226,20 +215,17 @@ struct CreatePost: View {
                                 Spacer()
                             }
                             .padding(15)
-                            .cornerRadius(20)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(Color.accentColor, lineWidth: 3)
-                            )
+                            .interactCardSurface(cornerRadius: 20, lineWidth: 3, originalBorder: .accentColor)
                         } else {
                             CoposterCreatorView(client: client, postCreation: postCreation)
 //                            PollCreatorView(client: client, tempPollCreator: $postCreation.tempPollCreator)
                         }
                     }
                 }
-                .padding(10)
+                .interactScreenPadding()
             }
         }
+        .interactAppBackground()
         .navigationTitle("Create Post")
     }
 }
@@ -289,11 +275,7 @@ struct FancyText : View {
             }
         }
         .padding(15)
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.accentColor, lineWidth: 3)
-        )
+        .interactCardSurface(cornerRadius: 20, lineWidth: 3, originalBorder: .accentColor)
 
     }
 }
@@ -346,11 +328,7 @@ struct AddedCopostersSuggestionView: View {
                     }
                 }
                 .padding(15)
-                .cornerRadius(20)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.accentColor, lineWidth: 3)
-                )
+                .interactCardSurface(cornerRadius: 20, lineWidth: 3, originalBorder: .accentColor)
             }
             if (postCreation.coposters.isEmpty) {
                 VStack {
@@ -363,11 +341,7 @@ struct AddedCopostersSuggestionView: View {
                     }
                 }
                 .padding(15)
-                .cornerRadius(20)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.accentColor, lineWidth: 3)
-                )
+                .interactCardSurface(cornerRadius: 20, lineWidth: 3, originalBorder: .accentColor)
             }
         }
     }
@@ -411,11 +385,7 @@ struct CoposterCreatorView: View {
                 }
             }
             .padding(15)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.accentColor, lineWidth: 3)
-            )
+            .interactCardSurface(cornerRadius: 20, lineWidth: 3, originalBorder: .accentColor)
             
         }
         
@@ -441,11 +411,7 @@ struct CoposterSuggestionViewArea: View {
                             }
                         }
                         .padding(15)
-                        .cornerRadius(20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.accentColor, lineWidth: 3)
-                        )
+                        .interactCardSurface(cornerRadius: 20, lineWidth: 3, originalBorder: .accentColor)
                     }
                 }
             }
