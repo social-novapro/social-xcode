@@ -212,7 +212,6 @@ struct BasicSettings: View {
             }
             .padding(15)
             .interactCardSurface(
-                design: client.designPreference,
                 tone: client.designPreference == .new ? .selected : .normal,
                 cornerRadius: 20,
                 lineWidth: 3,
@@ -221,7 +220,7 @@ struct BasicSettings: View {
             )
             .padding(10)
         }
-        .interactAppBackground(design: client.designPreference)
+        .interactAppBackground()
         .onChange(of: enabledDevMode) { newValue in
             client.devMode = client.devModeManager.swapMode()
             client.themeData.updateThemes(devMode: client.devMode ?? DevModeData(isEnabled: false))
@@ -251,14 +250,14 @@ struct BasicSettings: View {
     private var preferencesSection: some View {
         Group {
             if client.designPreference == .new {
-                InteractConnectedCardSection(design: client.designPreference, tone: .selected) {
-                    InteractConnectedCardRow(design: client.designPreference) {
+                InteractConnectedCardSection(tone: .selected) {
+                    InteractConnectedCardRow {
                         appearancePickerRow
                     }
                     
-                    InteractConnectedCardDivider(design: client.designPreference, leadingInset: 56)
+                    InteractConnectedCardDivider(leadingInset: 56)
                     
-                    InteractConnectedCardRow(design: client.designPreference) {
+                    InteractConnectedCardRow {
                         designPickerRow
                     }
                 }

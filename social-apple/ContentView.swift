@@ -47,6 +47,7 @@ struct ContentView: View {
 #endif
         }
         .preferredColorScheme(client.appearancePreference.colorScheme)
+        .interactDesignPreference(client.designPreference)
         .onAppear {
             print("serveroffline \(client.serverOffline)")
             print ("devMode: \(client.devMode!)")

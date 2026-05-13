@@ -47,13 +47,13 @@ struct AccountsView: View {
         ScrollView {
             if client.designPreference == .new {
                 newAccountContent
-                    .interactScreenPadding(design: client.designPreference)
+                    .interactScreenPadding()
             } else {
                 originalAccountContent
                     .padding(10)
             }
         }
-        .interactAppBackground(design: client.designPreference)
+        .interactAppBackground()
         .navigationTitle("Connected Accounts")
         .onAppear {
             refreshAccounts()
@@ -123,8 +123,8 @@ struct AccountsView: View {
         VStack(alignment: .leading, spacing: 8) {
             InteractSectionHeader(title: "Current Account")
             
-            InteractConnectedCardSection(design: client.designPreference, tone: .current) {
-                InteractConnectedCardRow(design: client.designPreference) {
+            InteractConnectedCardSection(tone: .current) {
+                InteractConnectedCardRow {
                     if let currentAccount {
                         accountRow(currentAccount, showSwitchAction: false)
                     } else {
@@ -144,20 +144,20 @@ struct AccountsView: View {
                 subtitle: "Switch between accounts saved on this device."
             )
             
-            InteractConnectedCardSection(design: client.designPreference) {
+            InteractConnectedCardSection {
                 if otherAccounts.isEmpty {
-                    InteractConnectedCardRow(design: client.designPreference) {
+                    InteractConnectedCardRow {
                         Text("No other saved accounts.")
                             .foregroundStyle(.secondary)
                     }
                 } else {
                     ForEach(Array(otherAccounts.enumerated()), id: \.element.userID) { index, account in
-                        InteractConnectedCardRow(design: client.designPreference) {
+                        InteractConnectedCardRow {
                             accountRow(account, showSwitchAction: true)
                         }
                         
                         if index < otherAccounts.count - 1 {
-                            InteractConnectedCardDivider(design: client.designPreference, leadingInset: 56)
+                            InteractConnectedCardDivider(leadingInset: 56)
                         }
                     }
                 }
@@ -169,8 +169,8 @@ struct AccountsView: View {
         VStack(alignment: .leading, spacing: 8) {
             InteractSectionHeader(title: "Add Account", subtitle: "Sign into another account.")
             
-            InteractConnectedCardSection(design: client.designPreference, tone: .selected) {
-                InteractConnectedCardRow(design: client.designPreference) {
+            InteractConnectedCardSection(tone: .selected) {
+                InteractConnectedCardRow {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
                             Image(systemName: "person.circle")
@@ -254,11 +254,11 @@ struct AccountsView: View {
                 subtitle: "Choose whether to log out of the current account or every saved account."
             )
             
-            InteractConnectedCardSection(design: client.designPreference, tone: .destructive) {
+            InteractConnectedCardSection(tone: .destructive) {
                 NavigationLink {
                     LogoutView(client: client, feedPosts: feedPosts)
                 } label: {
-                    InteractConnectedCardRow(design: client.designPreference) {
+                    InteractConnectedCardRow {
                         HStack {
                             Image(systemName: "x.circle")
                             Text("Open Logout Options")

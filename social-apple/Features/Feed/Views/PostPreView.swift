@@ -85,7 +85,6 @@ struct PostPreView: View {
             }
             .padding(15)
             .interactCardSurface(
-                design: client.designPreference,
                 tone: postCardTone,
                 cornerRadius: 20,
                 lineWidth: 3,
@@ -167,7 +166,6 @@ struct PostFeedPreView: View {
             }
             .padding(15)
             .interactCardSurface(
-                design: client.designPreference,
                 tone: postCardTone,
                 cornerRadius: 20,
                 lineWidth: 3,

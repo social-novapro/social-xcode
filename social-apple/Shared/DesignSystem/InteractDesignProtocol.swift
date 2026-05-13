@@ -27,6 +27,17 @@ enum InteractDesignPreference: String, CaseIterable, Identifiable, Codable {
     }
 }
 
+private struct InteractDesignPreferenceKey: EnvironmentKey {
+    static let defaultValue: InteractDesignPreference = .original
+}
+
+extension EnvironmentValues {
+    var interactDesignPreference: InteractDesignPreference {
+        get { self[InteractDesignPreferenceKey.self] }
+        set { self[InteractDesignPreferenceKey.self] = newValue }
+    }
+}
+
 enum InteractSectionTone {
     case normal
     case owner
@@ -65,22 +76,23 @@ enum InteractSectionTone {
 }
 
 struct InteractConnectedCardSection<Content: View>: View {
-    let design: InteractDesignPreference
+    @Environment(\.interactDesignPreference) private var environmentDesign
+    let designOverride: InteractDesignPreference?
     let tone: InteractSectionTone
     let content: Content
 
     init(
-        design: InteractDesignPreference,
+        design: InteractDesignPreference? = nil,
         tone: InteractSectionTone = .normal,
         @ViewBuilder content: () -> Content
     ) {
-        self.design = design
+        self.designOverride = design
         self.tone = tone
         self.content = content()
     }
 
     var body: some View {
-        switch design {
+        switch currentDesign {
         case .original:
             VStack(alignment: .leading, spacing: 0) {
                 content
@@ -100,22 +112,27 @@ struct InteractConnectedCardSection<Content: View>: View {
             .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
     }
+    
+    private var currentDesign: InteractDesignPreference {
+        designOverride ?? environmentDesign
+    }
 }
 
 struct InteractConnectedCardRow<Content: View>: View {
-    let design: InteractDesignPreference
+    @Environment(\.interactDesignPreference) private var environmentDesign
+    let designOverride: InteractDesignPreference?
     let content: Content
 
     init(
-        design: InteractDesignPreference,
+        design: InteractDesignPreference? = nil,
         @ViewBuilder content: () -> Content
     ) {
-        self.design = design
+        self.designOverride = design
         self.content = content()
     }
 
     var body: some View {
-        switch design {
+        switch currentDesign {
         case .original:
             content
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -125,20 +142,37 @@ struct InteractConnectedCardRow<Content: View>: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
+    
+    private var currentDesign: InteractDesignPreference {
+        designOverride ?? environmentDesign
+    }
 }
 
 struct InteractConnectedCardDivider: View {
-    let design: InteractDesignPreference
+    @Environment(\.interactDesignPreference) private var environmentDesign
+    let designOverride: InteractDesignPreference?
     var leadingInset: CGFloat = 14
+    
+    init(
+        design: InteractDesignPreference? = nil,
+        leadingInset: CGFloat = 14
+    ) {
+        self.designOverride = design
+        self.leadingInset = leadingInset
+    }
 
     var body: some View {
-        switch design {
+        switch currentDesign {
         case .original:
             EmptyView()
         case .new:
             Divider()
                 .padding(.leading, leadingInset)
         }
+    }
+    
+    private var currentDesign: InteractDesignPreference {
+        designOverride ?? environmentDesign
     }
 }
 
@@ -165,10 +199,23 @@ struct InteractSectionHeader: View {
 }
 
 struct InteractEmptyStateView: View {
-    let design: InteractDesignPreference
+    @Environment(\.interactDesignPreference) private var environmentDesign
+    let designOverride: InteractDesignPreference?
     let title: String
     let systemImage: String
     let message: String
+    
+    init(
+        design: InteractDesignPreference? = nil,
+        title: String,
+        systemImage: String,
+        message: String
+    ) {
+        self.designOverride = design
+        self.title = title
+        self.systemImage = systemImage
+        self.message = message
+    }
 
     var body: some View {
         VStack(spacing: 10) {
@@ -187,18 +234,22 @@ struct InteractEmptyStateView: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 10)
         .padding(14)
-        .interactCardSurface(design: design)
+        .interactCardSurface(design: designOverride ?? environmentDesign)
         .accessibilityElement(children: .combine)
     }
 }
 
 extension View {
-    func interactAppBackground(design: InteractDesignPreference) -> some View {
+    func interactDesignPreference(_ design: InteractDesignPreference) -> some View {
+        environment(\.interactDesignPreference, design)
+    }
+
+    func interactAppBackground(design: InteractDesignPreference? = nil) -> some View {
         modifier(InteractAppBackgroundModifier(design: design))
     }
 
     func interactCardSurface(
-        design: InteractDesignPreference,
+        design: InteractDesignPreference? = nil,
         tone: InteractSectionTone = .normal,
         cornerRadius: CGFloat = 16,
         lineWidth: CGFloat = 1,
@@ -218,21 +269,21 @@ extension View {
     }
 
     func interactScreenPadding(
-        design: InteractDesignPreference,
+        design: InteractDesignPreference? = nil,
         maxWidth: CGFloat = 620
     ) -> some View {
         modifier(InteractScreenPaddingModifier(design: design, maxWidth: maxWidth))
     }
 
     func interactCardListScreen(
-        design: InteractDesignPreference,
+        design: InteractDesignPreference? = nil,
         maxWidth: CGFloat = 620
     ) -> some View {
         modifier(InteractCardListScreenModifier(design: design, maxWidth: maxWidth))
     }
 
     func interactPlainListRow(
-        design: InteractDesignPreference,
+        design: InteractDesignPreference? = nil,
         rowPadding: CGFloat = 10
     ) -> some View {
         modifier(InteractPlainListRowModifier(design: design, rowPadding: rowPadding))
@@ -240,11 +291,12 @@ extension View {
 }
 
 private struct InteractAppBackgroundModifier: ViewModifier {
-    let design: InteractDesignPreference
+    @Environment(\.interactDesignPreference) private var environmentDesign
+    let design: InteractDesignPreference?
 
     @ViewBuilder
     func body(content: Content) -> some View {
-        switch design {
+        switch design ?? environmentDesign {
         case .original:
             content.modifier(InteractOriginalAppBackgroundModifier())
         case .new:
@@ -254,7 +306,8 @@ private struct InteractAppBackgroundModifier: ViewModifier {
 }
 
 private struct InteractCardSurfaceModifier: ViewModifier {
-    let design: InteractDesignPreference
+    @Environment(\.interactDesignPreference) private var environmentDesign
+    let design: InteractDesignPreference?
     let tone: InteractSectionTone
     let cornerRadius: CGFloat
     let lineWidth: CGFloat
@@ -263,7 +316,7 @@ private struct InteractCardSurfaceModifier: ViewModifier {
 
     @ViewBuilder
     func body(content: Content) -> some View {
-        switch design {
+        switch design ?? environmentDesign {
         case .original:
             content.modifier(
                 InteractOriginalCardSurfaceModifier(
@@ -287,12 +340,13 @@ private struct InteractCardSurfaceModifier: ViewModifier {
 }
 
 private struct InteractScreenPaddingModifier: ViewModifier {
-    let design: InteractDesignPreference
+    @Environment(\.interactDesignPreference) private var environmentDesign
+    let design: InteractDesignPreference?
     let maxWidth: CGFloat
 
     @ViewBuilder
     func body(content: Content) -> some View {
-        switch design {
+        switch design ?? environmentDesign {
         case .original:
             content.modifier(InteractOriginalScreenPaddingModifier())
         case .new:
@@ -302,12 +356,13 @@ private struct InteractScreenPaddingModifier: ViewModifier {
 }
 
 private struct InteractCardListScreenModifier: ViewModifier {
-    let design: InteractDesignPreference
+    @Environment(\.interactDesignPreference) private var environmentDesign
+    let design: InteractDesignPreference?
     let maxWidth: CGFloat
 
     @ViewBuilder
     func body(content: Content) -> some View {
-        switch design {
+        switch design ?? environmentDesign {
         case .original:
             content.modifier(InteractOriginalCardListScreenModifier())
         case .new:
@@ -317,12 +372,13 @@ private struct InteractCardListScreenModifier: ViewModifier {
 }
 
 private struct InteractPlainListRowModifier: ViewModifier {
-    let design: InteractDesignPreference
+    @Environment(\.interactDesignPreference) private var environmentDesign
+    let design: InteractDesignPreference?
     let rowPadding: CGFloat
 
     @ViewBuilder
     func body(content: Content) -> some View {
-        switch design {
+        switch design ?? environmentDesign {
         case .original:
             content.modifier(InteractOriginalPlainListRowModifier(rowPadding: rowPadding))
         case .new:
