@@ -261,9 +261,18 @@ private struct InteractDesignKey: EnvironmentKey {
     static let defaultValue: InteractAppDesign = InteractDesignRegistry.design(for: InteractDesignPreference.defaultPreference)
 }
 
+private struct InteractCustomTabBarReserveActiveKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
 extension EnvironmentValues {
     var interactDesign: InteractAppDesign {
         get { self[InteractDesignKey.self] }
         set { self[InteractDesignKey.self] = newValue }
+    }
+
+    var customTabBarReserveIsActive: Bool {
+        get { self[InteractCustomTabBarReserveActiveKey.self] }
+        set { self[InteractCustomTabBarReserveActiveKey.self] = newValue }
     }
 }

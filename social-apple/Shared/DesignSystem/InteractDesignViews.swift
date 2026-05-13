@@ -464,8 +464,12 @@ extension View {
         modifier(InteractFloatingSurfaceModifier(tone: tone))
     }
 
+    func interactCustomTabBarReserveActive(_ isActive: Bool = true) -> some View {
+        environment(\.customTabBarReserveIsActive, isActive)
+    }
+
     func interactCustomTabBarBottomReserve(isActive: Bool = true) -> some View {
-        modifier(InteractCustomTabBarBottomReserveModifier(isActive: isActive))
+        interactCustomTabBarReserveActive(isActive)
     }
 }
 
@@ -544,55 +548,64 @@ private struct InteractCardSurfaceModifier: ViewModifier {
 
 private struct InteractScreenPaddingModifier: ViewModifier {
     @Environment(\.interactDesign) private var environmentDesign
+    @Environment(\.customTabBarReserveIsActive) private var customTabBarReserveIsActive
     let designOverride: InteractAppDesign?
     let maxWidth: CGFloat
 
     @ViewBuilder
     func body(content: Content) -> some View {
-        let style = (designOverride ?? environmentDesign).screenPaddingStyle(maxWidth: maxWidth)
+        let design = designOverride ?? environmentDesign
+        let style = design.screenPaddingStyle(maxWidth: maxWidth)
+        let bottomReserve = customTabBarReserveIsActive ? design.customTabBarBottomContentInset : 0
 
         if style.centersContent, let maxWidth = style.maxWidth {
             content
                 .frame(maxWidth: maxWidth, alignment: .leading)
                 .padding(.horizontal, style.horizontal)
-                .padding(.vertical, style.vertical)
+                .padding(.top, style.vertical)
+                .padding(.bottom, style.vertical + bottomReserve)
                 .frame(maxWidth: .infinity, alignment: .center)
         } else {
             content
                 .padding(.horizontal, style.horizontal)
-                .padding(.vertical, style.vertical)
+                .padding(.top, style.vertical)
+                .padding(.bottom, style.vertical + bottomReserve)
         }
     }
 }
 
 private struct InteractScrollableScreenModifier: ViewModifier {
     @Environment(\.interactDesign) private var environmentDesign
+    @Environment(\.customTabBarReserveIsActive) private var customTabBarReserveIsActive
     let designOverride: InteractAppDesign?
     let maxWidth: CGFloat
     let bottomPadding: CGFloat
 
     @ViewBuilder
     func body(content: Content) -> some View {
-        let style = (designOverride ?? environmentDesign).screenPaddingStyle(maxWidth: maxWidth)
+        let design = designOverride ?? environmentDesign
+        let style = design.screenPaddingStyle(maxWidth: maxWidth)
+        let bottomReserve = customTabBarReserveIsActive ? design.customTabBarBottomContentInset : 0
 
         if style.centersContent, let maxWidth = style.maxWidth {
             content
                 .frame(maxWidth: maxWidth, alignment: .leading)
                 .padding(.horizontal, style.horizontal)
                 .padding(.top, style.vertical)
-                .padding(.bottom, style.vertical + bottomPadding)
+                .padding(.bottom, style.vertical + bottomPadding + bottomReserve)
                 .frame(maxWidth: .infinity, alignment: .center)
         } else {
             content
                 .padding(.horizontal, style.horizontal)
                 .padding(.top, style.vertical)
-                .padding(.bottom, style.vertical + bottomPadding)
+                .padding(.bottom, style.vertical + bottomPadding + bottomReserve)
         }
     }
 }
 
 private struct InteractCardListScreenModifier: ViewModifier {
     @Environment(\.interactDesign) private var environmentDesign
+    @Environment(\.customTabBarReserveIsActive) private var customTabBarReserveIsActive
     let designOverride: InteractAppDesign?
     let maxWidth: CGFloat
 
@@ -632,11 +645,20 @@ private struct InteractCardListScreenModifier: ViewModifier {
 
     @ViewBuilder
     private func applyVerticalListContentMargins<V: View>(_ view: V, style: InteractListScreenStyle) -> some View {
+        let bottomPadding = style.verticalPadding + customTabBarBottomReserve
+
         #if os(iOS) || os(tvOS)
         if #available(iOS 17.0, tvOS 17.0, *) {
             view
                 .contentMargins(.top, style.verticalPadding, for: .scrollContent)
-                .contentMargins(.bottom, style.verticalPadding, for: .scrollContent)
+                .contentMargins(.bottom, bottomPadding, for: .scrollContent)
+        } else if bottomPadding > 0 {
+            view.safeAreaInset(edge: .bottom, spacing: 0) {
+                Color.clear
+                    .frame(height: bottomPadding)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
         } else {
             view
         }
@@ -644,13 +666,18 @@ private struct InteractCardListScreenModifier: ViewModifier {
         if #available(macOS 14.0, *) {
             view
                 .contentMargins(.top, style.verticalPadding, for: .scrollContent)
-                .contentMargins(.bottom, style.verticalPadding, for: .scrollContent)
+                .contentMargins(.bottom, bottomPadding, for: .scrollContent)
         } else {
             view
         }
         #else
         view
         #endif
+    }
+
+    private var customTabBarBottomReserve: CGFloat {
+        let design = designOverride ?? environmentDesign
+        return customTabBarReserveIsActive ? design.customTabBarBottomContentInset : 0
     }
 }
 
@@ -729,25 +756,5 @@ private struct InteractFloatingSurfaceModifier: ViewModifier {
                 y: style.shadow?.y ?? 0
             )
             .contentShape(Capsule(style: .continuous))
-    }
-}
-
-private struct InteractCustomTabBarBottomReserveModifier: ViewModifier {
-    @Environment(\.interactDesign) private var design
-    let isActive: Bool
-
-    @ViewBuilder
-    func body(content: Content) -> some View {
-        if isActive && design.customTabBarBottomContentInset > 0 {
-            content
-                .safeAreaInset(edge: .bottom, spacing: 0) {
-                    Color.clear
-                        .frame(height: design.customTabBarBottomContentInset)
-                        .allowsHitTesting(false)
-                        .accessibilityHidden(true)
-                }
-        } else {
-            content
-        }
     }
 }

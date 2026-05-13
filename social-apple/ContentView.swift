@@ -188,7 +188,7 @@ struct compactLayoutView : View {
             self.feedPosts.newClient(client: client)
             self.feedPosts.getFeed()
         })
-        .interactCustomTabBarBottomReserve(isActive: showsCustomTabReserve)
+        .interactCustomTabBarReserveActive(showsCustomTabReserve)
         .overlay(
             AppTabNavigation(client: client, localSelected: Int(client.navigation?.selectedTab ?? 0))
                 .frame(height: 50)

@@ -29,6 +29,8 @@ struct SendLiveChatView: View {
 
 struct LiveChatView: View {
     @ObservedObject var client: Client
+    @Environment(\.interactDesign) private var design
+    @Environment(\.customTabBarReserveIsActive) private var customTabBarReserveIsActive
 
     @State private var messages: [LiveChatData] = []
     @State private var typers: [LiveChatTypers] = []
@@ -404,11 +406,15 @@ struct LiveChatView: View {
     }
 
     private var composerBottomPadding: CGFloat {
-        8
+        8 + customTabBarBottomReserve
     }
 
     private var chatBottomAnchorHeight: CGFloat {
-        24
+        24 + customTabBarBottomReserve
+    }
+
+    private var customTabBarBottomReserve: CGFloat {
+        customTabBarReserveIsActive ? design.customTabBarBottomContentInset : 0
     }
 
     private func replyPreview(for message: LiveChatData) -> String? {
