@@ -293,7 +293,7 @@ struct SearchSettingPage : View {
                         subtitle: "Change the default search algorithm used by the app."
                     )
                     
-                    InteractConnectedCardSection(tone: .selected) {
+                    InteractConnectedCardSection {
                         InteractConnectedCardRow {
                             InteractSettingsRowLabel(
                                 title: "Current Search",
@@ -302,10 +302,12 @@ struct SearchSettingPage : View {
                                 showsChevron: false
                             )
                         }
-                        
-                        InteractConnectedCardDivider(leadingInset: 56)
+                    }
 
-                        ForEach (self.searchSetting?.possibleSearch ?? []) { searchType in
+                    InteractSectionHeader(title: "Options")
+
+                    ForEach (self.searchSetting?.possibleSearch ?? []) { searchType in
+                        InteractConnectedCardSection(tone: searchType.name == self.searchSetting?.currentSearch.preferredSearch ? .selected : .normal) {
                             Button {
                                 client.api.search.changeSearchSetting(newSearch: searchType.name) { result in
                                     print("change setting")

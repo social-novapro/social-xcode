@@ -27,7 +27,7 @@ struct ContentView: View {
         Group {
 #if os(iOS) || os(tvOS)
            if horizontalSizeClass == .compact {
-               if #available(iOS 26, *) {
+               if #available(iOS 26, *), client.designPreference == .new {
                    compactLayoutViewLiquidGlass(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
 
                } else {
@@ -95,7 +95,7 @@ struct compactLayoutViewLiquidGlass : View {
                         }
                         Tab("System", systemImage: "archivebox", value: 2) {
                             NavigationStack {
-                                SideBarNavigation(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
+                                SystemView(client: client, feedPosts: feedPosts)
                             }
                         }
                         if (client.devMode?.isEnabled == true) {
@@ -154,7 +154,7 @@ struct compactLayoutView : View {
                     }
                 case 2:
                     NavigationStack {
-                        SideBarNavigation(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
+                        SystemView(client: client, feedPosts: feedPosts)
                     }
                 case 3:
                     NavigationStack {
@@ -216,7 +216,7 @@ struct regularLayoutView : View {
     
     var body: some View {
         NavigationSplitView {
-            SideBarNavigation(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
+            SystemView(client: client, feedPosts: feedPosts, presentation: .sidebar)
         } detail: {
             Group {
                 if client.serverOffline {
@@ -261,7 +261,7 @@ struct macLayoutView : View {
     @ViewBuilder var body: some View {
         NavigationView {
             VStack {
-                SideBarNavigation(client: client, feedPosts: feedPosts,  horizontalSizeClass: horizontalSizeClass)
+                SystemView(client: client, feedPosts: feedPosts, presentation: .sidebar)
             }
             .onChange(of: client.loggedIn, perform: {newValue in
                 self.feedPosts.newClient(client: client)
@@ -286,7 +286,7 @@ struct visionLayoutView : View {
     @ViewBuilder var body: some View {
         VStack {
             NavigationView {
-                SideBarNavigation(client: client, feedPosts: feedPosts,  horizontalSizeClass: horizontalSizeClass)
+                SystemView(client: client, feedPosts: feedPosts, presentation: .sidebar)
                 
                 if (client.serverOffline == true) {
                     ServerStatusOffline(client: client)
@@ -553,27 +553,7 @@ struct AppTabNavigation: View {
                     EmptyView()
                 }
                 else {
-                    if #available(iOS 26, *) {
-                        TabView(selection: $localSelected) {
-                            Tab("Home", systemImage: "house", value: 0) {
-                            }
-                            Tab("Search", systemImage: "magnifyingglass", value: 5, role: .search) {
-                                NavigationStack {
-                                    
-                                }
-                            }
-                            Tab("System", systemImage: "archivebox", value: 2) {
-                            }
-                            if (client.devMode?.isEnabled == true) {
-                                Tab("Debug", systemImage: "hammer", value: 3) {
-                                }
-                            }
-                            Tab("Live Chat", systemImage: "bubble.left", value: 4) {
-                            }
-                        }
-                    } else {
-                        CustomTabView(client: client)
-                    }
+                    CustomTabView(client: client)
                 }
             }
         }

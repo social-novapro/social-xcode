@@ -165,6 +165,7 @@ struct ProfileView : View {
 
         }
         .navigationTitle(profileData.doneLoading ? "Profile of @" + (profileData.userData?.username ?? "unknown") : "Loading profile...")
+        .interactAppBackground()
         .sheet(isPresented: $showingFollowList) {
             NavigationView {
                 FollowingFollowerView(
@@ -191,6 +192,7 @@ struct ProfileView : View {
                     }
                 )
                 .navigationTitle(selectedFollowList == 0 ? "Following" : "Followers")
+                .interactAppBackground()
                 .toolbar {
                     Button("Done") {
                         showingFollowList = false

@@ -79,6 +79,7 @@ struct DevModeView: View {
             Spacer()
             
         }
+        .interactAppBackground()
         .navigationTitle("Dev Mode")
         #if os(iOS)
         .navigationBarHidden(fullScreen)

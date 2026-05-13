@@ -14,6 +14,7 @@ struct PushNotifications: View {
 
     @State var changed: Bool = false
     @State var registered: Bool = false
+    @State private var registrationMessage: String?
     
     var body: some View {
         #if os(iOS)
@@ -26,55 +27,45 @@ struct PushNotifications: View {
                 )
                 
                 InteractConnectedCardSection(tone: registered ? .selected : .normal) {
-                    InteractActionRow(
-                        title: "Register Device",
-                        subtitle: "Sign this device up for notifications.",
-                        systemImage: "bell.badge"
-                    ) {
-                        #if os(iOS)
-                        if let appDelegate = MyAppDelegate.shared ?? (UIApplication.shared.delegate as? MyAppDelegate) {
-                            appDelegate.registerPushNotifications(client: client)
-                            self.registered = true
-                        } else {
-                            print("Unable to access shared MyAppDelegate for push registration")
+                    if isLoading {
+                        InteractConnectedCardRow {
+                            HStack(spacing: 10) {
+                                ProgressView()
+                                InteractSettingsRowLabel(
+                                    title: "Checking Device",
+                                    subtitle: "Looking for notification registration and settings.",
+                                    systemImage: "bell",
+                                    showsChevron: false
+                                )
+                            }
                         }
-                        #endif
-                    }
-                    
-                    if (self.registered == true && self.isLoading == true) {
-                        InteractConnectedCardDivider(leadingInset: 56)
-                        
+                    } else if registered {
                         InteractActionRow(
-                            title: "Show Settings",
-                            subtitle: "Refresh this device token and load notification options.",
-                            systemImage: "arrow.clockwise"
+                            title: "Deregister Device",
+                            subtitle: "Stop this device from receiving push notifications.",
+                            systemImage: "bell.slash",
+                            role: .destructive
                         ) {
-                            client.api.notifications.refreshDeviceToken()
-                            getDeviceSettings()
+                            deregisterDevice()
                         }
-                        .onAppear() {
-                            self.client.api.notifications.refreshDeviceToken()
-                            self.getDeviceSettings()
-                        }
-                    }
-                    
-                    InteractConnectedCardDivider(leadingInset: 56)
-                    
-                    InteractActionRow(
-                        title: "Deregister Device",
-                        subtitle: "Stop this device from receiving push notifications.",
-                        systemImage: "bell.slash",
-                        role: .destructive
-                    ) {
-                        client.api.notifications.deregisterDevice() { result in
-                            print (result)
-                            self.isLoading = true
-                            self.registered = false
+                    } else {
+                        InteractActionRow(
+                            title: "Register Device",
+                            subtitle: "Sign this device up for notifications.",
+                            systemImage: "bell.badge"
+                        ) {
+                            registerDevice()
                         }
                     }
                 }
+
+                if let registrationMessage {
+                    InteractStatusBanner(tone: registered ? .selected : .normal) {
+                        Text(registrationMessage)
+                    }
+                }
                 
-                if (!isLoading) {
+                if registered && !isLoading {
                     if changed == true {
                         InteractStatusBanner(tone: .selected) {
                             Text("Notification setting changed.")
@@ -108,17 +99,71 @@ struct PushNotifications: View {
     }
     
     func getDeviceSettings() {
+        isLoading = true
+        client.api.notifications.refreshDeviceToken()
+
+        guard client.api.notifications.getDeviceToken()?.isEmpty == false else {
+            self.deviceSettings = []
+            self.registered = false
+            self.registrationMessage = nil
+            self.isLoading = false
+            return
+        }
+
         client.api.notifications.getDeviceSettings() { result in
             print("get device settings")
             
-            switch result {
-            case .success(let foundResults):
-                self.deviceSettings = foundResults
-                self.registered = true
-                print("Done")
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let foundResults):
+                    self.deviceSettings = foundResults
+                    self.registered = true
+                    self.registrationMessage = nil
+                    print("Done")
+                    self.isLoading = false
+                case .failure(let error):
+                    print("Error: \(error.localizedDescription)")
+                    self.deviceSettings = []
+                    self.registered = false
+                    self.registrationMessage = nil
+                    self.isLoading = false
+                }
+            }
+        }
+    }
+
+    private func registerDevice() {
+        #if os(iOS)
+        registrationMessage = "Registration requested."
+        isLoading = true
+
+        if let appDelegate = MyAppDelegate.shared ?? (UIApplication.shared.delegate as? MyAppDelegate) {
+            appDelegate.registerPushNotifications(client: client)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                getDeviceSettings()
+            }
+        } else {
+            registrationMessage = "Unable to access notification registration."
+            isLoading = false
+        }
+        #endif
+    }
+
+    private func deregisterDevice() {
+        isLoading = true
+        client.api.notifications.deregisterDevice() { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
+                    self.deviceSettings = []
+                    self.registered = false
+                    self.registrationMessage = "Device deregistered."
+                case .failure(let error):
+                    self.deviceSettings = []
+                    self.registered = false
+                    self.registrationMessage = error.localizedDescription
+                }
                 self.isLoading = false
-            case .failure(let error):
-                print("Error: \(error.localizedDescription)")
             }
         }
     }

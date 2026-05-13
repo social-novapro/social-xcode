@@ -93,6 +93,14 @@ struct LiveChatView: View {
                         .id("chat-bottom-anchor")
                 }
                 .interactCardListScreen()
+                #if os(iOS)
+                .scrollDismissesKeyboard(.interactively)
+                .simultaneousGesture(
+                    TapGesture().onEnded {
+                        composerFocused = false
+                    }
+                )
+                #endif
                 .onAppear {
                     scrollToBottom(proxy: proxy, animated: false)
                 }
@@ -106,6 +114,16 @@ struct LiveChatView: View {
             composerBar
         }
         .navigationTitle("Live Chat")
+        #if os(iOS)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") {
+                    composerFocused = false
+                }
+            }
+        }
+        #endif
         .onAppear {
             if self.isInitialized {
                 return

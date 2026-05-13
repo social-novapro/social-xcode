@@ -42,6 +42,7 @@ struct AdminErrorView: View {
                 .listStyle(.plain)
                 .listRowSeparator(.hidden)
 #endif
+                .interactCardListScreen()
                 .refreshable {
                     client.hapticPress()
                     DispatchQueue.main.async {
@@ -53,6 +54,7 @@ struct AdminErrorView: View {
                 Text("loading errors")
             }
         }
+        .interactAppBackground()
         .onAppear {
             self.adminErrorFeed.getFeed()
             self.adminErrorFeed.isLoading = false

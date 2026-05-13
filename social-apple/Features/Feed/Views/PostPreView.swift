@@ -1524,6 +1524,7 @@ struct EditPostPopover: View {
             Spacer()
         }
         .padding(10)
+        .interactAppBackground()
         .navigationTitle(self.feedData.postLiveData.activeAction==5 ? "Editing Post" : "Unknown Action")
     }
 }
@@ -1622,6 +1623,7 @@ struct PopoverPostAction: View {
 
         }
         .padding(10)
+        .interactAppBackground()
         .navigationTitle(self.feedData.postLiveData.activeAction==1 ? "Reply" : self.feedData.postLiveData.activeAction==2 ? "Quote" : "Unknown Action")
     }
 }

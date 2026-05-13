@@ -24,6 +24,7 @@
 		66A1000D2F80000000000000 /* InteractNewDesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A1000C2F80000000000000 /* InteractNewDesign.swift */; };
 		66A1000F2F80000000000000 /* AppPreferenceHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A1000E2F80000000000000 /* AppPreferenceHandler.swift */; };
 		66A100112F80000000000000 /* InteractDesignViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A100102F80000000000000 /* InteractDesignViews.swift */; };
+		66A100132F80000000000000 /* SystemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A100122F80000000000000 /* SystemView.swift */; };
 		651262EE2F7335E00031C65E /* PostStateData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651262ED2F7335C70031C65E /* PostStateData.swift */; };
 		651262F02F7335F30031C65E /* PostModelsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651262EF2F7335ED0031C65E /* PostModelsData.swift */; };
 		651263002F7401000031C65E /* UserStateData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651262FF2F7400F00031C65E /* UserStateData.swift */; };
@@ -114,6 +115,7 @@
 		66A1000C2F80000000000000 /* InteractNewDesign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractNewDesign.swift; sourceTree = "<group>"; };
 		66A1000E2F80000000000000 /* AppPreferenceHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferenceHandler.swift; sourceTree = "<group>"; };
 		66A100102F80000000000000 /* InteractDesignViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractDesignViews.swift; sourceTree = "<group>"; };
+		66A100122F80000000000000 /* SystemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemView.swift; sourceTree = "<group>"; };
 		651262ED2F7335C70031C65E /* PostStateData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostStateData.swift; sourceTree = "<group>"; };
 		651262EF2F7335ED0031C65E /* PostModelsData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostModelsData.swift; sourceTree = "<group>"; };
 		651262FF2F7400F00031C65E /* UserStateData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStateData.swift; sourceTree = "<group>"; };
@@ -706,6 +708,7 @@
 			children = (
 				6503515D29F474A9005C4253 /* AboutView.swift */,
 				6526E87B2B54E4570072E33E /* BasicSettings.swift */,
+				66A100122F80000000000000 /* SystemView.swift */,
 				65EB34042B564703000C3BED /* ServerStatusOffline.swift */,
 			);
 			path = Views;
@@ -828,6 +831,7 @@
 				65C2A2602D35CF0400A79B7F /* CacheManager.swift in Sources */,
 				655BC0CA2B07575100949356 /* CurrentNavigationHandler.swift in Sources */,
 				6526E87C2B54E4570072E33E /* BasicSettings.swift in Sources */,
+				66A100132F80000000000000 /* SystemView.swift in Sources */,
 				653F61FF2C8AB080006876BF /* Client.swift in Sources */,
 				65CA9D3E2BC85ECD00CB145F /* AdminView.swift in Sources */,
 				651757DE29FB811300E90FBA /* DevModeHandler.swift in Sources */,
