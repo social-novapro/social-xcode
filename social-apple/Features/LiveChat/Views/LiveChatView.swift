@@ -50,42 +50,50 @@ struct LiveChatView: View {
         ScrollViewReader { proxy in
             VStack(spacing: 8) {
                 if !typers.isEmpty {
-                    HStack {
+                    InteractStatusBanner {
                         Text(typingLabel())
                             .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Spacer()
                     }
-                    .padding(.horizontal, 12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 10)
                 }
 
                 List {
-                    ForEach(messages) { message in
-                        ChatMessageRow(
-                            client: client,
-                            chatMessage: message,
-                            isOwnMessage: isOwnMessage(message),
-                            isEditing: editingMessageID == message._id,
-                            editingContent: $editingContent,
-                            replyPreview: replyPreview(for: message),
-                            onReply: {
-                                beginReply(message)
-                            },
-                            onEdit: {
-                                beginEdit(message)
-                            },
-                            onDelete: {
-                                requestDelete(message)
-                            },
-                            onSaveEdit: {
-                                saveEdit()
-                            },
-                            onCancelEdit: {
-                                cancelEdit()
-                            }
+                    if messages.isEmpty {
+                        InteractEmptyStateView(
+                            title: isInitialized ? "No messages yet" : "Connecting...",
+                            systemImage: isInitialized ? "bubble.left.and.bubble.right" : "antenna.radiowaves.left.and.right",
+                            message: isInitialized ? "Start the conversation when you're ready." : "Opening the live chat connection."
                         )
-                        .id(messageRowID(message))
-                        .interactPlainListRow(rowPadding: 6)
+                        .interactPlainListRow()
+                    } else {
+                        ForEach(messages) { message in
+                            ChatMessageRow(
+                                client: client,
+                                chatMessage: message,
+                                isOwnMessage: isOwnMessage(message),
+                                isEditing: editingMessageID == message._id,
+                                editingContent: $editingContent,
+                                replyPreview: replyPreview(for: message),
+                                onReply: {
+                                    beginReply(message)
+                                },
+                                onEdit: {
+                                    beginEdit(message)
+                                },
+                                onDelete: {
+                                    requestDelete(message)
+                                },
+                                onSaveEdit: {
+                                    saveEdit()
+                                },
+                                onCancelEdit: {
+                                    cancelEdit()
+                                }
+                            )
+                            .id(messageRowID(message))
+                            .interactPlainListRow(rowPadding: 5)
+                        }
                     }
 
                     Color.clear
@@ -184,9 +192,13 @@ struct LiveChatView: View {
         VStack(spacing: 8) {
             if let replyToMessage {
                 HStack {
+                    Image(systemName: "arrowshape.turn.up.left")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Replying to @\(replyToMessage.user?.username ?? "unknown")")
-                            .font(.caption)
+                            .font(.caption.weight(.semibold))
                             .foregroundStyle(.secondary)
                         Text(replyToMessage.message?.content ?? "")
                             .font(.caption)
@@ -196,6 +208,7 @@ struct LiveChatView: View {
                     Button("Cancel") {
                         self.replyToMessage = nil
                     }
+                    .font(.caption)
                     .buttonStyle(.plain)
                 }
                 .padding(8)
@@ -218,9 +231,15 @@ struct LiveChatView: View {
                     }
 
                 if editingMessageID == nil {
-                    Button("Send") {
+                    Button {
                         sendCurrentMessage()
+                    } label: {
+                        Image(systemName: "paperplane.fill")
+                            .font(.system(size: 18, weight: .semibold))
+                            .frame(width: 34, height: 34)
                     }
+                    .buttonStyle(.borderedProminent)
+                    .clipShape(Circle())
                     .disabled(content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 } else {
                     Button("Save Edit") {
@@ -234,7 +253,7 @@ struct LiveChatView: View {
                 }
             }
         }
-        .padding(12)
+        .padding(10)
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 14))
         .frame(maxWidth: 620)
@@ -447,26 +466,34 @@ struct ChatMessageRow: View {
     let onCancelEdit: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 6) {
-                Text(chatMessage.user?.displayName ?? "unknown")
-                    .font(.subheadline).bold()
-                Text("@\(chatMessage.user?.username ?? "unknown")")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Spacer()
-                if let timestamp = chatMessage.message?.timeStamp {
-                    Text(int64TimeFormatter(timestamp: timestamp))
-                        .font(.caption)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(chatMessage.user?.displayName ?? "Unknown")
+                        .font(.subheadline.weight(.semibold))
+                    Text("@\(chatMessage.user?.username ?? "unknown")")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer(minLength: 8)
+
+                if let timestampText {
+                    Text(timestampText)
+                        .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
             }
 
             if let replyPreview {
-                Text(replyPreview)
+                Label(replyPreview, systemImage: "arrowshape.turn.up.left")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(Color.secondary.opacity(0.10))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
             if isEditing {
@@ -487,10 +514,16 @@ struct ChatMessageRow: View {
             } else {
                 if chatMessage.type == 6 {
                     Text(chatMessage.userJoin?.content ?? "user joined")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
                 } else if chatMessage.type == 7 {
                     Text(chatMessage.userLeave?.content ?? "user left")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
                 } else {
                     Text(chatMessage.message?.content ?? "")
+                        .font(.body)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
 
                 if chatMessage.message?.edited == true {
@@ -506,11 +539,13 @@ struct ChatMessageRow: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(15)
+        .padding(.vertical, 11)
+        .padding(.leading, isOwnMessage ? 18 : 12)
+        .padding(.trailing, 12)
         .interactCardSurface(
             tone: isOwnMessage ? .owner : .normal,
             cornerRadius: 14,
-            lineWidth: 3,
+            lineWidth: 1,
             originalBackground: client.themeData.mainBackground,
             originalBorder: .gray
         )
@@ -520,7 +555,7 @@ struct ChatMessageRow: View {
                     .fill(Color.accentColor.opacity(0.20))
                     .frame(width: 4)
                     .padding(.vertical, 8)
-                    .padding(.leading, 4)
+                    .padding(.leading, 6)
             }
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
@@ -570,5 +605,13 @@ struct ChatMessageRow: View {
                 }
             }
         }
+    }
+
+    private var timestampText: String? {
+        guard let timestamp = chatMessage.message?.timeStamp else {
+            return nil
+        }
+
+        return int64TimeFormatter(timestamp: timestamp)
     }
 }

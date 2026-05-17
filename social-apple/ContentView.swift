@@ -48,6 +48,11 @@ struct ContentView: View {
         }
         .preferredColorScheme(client.appearancePreference.colorScheme)
         .interactDesign(InteractDesignRegistry.design(for: client.designPreference))
+        #if os(iOS) || os(tvOS)
+        .fullScreenCover(isPresented: $client.serverOffline) {
+            ServerStatusOffline(client: client)
+        }
+        #endif
         .onAppear {
             print("serveroffline \(client.serverOffline)")
             print ("devMode: \(client.devMode!)")
@@ -179,11 +184,6 @@ struct compactLayoutView : View {
                 }
             }
         }
-        #if os(iOS)
-        .fullScreenCover(isPresented: $client.serverOffline, content: {
-            ServerStatusOffline(client: client)
-        })
-        #endif
         .onChange(of: client.loggedIn, perform: {newValue in
             self.feedPosts.newClient(client: client)
             self.feedPosts.getFeed()
@@ -327,9 +327,6 @@ struct NativeSidebarShell: View {
             }
         }
         #if os(iOS) || os(tvOS)
-        .fullScreenCover(isPresented: $client.serverOffline, content: {
-            ServerStatusOffline(client: client)
-        })
         .overlay(
             Group {
                 if showsNotifications {
