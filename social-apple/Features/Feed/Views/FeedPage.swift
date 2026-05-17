@@ -16,7 +16,7 @@ struct FeedPage: View {
     @State var writingPost: Bool = false
     @State var showProfile: Bool = false
     
-    @State private var selectedPostIndex: Int?
+    @State private var selectedPostID: String?
     @State var selectedPost: Bool = false
     @State var selectedProfile: SelectedProfileData = SelectedProfileData()
     
@@ -37,13 +37,11 @@ struct FeedPage: View {
                     }
                     
                     List {
-                        ForEach(self.feedPosts.posts.indices, id: \.self) { index in
-                            PostFeedPreView(client: client, feedData: $feedPosts.posts[index], selectedPostIndex: $selectedPostIndex, selectedPost: $selectedPost, selectedProfile: $selectedProfile, currentPostIndex: index)
-                                #if !os(tvOS)
-                                .listRowSeparator(.hidden)
-                                #endif
-                                .listRowInsets(EdgeInsets())
-                                .padding(10)
+                        ForEach(self.feedPosts.posts, id: \.postData._id) { post in
+                            let postID = post.postData._id
+                            
+                            PostFeedPreView(client: client, feedData: postBinding(for: postID, fallback: post), selectedPostID: $selectedPostID, selectedPost: $selectedPost, selectedProfile: $selectedProfile)
+                                .interactPlainListRow()
 //                                .onpress
                                 /*.swipeActions(allowsFullSwipe: false) {
                                     Button {
@@ -59,11 +57,12 @@ struct FeedPage: View {
                                     }
                                 }*/
                                 .onAppear(){
-                                    if (self.feedPosts.posts.last?.id == feedPosts.posts[index].id) {
+                                    if (self.feedPosts.posts.last?.postData._id == postID) {
                                         self.feedPosts.nextIndex()
                                     }
                                 }
                         }
+
                     }
                     .onChange(of: client.loggedIn, perform: { newValue in
                         if (newValue == true) {
@@ -75,10 +74,7 @@ struct FeedPage: View {
 
                         }
                     })
-                    .listStyle(.plain)
-                    #if !os(tvOS)
-                    .listRowSeparator(.hidden)
-                    #endif
+                    .interactCardListScreen()
                     .refreshable {
                         client.hapticPress()
                         DispatchQueue.main.async {
@@ -91,9 +87,17 @@ struct FeedPage: View {
                     Text("loading feed")
                 }
             }
+            .interactAppBackground()
             .navigationDestination(isPresented: $selectedPost) {
-                if let selectedPostIndex = selectedPostIndex {
-                    PostView(client: client, feedData: $feedPosts.posts[selectedPostIndex], selectedProfile: $selectedProfile)
+                if let selectedPostID,
+                   let selectedPostBinding = currentPostBinding(for: selectedPostID) {
+                    PostView(client: client, feedData: selectedPostBinding, selectedProfile: $selectedProfile)
+                } else {
+                    EmptyView()
+                        .onAppear {
+                            selectedPost = false
+                            selectedPostID = nil
+                        }
                 }
             }
             .sheet(isPresented: $selectedProfile.showProfile) {
@@ -130,6 +134,25 @@ struct FeedPage: View {
                 #endif
             }
         }
+    }
+    
+    private func postBinding(for postID: String, fallback: AllPosts) -> Binding<AllPosts> {
+        Binding {
+            feedPosts.posts.first { $0.postData._id == postID } ?? fallback
+        } set: { updatedPost in
+            guard let index = feedPosts.posts.firstIndex(where: { $0.postData._id == postID }) else {
+                return
+            }
+            feedPosts.posts[index] = updatedPost
+        }
+    }
+    
+    private func currentPostBinding(for postID: String) -> Binding<AllPosts>? {
+        guard let fallback = feedPosts.posts.first(where: { $0.postData._id == postID }) else {
+            return nil
+        }
+        
+        return postBinding(for: postID, fallback: fallback)
     }
 }
 

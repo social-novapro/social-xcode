@@ -15,55 +15,66 @@ struct DeveloperSettingsView: View {
     @State var createdNewDev: Bool = false
     
     var body: some View {
-        VStack {
-            if (loading == false) {
-                ScrollView {
-                    VStack {
-                        AccountStatusView(client: client, developerData: $developerData)
-                        
-                        if (developerData != nil && loading==false ) {
-                            if (developerData?.DeveloperToken != nil) {
-                                DeveloperTokenView(client: client, developerToken: (developerData?.DeveloperToken!)!)
-                            }
-                            
-                            if (developerData?.AppTokens.isEmpty != true) {
-                                Text("Your Approved Developer Applications:")
-                                ForEach(developerData?.AppTokens ?? []) { appToken in
-                                    AppTokenView(client: client, appToken: appToken)
-                                        .padding(10)
-                                }
-                            }
-                            GenerateAppView(
-                                client: client,
-                                newApplications: $newApplications,
-                                developerToken: developerData?.DeveloperToken?._id ?? ""
-                            )
-                            
-                            if (newApplications.isEmpty != true) {
-                                Text("Your new Developer Applications:")
-                                ForEach(newApplications) { appToken in
-                                    AppTokenView(client: client, appToken: appToken)
-                                        .padding(10)
-                                }
-                            }
-                            
-                            if (developerData?.AppAccesses.isEmpty != true) {
-                                Text("Connected Applications:")
-                                
-                                ForEach(developerData?.AppAccesses ?? []) { accessToken in
-                                    AccessTokenView(client: client, accessToken: accessToken)
-                                        .padding(10)
-                                }
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 12) {
+                if loading {
+                    InteractConnectedCardSection {
+                        InteractConnectedCardRow {
+                            HStack(spacing: 10) {
+                                ProgressView()
+                                Text("Loading developer settings...")
+                                    .foregroundStyle(.secondary)
                             }
                         }
                     }
-                    VStack {
-                        
+                } else {
+                    InteractSectionHeader(
+                        title: "Developer Account",
+                        subtitle: "Review your developer status and Interact application access."
+                    )
+                    InteractConnectedCardSection {
+                        AccountStatusView(client: client, developerData: $developerData)
                     }
-                    .padding(50)
+
+                    if let developerData {
+                        if let developerToken = developerData.DeveloperToken {
+                            InteractSectionHeader(title: "Developer Token")
+                            DeveloperTokenView(client: client, developerToken: developerToken)
+                        }
+
+                        if developerData.AppTokens.isEmpty == false {
+                            InteractSectionHeader(title: "Approved Applications")
+                            ForEach(developerData.AppTokens) { appToken in
+                                AppTokenView(client: client, appToken: appToken)
+                            }
+                        }
+
+                        InteractSectionHeader(title: "Generate Application")
+                        GenerateAppView(
+                            client: client,
+                            newApplications: $newApplications,
+                            developerToken: developerTokenID(from: developerData)
+                        )
+
+                        if newApplications.isEmpty == false {
+                            InteractSectionHeader(title: "New Applications")
+                            ForEach(newApplications) { appToken in
+                                AppTokenView(client: client, appToken: appToken)
+                            }
+                        }
+
+                        if developerData.AppAccesses.isEmpty == false {
+                            InteractSectionHeader(title: "Connected Applications")
+                            ForEach(developerData.AppAccesses) { accessToken in
+                                AccessTokenView(client: client, accessToken: accessToken)
+                            }
+                        }
+                    }
                 }
             }
+            .interactScreenPadding()
         }
+        .interactAppBackground()
         .navigationTitle("Developer Settings")
         .onAppear {
             client.api.developer.getDeveloperData() { result in
@@ -74,9 +85,14 @@ struct DeveloperSettingsView: View {
                     self.loading = false;
                 case .failure(let error):
                     print("Error: \(error.localizedDescription)")
+                    self.loading = false
                 }
             }
         }
+    }
+
+    private func developerTokenID(from data: DeveloperResponseData) -> String {
+        data.DeveloperToken?._id ?? ""
     }
 }
 
@@ -90,74 +106,68 @@ struct GenerateAppView: View {
     @State var failed: Bool = false
     
     var body: some View {
-        VStack {
-            HStack {
-                if (failed==true) {
-                    Text("Could not create new application.")
-                } else if (created==true) {
-                    Text("Created new application!")
-                }
-                Spacer()
-            }
-            HStack {
-                Text("Generate New App Token")
-                Spacer()
-            }
-            HStack {
-                Text("Please input an application name")
-                Spacer()
-            }
-            HStack{
-                TextField("Application Name", text: $newApplicationName)
-                    .padding(15)
-                    .cornerRadius(20)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.accentColor, lineWidth: 3)
+        InteractConnectedCardSection(tone: created ? .selected : failed ? .destructive : .normal) {
+            if failed || created {
+                InteractConnectedCardRow {
+                    InteractSettingsRowLabel(
+                        title: created ? "Created new application" : "Could not create application",
+                        subtitle: created ? "The new app token is listed below." : "Check the application name and try again.",
+                        systemImage: created ? "checkmark.circle" : "exclamationmark.triangle",
+                        showsChevron: false
                     )
-                    .padding(10)
+                }
+
+                InteractConnectedCardDivider(leadingInset: 56)
             }
-            
-            HStack{
-                if (newApplicationName != "") {
-                    Button(action: {
-                        client.hapticPress()
-                        let newTokenReq = NewAppTokenReq(userdevtoken: developerToken, appname: newApplicationName)
-                        
-                        newApplicationName=""
-                        
-                        client.api.developer.newAppToken(newAppToken: newTokenReq) { result in
-                            switch result {
-                            case .success(let appData):
-                                print("Generated Token")
-                                newApplications.append(appData)
-                                created=true
-                                
-                            case .failure(let error):
-                                print("Error: \(error)")
-                                failed=true
-                            }
+
+            InteractConnectedCardRow {
+                InteractSettingsRowLabel(
+                    title: "Generate New App Token",
+                    subtitle: "Create an application token for an approved integration.",
+                    systemImage: "key",
+                    showsChevron: false
+                )
+            }
+
+            InteractConnectedCardDivider(leadingInset: 56)
+
+            InteractConnectedCardRow {
+                TextField("Application Name", text: $newApplicationName)
+                    .interactInputSurface()
+            }
+
+            InteractConnectedCardDivider(leadingInset: 56)
+
+            InteractActionRow(
+                title: "Generate Token",
+                subtitle: newApplicationName.isEmpty ? "Enter an application name first." : newApplicationName,
+                systemImage: "plus.circle"
+            ) {
+                guard newApplicationName.isEmpty == false else {
+                    return
+                }
+
+                client.hapticPress()
+                let newTokenReq = NewAppTokenReq(userdevtoken: developerToken, appname: newApplicationName)
+
+                newApplicationName = ""
+
+                client.api.developer.newAppToken(newAppToken: newTokenReq) { result in
+                    switch result {
+                    case .success(let appData):
+                        print("Generated Token")
+                        newApplications.append(appData)
+                        created = true
+                        failed = false
+
+                    case .failure(let error):
+                        print("Error: \(error)")
+                        failed = true
+                        created = false
                         }
-                    }, label: {
-                        Text("Generate Token")
-                            .padding(15)
-                            .cornerRadius(20)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(Color.accentColor, lineWidth: 3)
-                            )
-                            .padding(10)
-                    })
                 }
             }
         }
-        .padding(15)
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.accentColor, lineWidth: 3)
-        )
-        .padding(10)
     }
 }
 
@@ -167,54 +177,43 @@ struct DeveloperTokenView: View {
     @State var copied: Bool = false
 
     var body: some View {
-        VStack {
-            HStack {
-                Text("devToken: ")
-                HiddenText(text: developerToken._id ?? "")
-                Spacer()
-            }
-            HStack {
-                if (developerToken.premium ?? false) {
-                    Text("Premium Developer Account")
-                } else {
-                    Text("Regular Developer Account")
+        InteractConnectedCardSection(tone: copied ? .selected : .normal) {
+            InteractConnectedCardRow {
+                HStack {
+                    InteractSettingsRowLabel(
+                        title: "Developer Token",
+                        subtitle: copied ? "Copied token" : "Tap token text to reveal or copy.",
+                        systemImage: "key.horizontal",
+                        showsChevron: false
+                    )
+                    HiddenText(text: developerToken._id ?? "")
                 }
-                Spacer()
             }
-            HStack {
-                if (developerToken.creationTimestamp != nil) {
-                    Text("Created " + int64TimeFormatter(timestamp: developerToken.creationTimestamp ?? 0))
-                } else {
-                    Text("Unknown Creation Date")
-                }
-                Spacer()
-            }
-            HStack {
-                if (copied == true) {
-                    Text("Copied Token!")
-                        .onTapGesture(count: 1) {
-                            self.copied=false
-                        }
-                } else {
-                    Text("Click to Copy devToken")
-#if os(iOS)
 
-                        .onTapGesture(count: 1) {
-                            UIPasteboard.general.string = self.developerToken._id ?? "failed"
-                            self.copied=true
-                        }
-#endif
-                }
-                Spacer()
+            InteractConnectedCardDivider(leadingInset: 56)
+
+            InteractConnectedCardRow {
+                InteractSettingsRowLabel(
+                    title: developerToken.premium == true ? "Premium Developer Account" : "Regular Developer Account",
+                    subtitle: developerToken.creationTimestamp.map { "Created " + int64TimeFormatter(timestamp: $0) } ?? "Unknown creation date",
+                    systemImage: "person.badge.key",
+                    showsChevron: false
+                )
+            }
+
+            InteractConnectedCardDivider(leadingInset: 56)
+
+            InteractActionRow(
+                title: copied ? "Copied Token" : "Copy Developer Token",
+                subtitle: "Copy the developer token to the clipboard.",
+                systemImage: copied ? "checkmark.circle" : "doc.on.doc"
+            ) {
+                #if os(iOS)
+                UIPasteboard.general.string = self.developerToken._id ?? "failed"
+                self.copied = true
+                #endif
             }
         }
-        .padding(15)
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.accentColor, lineWidth: 3)
-        )
-        .padding(10)
     }
 }
 
@@ -224,38 +223,39 @@ struct AccountStatusView: View {
 
 
     var body: some View {
-        VStack {
-            Text("Account Status")
-            VStack {
-                if (developerData?.developer != true) {
-                    Text("You are not a developer.")
-                    Text("Click below to sign up as a developer.")
-                    Button(action: {
-                        client.hapticPress()
-                    }, label: {
-                        Text("not real button yet")
-                            .padding(15)
-                            .cornerRadius(20)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(Color.accentColor, lineWidth: 3)
-                            )
-                            .padding(10)
-                    })
-
-                } else {
-                    Text("You have an Interact Developer Account")
-                    Text("You have " + String(developerData?.AppTokens.count ?? 0) + " Approved Applications")
+        VStack(spacing: 0) {
+            if developerData?.developer != true {
+                InteractConnectedCardRow {
+                    InteractSettingsRowLabel(
+                        title: "Not a developer",
+                        subtitle: "Developer signup is not available here yet.",
+                        systemImage: "person.crop.circle.badge.questionmark",
+                        showsChevron: false
+                    )
                 }
-                Text(String(developerData?.AppAccesses.count ?? 0 ) + " Connected Appliactions")
+
+                InteractConnectedCardDivider(leadingInset: 56)
+            } else {
+                InteractConnectedCardRow {
+                    InteractSettingsRowLabel(
+                        title: "Developer Account",
+                        subtitle: "You have an Interact Developer Account.",
+                        systemImage: "checkmark.seal",
+                        showsChevron: false
+                    )
+                }
+
+                InteractConnectedCardDivider(leadingInset: 56)
             }
-            .padding(15)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.accentColor, lineWidth: 3)
-            )
-            .padding(10)
+
+            InteractConnectedCardRow {
+                InteractSettingsRowLabel(
+                    title: "\(developerData?.AppTokens.count ?? 0) Approved Applications",
+                    subtitle: "\(developerData?.AppAccesses.count ?? 0) connected applications",
+                    systemImage: "app.connected.to.app.below.fill",
+                    showsChevron: false
+                )
+            }
         }
     }
 }
@@ -266,56 +266,43 @@ struct AppTokenView: View {
     @State var copied: Bool = false
     
     var body: some View {
-        VStack {
-            HStack {
-                if (appToken.appName != nil) {
-                    Text(appToken.appName ?? "")
-                } else {
-                    Text("Unknown App Name")
+        InteractConnectedCardSection(tone: copied ? .selected : .normal) {
+            InteractConnectedCardRow {
+                InteractSettingsRowLabel(
+                    title: appToken.appName ?? "Unknown App Name",
+                    subtitle: appToken.creationTimestamp.map { "Created " + int64TimeFormatter(timestamp: $0) } ?? "Unknown creation date",
+                    systemImage: "app.badge",
+                    showsChevron: false
+                )
+            }
+
+            InteractConnectedCardDivider(leadingInset: 56)
+
+            InteractConnectedCardRow {
+                HStack {
+                    InteractSettingsRowLabel(
+                        title: "\(appToken.APIUses ?? 0) API Uses",
+                        subtitle: "Tap token text to reveal.",
+                        systemImage: "chart.bar",
+                        showsChevron: false
+                    )
+                    HiddenText(text: self.appToken._id)
                 }
-                Spacer()
             }
-            HStack {
-                if (appToken.creationTimestamp != nil) {
-                    Text("Created " + int64TimeFormatter(timestamp: appToken.creationTimestamp ?? 0))
-                } else {
-                    Text("Unknown Creation Date")
-                }
-                Spacer()
-            }
-            HStack {
-                Text("API Uses: " + String(appToken.APIUses ?? 0))
-                Spacer()
-            }
-            HStack {
-                Text("appToken: " )
-                HiddenText(text: self.appToken._id)
-                Spacer()
-            }
-            HStack {
-                if (copied == true) {
-                    Text("Copied Token!")
-                        .onTapGesture(count: 1) {
-                            self.copied=false
-                        }
-                 } else {
-                    Text("Click to Copy appToken")
-#if os(iOS)
-                    .onTapGesture(count: 1) {
-                            UIPasteboard.general.string = self.appToken._id
-                            self.copied=true
-                        }
- #endif
-                }
-                Spacer()
+
+            InteractConnectedCardDivider(leadingInset: 56)
+
+            InteractActionRow(
+                title: copied ? "Copied Token" : "Copy App Token",
+                subtitle: "Copy this application token to the clipboard.",
+                systemImage: copied ? "checkmark.circle" : "doc.on.doc"
+            ) {
+                #if os(iOS)
+                UIPasteboard.general.string = self.appToken._id
+                self.copied = true
+                #endif
             }
         }
-        .padding(15)
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.accentColor, lineWidth: 3)
-        )
     }
 }
 
@@ -324,33 +311,44 @@ struct AccessTokenView: View {
     @State var accessToken: AppAccessesData
 
     var body: some View {
-        VStack {
-            HStack {
-                if (accessToken.creationTimestamp != nil) {
-                    Text("Connected " + int64TimeFormatter(timestamp: accessToken.creationTimestamp ?? 0))
-                } else {
-                    Text("Unknown Connection Date")
+        InteractConnectedCardSection {
+            InteractConnectedCardRow {
+                InteractSettingsRowLabel(
+                    title: "Connected Application",
+                    subtitle: accessToken.creationTimestamp.map { "Connected " + int64TimeFormatter(timestamp: $0) } ?? "Unknown connection date",
+                    systemImage: "link",
+                    showsChevron: false
+                )
+            }
+
+            InteractConnectedCardDivider(leadingInset: 56)
+
+            InteractConnectedCardRow {
+                HStack {
+                    InteractSettingsRowLabel(
+                        title: "Access Token",
+                        subtitle: "Tap token text to reveal.",
+                        systemImage: "lock.open",
+                        showsChevron: false
+                    )
+                    HiddenText(text: self.accessToken._id ?? "Unknown")
                 }
-                Spacer()
             }
-            HStack {
-                Text("accessToken: ")
-                HiddenText(text: self.accessToken._id ?? "Unknown")
-                Spacer()
+
+            InteractConnectedCardDivider(leadingInset: 56)
+
+            InteractConnectedCardRow {
+                HStack {
+                    InteractSettingsRowLabel(
+                        title: "Using App Token",
+                        subtitle: "Tap token text to reveal.",
+                        systemImage: "key",
+                        showsChevron: false
+                    )
+                    HiddenText(text: self.accessToken.appToken ?? "Unknown")
+                }
             }
-            HStack {
-                Text("Using appToken: ")
-                HiddenText(text: self.accessToken.appToken ?? "Unknown")
-                Spacer()
-            }
-            
-        }
-        .padding(15)
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.accentColor, lineWidth: 3)
-        )
+       }
     }
 }
 

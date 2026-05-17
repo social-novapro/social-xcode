@@ -399,9 +399,25 @@ class FeedPosts: ObservableObject {
         self.client = client
     }
 
+    func resetForAccountChange() {
+        DispatchQueue.main.async {
+            self.feed = FeedV2Data(amount: 0, posts: [])
+            self.posts = []
+            self.loadingScroll = false
+            self.isLoading = true
+            self.gotFeed = false
+            self.copostRequests = []
+            self.copostsFound = false
+        }
+    }
+
     func getFeed() {
         DispatchQueue.main.async {
             if (self.gotFeed==true) {
+                return
+            }
+            guard self.client.loggedIn && !self.client.userTokens.userID.isEmpty else {
+                self.isLoading = false
                 return
             }
             self.client.api.posts.getUserFeed(userTokens: self.client.userTokens) { result in
@@ -466,8 +482,23 @@ class FeedPosts: ObservableObject {
         }
     }
 
-    func refreshFeed() -> Void {
+    func refreshFeed(resetFeed: Bool = false) -> Void {
         DispatchQueue.main.async {
+            if resetFeed {
+                self.feed = FeedV2Data(amount: 0, posts: [])
+                self.posts = []
+                self.loadingScroll = false
+                self.isLoading = true
+                self.gotFeed = false
+                self.copostRequests = []
+                self.copostsFound = false
+            }
+            
+            guard self.client.loggedIn && !self.client.userTokens.userID.isEmpty else {
+                self.isLoading = false
+                return
+            }
+            
             self.client.api.posts.getUserFeed(userTokens: self.client.userTokens) { result in
                 self.client.hapticPress()
 
@@ -476,11 +507,17 @@ class FeedPosts: ObservableObject {
                     DispatchQueue.main.async {
                         self.feed = feedData
                         self.addPosts(newPosts: self.feed.posts, toClear: true)
+                        self.isLoading = false
+                        self.gotFeed = true
                     }
                 case .failure(let error):
+                    DispatchQueue.main.async {
+                        self.isLoading = false
+                    }
                     print("Error: \(error.localizedDescription)")
                 }
             }
+            self.getCopostRequests()
         }
     }
 

@@ -27,7 +27,7 @@ struct ContentView: View {
         Group {
 #if os(iOS) || os(tvOS)
            if horizontalSizeClass == .compact {
-               if #available(iOS 26, *) {
+               if #available(iOS 26, *), client.designPreference == .new {
                    compactLayoutViewLiquidGlass(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
 
                } else {
@@ -46,6 +46,13 @@ struct ContentView: View {
 
 #endif
         }
+        .preferredColorScheme(client.appearancePreference.colorScheme)
+        .interactDesign(InteractDesignRegistry.design(for: client.designPreference))
+        #if os(iOS) || os(tvOS)
+        .fullScreenCover(isPresented: $client.serverOffline) {
+            ServerStatusOffline(client: client)
+        }
+        #endif
         .onAppear {
             print("serveroffline \(client.serverOffline)")
             print ("devMode: \(client.devMode!)")
@@ -93,7 +100,7 @@ struct compactLayoutViewLiquidGlass : View {
                         }
                         Tab("System", systemImage: "archivebox", value: 2) {
                             NavigationStack {
-                                SideBarNavigation(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
+                                SystemView(client: client, feedPosts: feedPosts)
                             }
                         }
                         if (client.devMode?.isEnabled == true) {
@@ -110,7 +117,7 @@ struct compactLayoutViewLiquidGlass : View {
                         }
                         Tab("Search", systemImage: "magnifyingglass", value: 5, role: .search) {
                             NavigationStack {
-                                SearchView(client: client)
+                                SearchView(client: client, searchPlacement: .automatic)
                             }
                         }
                         
@@ -152,7 +159,7 @@ struct compactLayoutView : View {
                     }
                 case 2:
                     NavigationStack {
-                        SideBarNavigation(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
+                        SystemView(client: client, feedPosts: feedPosts)
                     }
                 case 3:
                     NavigationStack {
@@ -164,7 +171,7 @@ struct compactLayoutView : View {
                     }
                 case 5:
                     NavigationStack {
-                        SearchView(client: client)
+                        SearchView(client: client, searchPlacement: .topNavigation)
                     }
                 default:
                     NavigationStack {
@@ -177,15 +184,11 @@ struct compactLayoutView : View {
                 }
             }
         }
-        #if os(iOS)
-        .fullScreenCover(isPresented: $client.serverOffline, content: {
-            ServerStatusOffline(client: client)
-        })
-        #endif
         .onChange(of: client.loggedIn, perform: {newValue in
             self.feedPosts.newClient(client: client)
             self.feedPosts.getFeed()
         })
+        .interactCustomTabBarReserveActive(showsCustomTabReserve)
         .overlay(
             AppTabNavigation(client: client, localSelected: Int(client.navigation?.selectedTab ?? 0))
                 .frame(height: 50)
@@ -204,6 +207,169 @@ struct compactLayoutView : View {
         #endif
 
     }
+
+    private var showsCustomTabReserve: Bool {
+        client.loggedIn && client.navigation?.hidden != true
+    }
+}
+
+enum InteractSidebarItem: String, CaseIterable, Identifiable, Hashable {
+    case feed
+    case search
+    case liveChat
+    case profile
+    case createPost
+    case settings
+    case dev
+
+    var id: Self { self }
+
+    static func visibleItems(devModeEnabled: Bool) -> [InteractSidebarItem] {
+        var items: [InteractSidebarItem] = [
+            .feed,
+            .search,
+            .liveChat,
+            .profile,
+            .createPost,
+            .settings
+        ]
+
+        if devModeEnabled {
+            items.append(.dev)
+        }
+
+        return items
+    }
+
+    var title: String {
+        switch self {
+        case .feed:
+            return "Feed"
+        case .search:
+            return "Search"
+        case .liveChat:
+            return "Live Chat"
+        case .profile:
+            return "Profile"
+        case .createPost:
+            return "Create Post"
+        case .settings:
+            return "Settings"
+        case .dev:
+            return "Debug"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .feed:
+            return "house"
+        case .search:
+            return "magnifyingglass"
+        case .liveChat:
+            return "bubble.left"
+        case .profile:
+            return "person"
+        case .createPost:
+            return "plus.circle"
+        case .settings:
+            return "gearshape"
+        case .dev:
+            return "hammer"
+        }
+    }
+}
+
+struct NativeAppSidebar: View {
+    @ObservedObject var client: Client
+    @Binding var selection: InteractSidebarItem?
+
+    var body: some View {
+        List(selection: $selection) {
+            if client.loggedIn {
+                Section {
+                    ForEach(InteractSidebarItem.visibleItems(devModeEnabled: client.devMode?.isEnabled == true)) { item in
+                        NavigationLink(value: item) {
+                            Label(item.title, systemImage: item.systemImage)
+                        }
+                    }
+                }
+            } else {
+                Section {
+                    Label("Signed Out", systemImage: "person.crop.circle.badge.xmark")
+                    Text("Sign in to use Interact.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .listStyle(.sidebar)
+        .navigationSplitViewColumnWidth(min: 190, ideal: 230, max: 300)
+    }
+}
+
+struct NativeSidebarShell: View {
+    @ObservedObject var client: Client
+    @ObservedObject var feedPosts: FeedPosts
+    let showsNotifications: Bool
+    @State private var selectedSidebarItem: InteractSidebarItem? = .feed
+
+    var body: some View {
+        NavigationSplitView {
+            NativeAppSidebar(client: client, selection: $selectedSidebarItem)
+        } detail: {
+            sidebarDetail
+        }
+        .onChange(of: client.loggedIn, perform: handleLoggedInChange)
+        .onChange(of: client.devMode?.isEnabled == true) { devModeEnabled in
+            if devModeEnabled == false && selectedSidebarItem == .dev {
+                selectedSidebarItem = .feed
+            }
+        }
+        #if os(iOS) || os(tvOS)
+        .overlay(
+            Group {
+                if showsNotifications {
+                    IncomeNotificationView(client: client)
+                        .frame(height: 50)
+                        .padding(.top, 25)
+                }
+            },
+            alignment: .top
+        )
+        #endif
+    }
+
+    @ViewBuilder private var sidebarDetail: some View {
+        if client.serverOffline {
+            ServerStatusOffline(client: client)
+        } else if client.loggedIn {
+            switch selectedSidebarItem ?? .feed {
+            case .feed:
+                FeedPage(client: client, feedPosts: feedPosts)
+            case .search:
+                SearchView(client: client, searchPlacement: .topNavigation)
+            case .liveChat:
+                LiveChatView(client: client)
+            case .profile:
+                ProfileView(client: client, userData: client.userData, userID: client.userTokens.userID)
+            case .createPost:
+                CreatePost(client: client)
+            case .settings:
+                BasicSettings(client: client, feedPosts: feedPosts)
+            case .dev:
+                DevModeView(client: client)
+            }
+        } else {
+            BeginPage(client: client)
+        }
+    }
+
+    private func handleLoggedInChange(_ newValue: Bool) {
+        feedPosts.newClient(client: client)
+        feedPosts.getFeed()
+        selectedSidebarItem = newValue ? .feed : nil
+    }
 }
 
 struct regularLayoutView : View {
@@ -211,43 +377,8 @@ struct regularLayoutView : View {
     @ObservedObject var feedPosts: FeedPosts
     @State var horizontalSizeClass: UserInterfaceSizeClass?
 
-    
     var body: some View {
-        NavigationSplitView {
-            SideBarNavigation(client: client, feedPosts: feedPosts, horizontalSizeClass: horizontalSizeClass)
-        } detail: {
-            Group {
-                if client.serverOffline {
-                    ServerStatusOffline(client: client)
-                } else if client.loggedIn || client.beginPageMode == 0 {
-                    FeedPage(client: client, feedPosts: feedPosts)
-                } else {
-                    BeginPage(client: client)
-                }
-            }
-            .onChange(of: client.loggedIn, perform: {newValue in
-                print("changed client.loggedIn to \(newValue) group inside splitView")
-            })
-
-        }
-        #if os(iOS) || os(tvOS)
-        .fullScreenCover(isPresented: $client.serverOffline, content: {
-            ServerStatusOffline(client: client)
-        })
-        .onChange(of: client.loggedIn, perform: {newValue in
-            print("changed client.loggedIn to \(newValue) regularLayoutView")
-            self.feedPosts.newClient(client: client)
-            self.feedPosts.getFeed()
-        })
-        .overlay(
-            IncomeNotificationView(client: client)
-                .frame(height: 50)
-                .padding(.top, 25),
-            alignment: .top
-        )
-        .navigationViewStyle(StackNavigationViewStyle())
-        #endif
-
+        NativeSidebarShell(client: client, feedPosts: feedPosts, showsNotifications: true)
     }
 }
 
@@ -257,22 +388,7 @@ struct macLayoutView : View {
     @State var horizontalSizeClass: UserInterfaceSizeClass?
 
     @ViewBuilder var body: some View {
-        NavigationView {
-            VStack {
-                SideBarNavigation(client: client, feedPosts: feedPosts,  horizontalSizeClass: horizontalSizeClass)
-            }
-            .onChange(of: client.loggedIn, perform: {newValue in
-                self.feedPosts.newClient(client: client)
-                self.feedPosts.getFeed()
-            })
-            if client.serverOffline {
-                ServerStatusOffline(client: client)
-            } else if client.loggedIn {
-                FeedPage(client: client, feedPosts: feedPosts)
-            } else {
-                BeginPage(client: client)
-            }
-        }
+        NativeSidebarShell(client: client, feedPosts: feedPosts, showsNotifications: false)
     }
 }
 
@@ -284,7 +400,7 @@ struct visionLayoutView : View {
     @ViewBuilder var body: some View {
         VStack {
             NavigationView {
-                SideBarNavigation(client: client, feedPosts: feedPosts,  horizontalSizeClass: horizontalSizeClass)
+                SystemView(client: client, feedPosts: feedPosts, presentation: .sidebar)
                 
                 if (client.serverOffline == true) {
                     ServerStatusOffline(client: client)
@@ -311,34 +427,29 @@ struct IncomeNotificationView: View {
     var body: some View {
         VStack {
             if $client.api.apiHelper.errorShow.wrappedValue == true {
-                HStack (alignment: .center) {
-                    VStack {
-                        Text("\(client.api.apiHelper.errorFound.code)")
-                        Text("\(client.api.apiHelper.errorFound.msg)")
-                    }
-                    
-                    Button(action: {
-                        DispatchQueue.main.async {
-                            self.client.dismissError()
-                            $client.api.apiHelper.errorShow.wrappedValue = false
+                InteractStatusBanner(tone: .destructive) {
+                    HStack(alignment: .center, spacing: 12) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("\(client.api.apiHelper.errorFound.code)")
+                                .font(.caption.weight(.semibold))
+                            Text("\(client.api.apiHelper.errorFound.msg)")
+                                .font(.caption)
                         }
-                        print("pressed dismiss")
-                    }, label: {
-                        Image(systemName: "x.circle")
-                            .font(.system(size: 22))
-                    })
+                        
+                        Button(action: {
+                            DispatchQueue.main.async {
+                                self.client.dismissError()
+                                $client.api.apiHelper.errorShow.wrappedValue = false
+                            }
+                            print("pressed dismiss")
+                        }, label: {
+                            Image(systemName: "x.circle")
+                                .font(.system(size: 22))
+                        })
+                        .buttonStyle(.plain)
+                    }
                 }
-
-                .padding(.vertical, self.expand ? 10 : 10)
-                .padding(.horizontal, self.expand ? 10 : 8)
-                .background(.regularMaterial)
-                .clipShape(Capsule())
-                .overlay(
-                    RoundedRectangle(cornerRadius: 35)
-                        .stroke(Color.accentColor, lineWidth: 2)
-                )
                 .padding(22)
-                .background(client.themeData.mainBackground)
                 .onLongPressGesture {
                     DispatchQueue.main.async {
                         self.client.dismissError()
@@ -363,30 +474,22 @@ struct IncomeNotificationView: View {
 //            }
 #if os(iOS)
             if self.newNotification==true {
-                HStack (alignment: .center) {
-                    VStack {
+                InteractStatusBanner(tone: .selected) {
+                    HStack(alignment: .center, spacing: 12) {
                         Text("\(notificationBody)")
+                            .font(.caption)
+                        
+                        Button(action: {
+                            self.newNotification = false
+                            self.notificationBody = ""
+                        }, label: {
+                            Image(systemName: "x.circle")
+                                .font(.system(size: 22))
+                        })
+                        .buttonStyle(.plain)
                     }
-                    
-                    Button(action: {
-                        self.newNotification = false
-                        self.notificationBody = ""
-                    }, label: {
-                        Image(systemName: "x.circle")
-                            .font(.system(size: 22))
-                    })
                 }
-
-                .padding(.vertical, self.expand ? 10 : 10)
-                .padding(.horizontal, self.expand ? 10 : 8)
-                .background(.regularMaterial)
-                .clipShape(Capsule())
-                .overlay(
-                    RoundedRectangle(cornerRadius: 35)
-                        .stroke(Color.accentColor, lineWidth: 2)
-                )
                 .padding(22)
-                .background(client.themeData.mainBackground)
                 .onLongPressGesture {
                     self.newNotification = false
                     self.notificationBody = ""
@@ -441,7 +544,7 @@ struct SideBarNavigation: View {
                     }
                     VStack {
                         NavigationLink {
-                            SearchView(client: client)
+                            SearchView(client: client, searchPlacement: .topNavigation)
                         } label: {
                             HStack {
                                 Image(systemName: "magnifyingglass")
@@ -484,7 +587,7 @@ struct SideBarNavigation: View {
                 }
                 VStack {
                     NavigationLink {
-                        LogoutView(client: client)
+                        LogoutView(client: client, feedPosts: feedPosts)
                     } label: {
                         HStack {
                             Image(systemName: "x.circle")
@@ -564,27 +667,7 @@ struct AppTabNavigation: View {
                     EmptyView()
                 }
                 else {
-                    if #available(iOS 26, *) {
-                        TabView(selection: $localSelected) {
-                            Tab("Home", systemImage: "house", value: 0) {
-                            }
-                            Tab("Search", systemImage: "magnifyingglass", value: 5, role: .search) {
-                                NavigationStack {
-                                    
-                                }
-                            }
-                            Tab("System", systemImage: "archivebox", value: 2) {
-                            }
-                            if (client.devMode?.isEnabled == true) {
-                                Tab("Debug", systemImage: "hammer", value: 3) {
-                                }
-                            }
-                            Tab("Live Chat", systemImage: "bubble.left", value: 4) {
-                            }
-                        }
-                    } else {
-                        CustomTabView(client: client)
-                    }
+                    CustomTabView(client: client)
                 }
             }
         }
@@ -688,12 +771,7 @@ struct CustomTabView : View {
         }
         .padding(.vertical, client.navigation?.expanded ?? false ? 10 : 10)
         .padding(.horizontal, client.navigation?.expanded ?? false ? 10 : 8)
-        .background(.regularMaterial)
-        .clipShape(Capsule())
-        .overlay(
-            RoundedRectangle(cornerRadius: 35)
-                .stroke(Color.accentColor, lineWidth: 2)
-        )
+        .interactFloatingSurface(tone: .selected)
         .padding(22)
         .background(client.devMode?.isEnabled == true ? Color.red : Color.clear)
     }

@@ -35,11 +35,7 @@ struct CopostRequestsHyper: View {
                 }
             }
             .padding(15)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.accentColor, lineWidth: 3)
-            )
+            .interactCardSurface(cornerRadius: 20, lineWidth: 3, originalBorder: .accentColor)
         }
         .onTapGesture {
             client.hapticPress()
@@ -79,11 +75,7 @@ struct CopostRequestView: View {
 //                    }
                 }
                 .padding(15)
-                .cornerRadius(20)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.accentColor, lineWidth: 3)
-                )
+                .interactCardSurface(cornerRadius: 20, lineWidth: 3, originalBorder: .accentColor)
             }
             .padding(10)
 
@@ -141,16 +133,13 @@ struct CopostRequestView: View {
                             }
                         }
                         .padding(15)
-                        .cornerRadius(20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.accentColor, lineWidth: 3)
-                        )
+                        .interactCardSurface(cornerRadius: 20, lineWidth: 3, originalBorder: .accentColor)
                     }
                 }
             }
             .padding(10)
         }
+        .interactAppBackground()
         .navigationTitle("Copost Requests")
     }
 }

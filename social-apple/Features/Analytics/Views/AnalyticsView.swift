@@ -58,6 +58,7 @@ struct AnalyticsView: View {
                 .padding(20)
             }
         }
+        .interactAppBackground()
         .sheet(isPresented: $graphIsShown, onDismiss: didDismiss) {
             VStack {
                 Spacer()
@@ -83,6 +84,7 @@ struct AnalyticsView: View {
                 Spacer()
 
             }
+            .interactAppBackground()
         }
         .onAppear {
             client.api.anaytics.getAnalyticTrend() { result in
@@ -140,4 +142,3 @@ struct secondaryAnalyticView: View {
        }
     }
 }
-

@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22522" systemVersion="23C71" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
+    <entity name="AppPreferences" representedClassName="AppPreferences" syncable="YES" codeGenerationType="class">
+        <attribute name="appearancePreference" optional="YES" attributeType="String"/>
+        <attribute name="designPreference" optional="YES" attributeType="String"/>
+        <attribute name="userID" optional="YES" attributeType="String"/>
+    </entity>
     <entity name="CurrentNavigation" representedClassName="CurrentNavigation" syncable="YES" codeGenerationType="class">
         <attribute name="expanded" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="selectedTab" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -20,6 +25,7 @@
     </entity>
     <entity name="UserTokens" representedClassName="UserTokens" syncable="YES" codeGenerationType="class">
         <attribute name="accessToken" optional="YES" attributeType="String"/>
+        <attribute name="active" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="userID" optional="YES" attributeType="String"/>
         <attribute name="userToken" optional="YES" attributeType="String"/>
     </entity>

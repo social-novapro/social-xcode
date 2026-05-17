@@ -84,15 +84,20 @@ struct PostPreView: View {
                 print ("showing")
             }
             .padding(15)
-            .background(client.themeData.mainBackground)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.gray, lineWidth: 3)
+            .interactCardSurface(
+                tone: postCardTone,
+                cornerRadius: 20,
+                lineWidth: 3,
+                originalBackground: client.themeData.mainBackground,
+                originalBorder: .gray
             )
         if (self.feedData.postLiveData.actionExpanded == true) {
             ExpandedPostView(client: client, feedData: $feedData)
         }
+    }
+    
+    private var postCardTone: InteractSectionTone {
+        client.designPreference == .new && feedData.postLiveData.isOwner == true ? .owner : .normal
     }
 }
 
@@ -101,19 +106,17 @@ struct PostFeedPreView: View {
     @ObservedObject var postActiveData: PostActiveData
 
     @Binding var feedData: AllPosts
-    @Binding var selectedPostIndex: Int?
+    @Binding var selectedPostID: String?
     @Binding var selectedPost: Bool
     @Binding var selectedProfile: SelectedProfileData
-    @State var currentPostIndex: Int
     
-    init (client: Client, feedData: Binding<AllPosts>, selectedPostIndex: Binding<Int?>, selectedPost: Binding<Bool>, selectedProfile: Binding<SelectedProfileData>, currentPostIndex: Int) {
+    init (client: Client, feedData: Binding<AllPosts>, selectedPostID: Binding<String?>, selectedPost: Binding<Bool>, selectedProfile: Binding<SelectedProfileData>) {
         
         self.client = client;
         self._feedData = feedData;
-        self._selectedPostIndex = selectedPostIndex;
+        self._selectedPostID = selectedPostID;
         self._selectedPost = selectedPost;
         self._selectedProfile = selectedProfile;
-        self.currentPostIndex = currentPostIndex;
         
         
         self._postActiveData = .init(wrappedValue: PostActiveData(client: client, postData: feedData.wrappedValue))
@@ -136,7 +139,7 @@ struct PostFeedPreView: View {
                         self.feedData.postLiveData.showPostPage = true
                         print("showing post?")
                         self.selectedPost = true
-                        self.selectedPostIndex = currentPostIndex
+                        self.selectedPostID = feedData.postData._id
                     }) {
                         VStack {
                             PostPreviewView(client: client, feedData: $feedData, selectedProfile: $selectedProfile, postActiveData: postActiveData)
@@ -162,15 +165,20 @@ struct PostFeedPreView: View {
                 }
             }
             .padding(15)
-            .background(client.themeData.mainBackground)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.gray, lineWidth: 3)
+            .interactCardSurface(
+                tone: postCardTone,
+                cornerRadius: 20,
+                lineWidth: 3,
+                originalBackground: client.themeData.mainBackground,
+                originalBorder: .gray
             )
         if (self.feedData.postLiveData.actionExpanded == true) {
             ExpandedPostView(client: client, postActiveData: postActiveData, feedData: $feedData)
         }
+    }
+    
+    private var postCardTone: InteractSectionTone {
+        client.designPreference == .new && feedData.postLiveData.isOwner == true ? .owner : .normal
     }
 }
 
@@ -363,11 +371,11 @@ struct ReplyParentPostView : View {
             }
         }
         .padding(15)
-        .background(client.themeData.mainBackground)
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.gray, lineWidth: 3)
+        .interactCardSurface(
+            cornerRadius: 20,
+            lineWidth: 3,
+            originalBackground: client.themeData.mainBackground,
+            originalBorder: .gray
         )
     }
 }
@@ -860,11 +868,11 @@ struct ExpandedPostView: View {
                 }
             }
             .padding(15)
-            .background(client.themeData.mainBackground)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.gray, lineWidth: 3)
+            .interactCardSurface(
+                cornerRadius: 20,
+                lineWidth: 3,
+                originalBackground: client.themeData.mainBackground,
+                originalBorder: .gray
             )
             
 //            .onChange(of: feedData.postLiveData.subAction) {
@@ -942,11 +950,11 @@ struct SubExpandedPostView: View {
             }
         }
         .padding(15)
-        .background(client.themeData.mainBackground)
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.gray, lineWidth: 3)
+        .interactCardSurface(
+            cornerRadius: 20,
+            lineWidth: 3,
+            originalBackground: client.themeData.mainBackground,
+            originalBorder: .gray
         )
     }
 }
@@ -988,11 +996,7 @@ struct CrapPostView: View {
             }
         }
         .padding(15)
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.gray, lineWidth: 3)
-        )
+        .interactCardSurface(cornerRadius: 20, lineWidth: 3, originalBorder: .gray)
 
     }
 }
@@ -1453,11 +1457,11 @@ struct EditPostPopover: View {
                     }
                 }
                 .padding(15)
-                .background(client.themeData.mainBackground)
-                .cornerRadius(20)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.gray, lineWidth: 3)
+                .interactCardSurface(
+                    cornerRadius: 20,
+                    lineWidth: 3,
+                    originalBackground: client.themeData.mainBackground,
+                    originalBorder: .gray
                 )
                 
                 VStack {
@@ -1515,15 +1519,12 @@ struct EditPostPopover: View {
                     }
                 }
                 .padding(15)
-                .cornerRadius(20)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.gray, lineWidth: 3)
-                )
+                .interactCardSurface(cornerRadius: 20, lineWidth: 3, originalBorder: .gray)
             }
             Spacer()
         }
         .padding(10)
+        .interactAppBackground()
         .navigationTitle(self.feedData.postLiveData.activeAction==5 ? "Editing Post" : "Unknown Action")
     }
 }
@@ -1574,11 +1575,11 @@ struct PopoverPostAction: View {
                 }
             }
             .padding(15)
-            .background(client.themeData.mainBackground)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.gray, lineWidth: 3)
+            .interactCardSurface(
+                cornerRadius: 20,
+                lineWidth: 3,
+                originalBackground: client.themeData.mainBackground,
+                originalBorder: .gray
             )
             
             VStack {
@@ -1617,15 +1618,12 @@ struct PopoverPostAction: View {
                 }
             }
             .padding(15)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.gray, lineWidth: 3)
-            )
+            .interactCardSurface(cornerRadius: 20, lineWidth: 3, originalBorder: .gray)
             Spacer()
 
         }
         .padding(10)
+        .interactAppBackground()
         .navigationTitle(self.feedData.postLiveData.activeAction==1 ? "Reply" : self.feedData.postLiveData.activeAction==2 ? "Quote" : "Unknown Action")
     }
 }

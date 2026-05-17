@@ -13,89 +13,99 @@ struct AboutView: View {
 
     var body: some View {
         ScrollView {
-            VStack {
-                HStack {
-                    Text("Nova Productions Project")
-                        .fontWeight(.heavy)
-                    Spacer()
-                }
-                HStack {
-                    Text("https://novapro.net")
-                        .underline()
-                    Spacer()
-                }
-            }
-            .padding(20)
-            
-            VStack {
-                HStack {
-                    Text("About Interact")
-                        .fontWeight(.heavy)
-                    Spacer()
-                }
-                HStack {
-                    Text("The project was developed by Daniel Kravec at Nova Productions. Interact is a social network, started in July 2021. Interact has an open API, letting anyone develop for it.")
-                    Spacer()
-                }
-            }
-            .padding(20)
-            
-            VStack {
-                HStack {
-                    Text("Interact Mobile Project")
-                        .fontWeight(.heavy)
-                    Spacer()
-                }
-                HStack {
-                    Text("Thank you for downloading the mobile version of Interact!This version of the application works on macOS, iOS, and iPadOS.")
-                    Spacer()
-                }
-            }
-            .padding(20)
+            LazyVStack(alignment: .leading, spacing: 12) {
+                InteractConnectedCardSection {
+                    InteractConnectedCardRow {
+                        HStack(spacing: 10) {
+                            Image(systemName: "bubble.left.and.bubble.right.fill")
+                                .font(.title3)
+                                .foregroundStyle(.secondary)
 
-            VStack {
-                HStack {
-                    Text("Version")
-                        .fontWeight(.heavy)
-                    Spacer()
-                }
-                HStack {
-                    Text("\(appVersion) b\(buildNumber)")
-                    Spacer()
-                }
-            }
-            .padding(20)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Interact")
+                                    .font(.headline)
+                                Text("Social Network")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
 
-
-            VStack {
-                HStack{
-                    if (client.devMode?.isEnabled == true) {
-                        Text("Disable DevMode")
-                            .fontWeight(.heavy)
-                    }
-                    else {
-                        Text("Enable DevMode")
-                            .fontWeight(.heavy)
-                    }
-
-                    Spacer()
-                }
-                Button(action: {
-                    client.devMode = client.devModeManager.swapMode()
-                    client.themeData.updateThemes(devMode: client.devMode ?? DevModeData(isEnabled: false))
-                }) {
-                    HStack {
-                        Text("Dev Mode")
-                        Spacer()
+                            Spacer(minLength: 8)
+                        }
                     }
                 }
-            }
-            .padding(20)
-            .background(client.themeData.greenBackground)
 
+                InteractSectionHeader(title: "App")
+                InteractConnectedCardSection {
+                    aboutRow(title: "Version", value: appVersion)
+                    InteractConnectedCardDivider()
+                    aboutRow(title: "Build", value: buildNumber)
+                }
+
+                InteractSectionHeader(title: "Website")
+                InteractConnectedCardSection {
+                    InteractConnectedCardRow {
+                        if let websiteURL {
+                            Link(destination: websiteURL) {
+                                HStack {
+                                    Label("novapro.net", systemImage: "globe")
+                                        .font(.subheadline.weight(.semibold))
+
+                                    Spacer(minLength: 8)
+
+                                    Image(systemName: "arrow.up.right")
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            .buttonStyle(.plain)
+                        } else {
+                            Text("novapro.net")
+                        }
+                    }
+                }
+
+                InteractSectionHeader(title: "Project")
+                InteractConnectedCardSection {
+                    InteractConnectedCardRow {
+                        InteractSettingsRowLabel(
+                            title: "Nova Productions",
+                            subtitle: "Developed by Daniel Kravec. Interact started in July 2021 and supports an open API for developers.",
+                            systemImage: "network",
+                            showsChevron: false
+                        )
+                    }
+
+                    InteractConnectedCardDivider()
+
+                    InteractConnectedCardRow {
+                        InteractSettingsRowLabel(
+                            title: "Platforms",
+                            subtitle: "iOS, iPadOS, and macOS",
+                            systemImage: "ipad.and.iphone",
+                            showsChevron: false
+                        )
+                    }
+                }
+
+                InteractSectionHeader(title: "Developer")
+                InteractConnectedCardSection(tone: client.devMode?.isEnabled == true ? .selected : .normal) {
+                    InteractActionRow(
+                        title: client.devMode?.isEnabled == true ? "Disable Dev Mode" : "Enable Dev Mode",
+                        subtitle: "Toggle local developer-only tools.",
+                        systemImage: "hammer"
+                    ) {
+                        client.devMode = client.devModeManager.swapMode()
+                        client.themeData.updateThemes(devMode: client.devMode ?? DevModeData(isEnabled: false))
+                    }
+                }
+            }
+            .interactScreenPadding()
         }
-        .padding(10)
-        .navigationTitle("About Interact")
+        .interactAppBackground()
+        .navigationTitle("About")
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+        #endif
     }
     
     // Computed property to get the app version
@@ -112,5 +122,24 @@ struct AboutView: View {
             return build
         }
         return "Unknown"
+    }
+
+    private var websiteURL: URL? {
+        URL(string: "https://novapro.net")
+    }
+
+    private func aboutRow(title: String, value: String) -> some View {
+        InteractConnectedCardRow {
+            HStack {
+                Text(title)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+
+                Spacer(minLength: 8)
+
+                Text(value)
+                    .font(.subheadline.weight(.semibold))
+            }
+        }
     }
 }
