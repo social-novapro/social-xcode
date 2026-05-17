@@ -235,11 +235,21 @@ class InteractAppDesign {
         colorScheme: ColorScheme
     ) -> InteractFloatingSurfaceStyle {
         InteractFloatingSurfaceStyle(
-            fill: AnyShapeStyle(.regularMaterial),
+            fill: AnyShapeStyle(floatingSurfaceFill(colorScheme: colorScheme)),
             borderColor: toneBorderColor(tone: tone, defaultBorder: .accentColor),
             lineWidth: 2,
             shadow: nil
         )
+    }
+    
+    func floatingSurfaceFill(colorScheme: ColorScheme) -> Color {
+        #if canImport(UIKit)
+        return Color(UIColor.secondarySystemBackground).opacity(0.96)
+        #elseif canImport(AppKit)
+        return Color(NSColor.controlBackgroundColor).opacity(0.96)
+        #else
+        return Color.primary.opacity(colorScheme == .dark ? 0.18 : 0.08)
+        #endif
     }
 }
 

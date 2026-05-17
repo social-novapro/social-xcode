@@ -467,10 +467,6 @@ extension View {
     func interactCustomTabBarReserveActive(_ isActive: Bool = true) -> some View {
         environment(\.customTabBarReserveIsActive, isActive)
     }
-
-    func interactCustomTabBarBottomReserve(isActive: Bool = true) -> some View {
-        interactCustomTabBarReserveActive(isActive)
-    }
 }
 
 private struct InteractOptionalPaddingModifier: ViewModifier {

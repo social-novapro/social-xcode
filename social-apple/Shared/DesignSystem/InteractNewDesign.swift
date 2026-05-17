@@ -123,15 +123,25 @@ final class InteractNewDesign: InteractAppDesign {
         colorScheme: ColorScheme
     ) -> InteractFloatingSurfaceStyle {
         InteractFloatingSurfaceStyle(
-            fill: colorScheme == .dark
-                ? AnyShapeStyle(Color.white.opacity(0.08))
-                : AnyShapeStyle(.regularMaterial),
+            fill: AnyShapeStyle(floatingSurfaceFill(colorScheme: colorScheme)),
             borderColor: toneBorderColor(tone: tone, defaultBorder: cardBorder(colorScheme: colorScheme)),
             lineWidth: 1,
             shadow: colorScheme == .dark
                 ? nil
                 : InteractShadowStyle(color: Color.black.opacity(0.10), radius: 10, x: 0, y: 4)
         )
+    }
+    
+    override func floatingSurfaceFill(colorScheme: ColorScheme) -> Color {
+        #if canImport(UIKit)
+        return colorScheme == .dark
+            ? Color(UIColor.secondarySystemBackground).opacity(0.94)
+            : Color(UIColor.secondarySystemGroupedBackground).opacity(0.96)
+        #elseif canImport(AppKit)
+        return Color(NSColor.controlBackgroundColor).opacity(0.96)
+        #else
+        return Color.primary.opacity(colorScheme == .dark ? 0.20 : 0.08)
+        #endif
     }
 
     private func backgroundBase(colorScheme: ColorScheme) -> Color {
