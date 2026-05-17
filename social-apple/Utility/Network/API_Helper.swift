@@ -58,6 +58,59 @@ class API_Helper: ObservableObject {
         
     }
     
+    private func apiError(from data: Data, response: HTTPURLResponse, errorType: String = "normal") -> ErrorData {
+        if errorType == "withAuth",
+           let authError = try? JSONDecoder().decode(ErrorDataWithAuth.self, from: data) {
+            return authError.error
+        }
+        
+        if let errorData = try? JSONDecoder().decode(ErrorData.self, from: data) {
+            return errorData
+        }
+        
+        let statusCode = response.statusCode
+        let statusDescription = HTTPURLResponse.localizedString(forStatusCode: statusCode).capitalized
+        let responseText = String(data: data, encoding: .utf8) ?? ""
+        let contentType = response.value(forHTTPHeaderField: "Content-Type") ?? ""
+        let retryAfter = response.value(forHTTPHeaderField: "Retry-After")
+        let htmlTitle = htmlTitle(from: responseText)
+        let cleanTitle = htmlTitle?.replacingOccurrences(of: #"^[^|]+\|\s*"#, with: "", options: .regularExpression)
+        let title = cleanTitle?.isEmpty == false ? cleanTitle! : statusDescription
+        
+        var message = "\(title) (\(statusCode))."
+        
+        if contentType.localizedCaseInsensitiveContains("text/html") || responseText.localizedCaseInsensitiveContains("<html") {
+            message += " The server returned an HTML error page instead of JSON."
+        } else {
+            message += " The server returned an unreadable error response."
+        }
+        
+        if let retryAfter, !retryAfter.isEmpty {
+            message += " Try again in \(retryAfter) seconds."
+        } else {
+            message += " Please try again later."
+        }
+        
+        return ErrorData(code: "HTTP_\(statusCode)", msg: message, error: true)
+    }
+    
+    private func htmlTitle(from html: String) -> String? {
+        guard let titleRange = html.range(of: #"<title[^>]*>(.*?)</title>"#, options: [.regularExpression, .caseInsensitive]) else {
+            return nil
+        }
+        
+        let title = html[titleRange]
+            .replacingOccurrences(of: #"<[^>]+>"#, with: "", options: .regularExpression)
+            .replacingOccurrences(of: "&amp;", with: "&")
+            .replacingOccurrences(of: "&lt;", with: "<")
+            .replacingOccurrences(of: "&gt;", with: ">")
+            .replacingOccurrences(of: "&quot;", with: "\"")
+            .replacingOccurrences(of: "&#39;", with: "'")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        return title.isEmpty ? nil : title
+    }
+    
     func asyncRequestData<T: Decodable> (
         urlString: String,
         errorType: String = "normal",
@@ -102,8 +155,7 @@ class API_Helper: ObservableObject {
                     print("Error response string: \(errorString)")
                 }
                 
-                // Decode the error response
-                let errorData = try JSONDecoder().decode(ErrorData.self, from: data)
+                let errorData = apiError(from: data, response: httpResponse, errorType: errorType)
                 provideError(error: errorData)
                 throw errorData
             }
@@ -189,8 +241,7 @@ class API_Helper: ObservableObject {
                     print("Error response string: \(errorString)")
                 }
 
-                // Decode the error response
-                let errorData = try JSONDecoder().decode(ErrorData.self, from: data)
+                let errorData = apiError(from: data, response: httpResponse, errorType: errorType)
                 provideError(error: errorData)
                 throw errorData
             }
@@ -264,8 +315,7 @@ class API_Helper: ObservableObject {
                     print("Error response string: \(errorString)")
                 }
 
-                // Decode the error response
-                let errorData = try JSONDecoder().decode(ErrorData.self, from: data)
+                let errorData = apiError(from: data, response: httpResponse, errorType: errorType)
                 provideError(error: errorData)
                 throw errorData
             }
@@ -327,8 +377,7 @@ class API_Helper: ObservableObject {
                     print("Error response string: \(errorString)")
                 }
 
-                // Decode the error response
-                let errorData = try JSONDecoder().decode(ErrorData.self, from: data)
+                let errorData = apiError(from: data, response: httpResponse, errorType: errorType)
                 provideError(error: errorData)
                 throw errorData
             }
@@ -439,35 +488,20 @@ class API_Helper: ObservableObject {
                 return
             }
 
-            guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
-                if let data {
-                    do {
-                        switch errorType {
-                        case "normal":
-                            let apiError = try JSONDecoder().decode(ErrorData.self, from: data)
-                            print("API error: \(apiError.msg), code: \(apiError.code)")
-                            self.provideError(error: apiError)
-                            completion(.failure(apiError))
-                            return
-                        case "withAuth":
-                            let apiError = try JSONDecoder().decode(ErrorDataWithAuth.self, from: data)
-                            print("API error: \(apiError.error.msg), code: \(apiError.error.code)")
-                            self.provideError(error: apiError.error)
-                            completion(.failure(apiError.error))
-                            return
-                        default:
-                            break
-                        }
-                    } catch {
-                        print("Error decoding API error: \(error.localizedDescription)")
-                    }
-                }
-
+            guard let httpResponse = response as? HTTPURLResponse else {
+                let apiError = ErrorData(code: "Z003", msg: "Invalid response", error: true)
+                self.provideError(error: apiError)
+                completion(.failure(apiError))
+                return
+            }
+            
+            guard (200...299).contains(httpResponse.statusCode) else {
+                let apiError = self.apiError(from: data ?? Data(), response: httpResponse, errorType: errorType)
+                print("API error: \(apiError.msg), code: \(apiError.code)")
+                self.provideError(error: apiError)
                 print("NOT 2XX result ")
-                if let response {
-                    print(response)
-                }
-                completion(.failure(NSError(domain: "com.example.error", code: 0, userInfo: nil)))
+                print(httpResponse)
+                completion(.failure(apiError))
                 return
             }
             
